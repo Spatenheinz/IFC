@@ -21,13 +21,37 @@ data AExpr = Var VName
 data ArithOp = Add | Sub | Mul | Div | Mod
   deriving (Show)
 
-data Stmt = Seq [Stmt]
-  | Def VName AExpr
+data Stmt = Seq Stmt Stmt
+  | Def  VName AExpr
   | If BExpr Stmt Stmt
+  | Asst FOL
   | While BExpr Stmt
   | Skip
-  | Violate
+  | Fail
   deriving (Show)
 
+data FOL = Cond BExpr
+  | Forall VName FOL
+  | ANegate FOL
+  | AOp BoolOp FOL FOL
+  deriving (Show)
+
+-- x = a;
+-- if cond {};
+-- !{};
+-- While cond {};
+-- skip;
+-- ship;
+-- skip;
+
+-- Seq Def.. Seq If Seq Assertion Seq While $ Seq skip $ Seq Ship Skip
+
+-- [Def, If, Assert, While, Skip]
+
+-- Seq Def $ Seq If $ Seq Assert $ Seq While Skip
+
+-- foldr Seq (last xs) init xs
+
+-- wp (Seq stmt1 stmt2) prev = wp stmt1 (wp stmt2 prev)
 
 type VName = String

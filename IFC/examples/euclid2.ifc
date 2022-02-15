@@ -1,0 +1,9 @@
+?{forall a a > 2};
+?{0 <= a /\ 0 < b}
+q := 0;
+r := a;
+while r >= b {
+r := r - b;
+q := q + 1;
+};
+?{a = b * q + r /\ 0 <= r /\ r < b => a}

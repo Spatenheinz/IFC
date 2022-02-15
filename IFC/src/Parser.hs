@@ -7,9 +7,10 @@ import qualified Text.Megaparsec.Char.Lexer     as L
 
 import           AST
 import           Control.Applicative            (liftA2)
-import           Control.Monad                  (void)
+import           Control.Monad                  (void, join)
 import           Data.Function                  (on)
 import           Data.Void
+import Debug.Trace
 type Parser = Parsec Void String
 
 
@@ -40,7 +41,7 @@ rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 keywords :: [String]
-keywords = ["if", "then", "else", "while", "do", "violate", "skip", "true", "false", "not"]
+keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", "false", "not"]
 
 identP :: Parser String
 identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
@@ -57,16 +58,49 @@ parseString s = case parse (between sc eof programP) "" s of
          Left bundle -> putStrLn (errorBundlePretty bundle)
          Right xs    -> print xs
 
+parseFile :: FilePath -> IO ()
+parseFile f = readFile f >>= parseString
+
 -- More specifically we want the toplevel to be a sequence of statements.
 -- This makes stuff slightly easier
 programP :: Parser Stmt
 programP = parens programP <|> seqP
 
 seqP :: Parser Stmt
-seqP = Seq <$> stmtP `sepBy1` sep
+seqP = do
+  xs <- stmtP `endBy1` sep
+  return $ foldr Seq (last xs) (init xs)
 
 stmtP :: Parser Stmt
-stmtP = ifP <|> whileP <|> skipP <|> defP <|> violateP
+stmtP = defP <|> ifP <|> whileP <|> skipP <|> violateP <|> asstP
+
+asstP :: Parser Stmt
+asstP = do
+  void $ symbol "?"
+  Asst <$> (cbrackets _FOLP)
+
+_FOLP :: Parser FOL
+_FOLP = try (Cond <$> bExprP) <|> forallP <|> existsP <|> implP <|> conjP <|> disjP
+  where forallP = do
+          rword "forall"
+          vname <- identP
+          Forall vname <$> _FOLP
+        existsP = do
+          rword "exists"
+          vname <- identP
+          (ANegate . Forall vname . ANegate) <$> _FOLP
+        implP = do
+          first <- _FOLP
+          void $ symbol "=>"
+          (ANegate . AOp Conj first . ANegate) <$> _FOLP
+        conjP = do
+          first <- _FOLP
+          void $ symbol "/\\"
+          AOp Conj first <$> _FOLP
+        disjP = do
+          first <- _FOLP
+          void $ symbol "\\/"
+          AOp Disj first <$> _FOLP
 
 defP :: Parser Stmt
 defP = do
@@ -78,22 +112,22 @@ ifP :: Parser Stmt
 ifP = do
   rword "if"
   c <- bExprP
-  stmt1 <- cbrackets stmtP
+  stmt1 <- cbrackets seqP
   If c stmt1 <$> option Skip else'
   where
-    else' = rword "else" *> cbrackets stmtP
+    else' = rword "else" *> cbrackets seqP
 
 whileP :: Parser Stmt
 whileP = do
   rword "while"
   c <- bExprP
-  While c <$> cbrackets stmtP
+  While c <$> cbrackets seqP
 
 skipP :: Parser Stmt
 skipP = Skip <$ rword "skip"
 
 violateP :: Parser Stmt
-violateP = Skip <$ rword "violate"
+violateP = Fail <$ rword "violate"
 
 aExprP :: Parser AExpr
 aExprP = makeExprParser aTermP operators
@@ -101,7 +135,7 @@ aExprP = makeExprParser aTermP operators
                 [ [ Prefix (Neg <$ symbol "-")
                 ]
                 , [ InfixL (ABinary Mul <$ symbol "*")
-                  , InfixL (ABinary Div <$ symbol "/")
+                  -- , InfixL (ABinary Div <$ symbol "/")
                   ]
                 , [ InfixL (ABinary Add <$ symbol "+")
                   , InfixL (ABinary Sub <$ symbol "-")
