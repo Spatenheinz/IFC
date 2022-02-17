@@ -80,27 +80,22 @@ asstP = do
   Asst <$> (cbrackets _FOLP)
 
 _FOLP :: Parser FOL
-_FOLP = try (Cond <$> bExprP) <|> forallP <|> existsP <|> implP <|> conjP <|> disjP
-  where forallP = do
-          rword "forall"
-          vname <- identP
-          Forall vname <$> _FOLP
-        existsP = do
-          rword "exists"
-          vname <- identP
-          (ANegate . Forall vname . ANegate) <$> _FOLP
-        implP = do
-          first <- _FOLP
-          void $ symbol "=>"
-          (ANegate . AOp Conj first . ANegate) <$> _FOLP
-        conjP = do
-          first <- _FOLP
-          void $ symbol "/\\"
-          AOp Conj first <$> _FOLP
-        disjP = do
-          first <- _FOLP
-          void $ symbol "\\/"
-          AOp Disj first <$> _FOLP
+_FOLP = makeExprParser (try (Cond <$> bExprP)) operators
+  where operators =
+                [ [ Prefix (ANegate <$ rword "not")
+                  ]
+                , [ InfixL (AConj <$ symbol "/\\")
+                  , InfixL ((\x y -> ANegate (AConj (ANegate x) (ANegate y))) <$ symbol "\\/")
+                  ]
+                , [ Prefix (Forall <$> between (rword "forall") (symbol ".") identP)
+                  , Prefix (do
+                            vname <- between (rword "exists") (symbol ".") identP
+                            return $ \x -> ANegate $ Forall vname (ANegate x))
+                  ]
+                , [ InfixL ((\x y -> ANegate (AConj x (ANegate y))) <$ symbol "=>")
+                  ]
+                ]
+
 
 defP :: Parser Stmt
 defP = do

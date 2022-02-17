@@ -33,7 +33,7 @@ data Stmt = Seq Stmt Stmt
 data FOL = Cond BExpr
   | Forall VName FOL
   | ANegate FOL
-  | AOp BoolOp FOL FOL
+  | AConj FOL FOL
   deriving (Show)
 
 -- x = a;
