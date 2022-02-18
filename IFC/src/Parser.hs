@@ -7,7 +7,7 @@ import qualified Text.Megaparsec.Char.Lexer     as L
 
 import           AST
 import           Control.Applicative            (liftA2)
-import           Control.Monad                  (void, join)
+import           Control.Monad                  (void)
 import           Data.Function                  (on)
 import           Data.Void
 import Debug.Trace
@@ -64,7 +64,7 @@ parseFile f = readFile f >>= parseString
 -- More specifically we want the toplevel to be a sequence of statements.
 -- This makes stuff slightly easier
 programP :: Parser Stmt
-programP = parens programP <|> seqP
+programP = option Skip seqP
 
 seqP :: Parser Stmt
 seqP = do
@@ -72,7 +72,7 @@ seqP = do
   return $ foldr Seq (last xs) (init xs)
 
 stmtP :: Parser Stmt
-stmtP = defP <|> ifP <|> whileP <|> skipP <|> violateP <|> asstP
+stmtP = asstP <|> defP <|> ifP <|> whileP <|> skipP <|> violateP
 
 asstP :: Parser Stmt
 asstP = do
@@ -130,7 +130,7 @@ aExprP = makeExprParser aTermP operators
                 [ [ Prefix (Neg <$ symbol "-")
                 ]
                 , [ InfixL (ABinary Mul <$ symbol "*")
-                  -- , InfixL (ABinary Div <$ symbol "/")
+                  , InfixL (ABinary Div <$ symbol "/")
                   ]
                 , [ InfixL (ABinary Add <$ symbol "+")
                   , InfixL (ABinary Sub <$ symbol "-")
@@ -162,7 +162,7 @@ bTermP =
   where relative = aExprP >>= \a0 -> relationP >>= \r -> r a0 <$> aExprP
 
 relationP :: Parser (AExpr -> AExpr -> BExpr)
-relationP = choice [ symbol "==" >> return (RBinary Eq)
+relationP = choice [ symbol "=" >> return (RBinary Eq)
                    , symbol "!=" >> return (notOp Eq)
                    , try $ symbol ">=" >> return (notOp Less)
                    , try $ symbol "<=" >> return (notOp Greater)
