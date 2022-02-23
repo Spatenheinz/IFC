@@ -13,22 +13,25 @@ data ROp = Less | Eq | Greater
   deriving (Show, Read, Eq)
 
 data AExpr = Var VName
+  | Ghost VName
   | IntConst Integer
   | Neg AExpr
   | ABinary ArithOp AExpr AExpr
   deriving (Show)
 
 data ArithOp = Add | Sub | Mul | Div | Mod
-  deriving (Show)
+  deriving (Eq, Show)
 
 data Stmt = Seq Stmt Stmt
   | Def  VName AExpr
   | If BExpr Stmt Stmt
   | Asst FOL
-  | While BExpr Stmt
+  | While BExpr [FOL] (Maybe Variant) Stmt
   | Skip
   | Fail
   deriving (Show)
+
+type Variant = AExpr
 
 data FOL = Cond BExpr
   | Forall VName FOL

@@ -6,4 +6,4 @@ while r >= b {
 r := r - b;
 q := q + 1;
 };
-?{a = b * q + r /\ 0 <= r /\ r < b => a}
+?{a = b * q + r /\ 0 <= r /\ r < b};

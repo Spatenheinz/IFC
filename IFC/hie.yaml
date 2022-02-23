@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "IFC:lib"
+
+    - path: "./app/Main.hs"
+      component: "IFC:exe:IFC-exe"
+
+    - path: "./app/Paths_IFC.hs"
+      component: "IFC:exe:IFC-exe"
+
+    - path: "./test"
+      component: "IFC:test:IFC-test"

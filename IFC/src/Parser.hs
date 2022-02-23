@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Parser where
 
 import           Control.Monad.Combinators.Expr
@@ -10,9 +12,28 @@ import           Control.Applicative            (liftA2)
 import           Control.Monad                  (void)
 import           Data.Function                  (on)
 import           Data.Void
-import Debug.Trace
+import Data.Foldable
+
 type Parser = Parsec Void String
 
+parseIO :: String -> IO ()
+parseIO s = case parse (between sc eof programP) "" s of
+         Left bundle -> putStrLn (errorBundlePretty bundle)
+         Right xs    -> print xs
+
+parseString :: String -> Either String Stmt
+parseString s = case parse (between sc eof programP) "" s of
+         Left bundle -> Left $ errorBundlePretty bundle
+         Right xs    -> return xs
+
+parseString2 :: FilePath -> String -> Either String Stmt
+parseString2 f s = case runParser programP f s of
+         Left bundle -> Left $ errorBundlePretty bundle
+         Right xs    -> return xs
+
+parseFromFile :: FilePath -> IO (Either String Stmt)
+parseFromFile fname = do input <- readFile fname
+                         return (parseString2 fname input)
 
 sc :: Parser ()
 sc = L.space (void spaceChar) lc bc
@@ -41,61 +62,83 @@ rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 keywords :: [String]
-keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", "false", "not"]
+keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", "false"]
 
 identP :: Parser String
 identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
   where
     ident = liftA2 (:) identH $ many (identH <|> digitChar)
-    identH = letterChar <|> char '_'
+    identH = letterChar
     notRword i
       | i `elem` keywords = fail $ "keyword " ++ show i ++ "used as an identifier"
       | otherwise = return i
 
--- A program is simply a statement
-parseString :: String -> IO ()
-parseString s = case parse (between sc eof programP) "" s of
-         Left bundle -> putStrLn (errorBundlePretty bundle)
-         Right xs    -> print xs
+idGhostP :: Parser String
+idGhostP = (char '_' >> ('_':) <$> identP) <|> identP
 
-parseFile :: FilePath -> IO ()
-parseFile f = readFile f >>= parseString
+varP :: Parser AExpr
+varP = (char '_' >> Ghost <$> (('_':) <$> identP))
+       <|> Var <$> identP
 
--- More specifically we want the toplevel to be a sequence of statements.
--- This makes stuff slightly easier
+ghostP :: Parser String
+ghostP = (lexeme . try) ident <?> "ghost"
+  where
+    ident = liftA2 (:) identH $ many (identH <|> digitChar)
+    identH = char '-'
+
 programP :: Parser Stmt
 programP = option Skip seqP
 
 seqP :: Parser Stmt
 seqP = do
   xs <- stmtP `endBy1` sep
-  return $ foldr Seq (last xs) (init xs)
+  return $ foldr1 Seq xs
 
 stmtP :: Parser Stmt
 stmtP = asstP <|> defP <|> ifP <|> whileP <|> skipP <|> violateP
 
 asstP :: Parser Stmt
 asstP = do
-  void $ symbol "?"
-  Asst <$> (cbrackets _FOLP)
+  void $ symbol "#"
+  Asst <$> cbrackets quantP
 
-_FOLP :: Parser FOL
-_FOLP = makeExprParser (try (Cond <$> bExprP)) operators
-  where operators =
-                [ [ Prefix (ANegate <$ rword "not")
-                  ]
-                , [ InfixL (AConj <$ symbol "/\\")
-                  , InfixL ((\x y -> ANegate (AConj (ANegate x) (ANegate y))) <$ symbol "\\/")
-                  ]
-                , [ Prefix (Forall <$> between (rword "forall") (symbol ".") identP)
-                  , Prefix (do
-                            vname <- between (rword "exists") (symbol ".") identP
-                            return $ \x -> ANegate $ Forall vname (ANegate x))
-                  ]
-                , [ InfixL ((\x y -> ANegate (AConj x (ANegate y))) <$ symbol "=>")
-                  ]
-                ]
+quantP :: Parser FOL
+quantP = quant <|> impP
+  where quant = (on eitherP (\x -> between x (symbol ".") (some idGhostP)) `on` rword)
+                  "forall" "exists" >>= \case
+                      Left [fa] -> basef fa
+                      Left fas -> fold_ (fmap . Forall) basef fas
+                      Right [ex] -> basee ex
+                      Right exs ->  fold_ (\x a -> ANegate . Forall x . ANegate <$> a) basee exs
+        basef x = Forall x <$> quantP
+        basee x = ANegate . Forall x . ANegate <$> quantP
+        fold_ f b xs = foldr f (b $ last xs) (init xs)
 
+impP :: Parser FOL
+impP = do
+  a0 <- cdP
+  option a0 (symbol "=>" >> ANegate . AConj a0 . ANegate <$> impP)
+
+cdP :: Parser FOL
+cdP = negPreP >>= cdOptP
+
+cdOptP :: FOL -> Parser FOL
+cdOptP a0 = option a0 (do
+            op <- cdchoiceP
+            a1 <- cdP
+            return (a0 `op` a1))
+
+cdchoiceP :: Parser (FOL -> FOL -> FOL)
+cdchoiceP = choice [ symbol "/\\" >> return AConj
+                   , symbol "\\/" >> return (ANegate ... (AConj `on` ANegate))
+                   ]
+         where (...) = (.).(.)
+
+negPreP :: Parser FOL
+negPreP = (symbol "~" >> ANegate <$> negPreP) <|> topP
+
+topP :: Parser FOL
+topP = try (Cond <$> bTermP) <|> parens quantP
 
 defP :: Parser Stmt
 defP = do
@@ -116,7 +159,9 @@ whileP :: Parser Stmt
 whileP = do
   rword "while"
   c <- bExprP
-  While c <$> cbrackets seqP
+  invs <- sepBy (symbol "?" >> cbrackets quantP) (symbol ";")
+  var <- option Nothing (symbol "!" >> Just <$> cbrackets aExprP)
+  While c invs var <$> cbrackets seqP
 
 skipP :: Parser Stmt
 skipP = Skip <$ rword "skip"
@@ -130,7 +175,9 @@ aExprP = makeExprParser aTermP operators
                 [ [ Prefix (Neg <$ symbol "-")
                 ]
                 , [ InfixL (ABinary Mul <$ symbol "*")
-                  , InfixL (ABinary Div <$ symbol "/")
+                  , InfixL (ABinary Div <$ try (do s <- symbol "/"
+                                                   void $ notFollowedBy $ symbol "\\"
+                                                   return s))
                   ]
                 , [ InfixL (ABinary Add <$ symbol "+")
                   , InfixL (ABinary Sub <$ symbol "-")
@@ -150,15 +197,15 @@ bExprP = makeExprParser bTermP operators
 aTermP :: Parser AExpr
 aTermP =
   parens aExprP
-  <|> Var <$> identP
+  <|> varP
   <|> IntConst <$> integer
 
 bTermP :: Parser BExpr
 bTermP =
   parens bExprP
-  <|> (BoolConst True <$ rword "true")
-  <|> (BoolConst False <$ rword "false")
-  <|> relative
+  <|> BoolConst True <$ rword "true"
+  <|> BoolConst False <$ rword "false"
+  <|> try relative
   where relative = aExprP >>= \a0 -> relationP >>= \r -> r a0 <$> aExprP
 
 relationP :: Parser (AExpr -> AExpr -> BExpr)

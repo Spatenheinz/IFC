@@ -1,4 +1,5 @@
-r := a;
+#{x=_n};
+#{forall _n. x = _n};
 q := 1;
 while r > 0 {
   q := q * r;
