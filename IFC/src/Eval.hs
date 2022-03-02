@@ -7,7 +7,6 @@ import Data.Functor
 import qualified Data.Map.Strict as M
 import System.IO (putStrLn)
 import AST
-import GHC.Base (undefined)
 import AST (AExpr(ABinary), ArithOp, BExpr (BoolConst), BoolOp)
 
 type STEnv = M.Map VName Integer
@@ -31,7 +30,7 @@ runEval xs ast =
 
 eval :: Stmt -> Eval ()
 eval (Seq s1 s2) = eval s1 >> eval s2
-eval (Def vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
+eval (Assign vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
 eval (If c s1 s2) = do
   c' <- evalBExpr c
   if c' then eval s1 else eval s2

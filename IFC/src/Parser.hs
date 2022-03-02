@@ -144,7 +144,7 @@ defP :: Parser Stmt
 defP = do
   vname <- identP
   void $ symbol ":="
-  Def vname <$> aExprP
+  Assign vname <$> aExprP
 
 ifP :: Parser Stmt
 ifP = do

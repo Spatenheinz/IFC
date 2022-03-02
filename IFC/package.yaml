@@ -25,6 +25,7 @@ dependencies:
 - megaparsec >= 9.2.0 && < 10
 - mtl
 - containers
+- sbv
 
 library:
   source-dirs: src

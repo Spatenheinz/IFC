@@ -1,5 +1,7 @@
 module AST where
 
+import Data.SBV
+
 data BExpr = BoolConst Bool
   | Negate BExpr
   | BBinary BoolOp BExpr BExpr
@@ -23,7 +25,7 @@ data ArithOp = Add | Sub | Mul | Div | Mod
   deriving (Eq, Show)
 
 data Stmt = Seq Stmt Stmt
-  | Def  VName AExpr
+  | Assign  VName AExpr
   | If BExpr Stmt Stmt
   | Asst FOL
   | While BExpr [FOL] (Maybe Variant) Stmt
@@ -35,26 +37,24 @@ type Variant = AExpr
 
 data FOL = Cond BExpr
   | Forall VName FOL
+  | Exists VName FOL
   | ANegate FOL
   | AConj FOL FOL
+  | ADisj FOL FOL
+  | AImp FOL FOL
   deriving (Show)
 
--- x = a;
--- if cond {};
--- !{};
--- While cond {};
--- skip;
--- ship;
--- skip;
-
--- Seq Def.. Seq If Seq Assertion Seq While $ Seq skip $ Seq Ship Skip
-
--- [Def, If, Assert, While, Skip]
-
--- Seq Def $ Seq If $ Seq Assert $ Seq While Skip
-
--- foldr Seq (last xs) init xs
-
--- wp (Seq stmt1 stmt2) prev = wp stmt1 (wp stmt2 prev)
-
 type VName = String
+
+(./\.) :: FOL -> FOL -> FOL
+(./\.) = AConj
+infixr 3 ./\.
+(.\/.) :: FOL -> FOL -> FOL
+(.\/.) = ADisj
+infixr 2 .\/.
+(.=>.) :: FOL -> FOL -> FOL
+(.=>.) = AImp
+infixr 1 .=>.
+
+-- To be able to substitute values in WLP we need an AST
+-- as building it simply by SBV we get an SBool

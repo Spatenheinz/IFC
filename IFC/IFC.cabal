@@ -29,6 +29,7 @@ library
       Eval
       Lib
       Parser
+      WLP
   other-modules:
       Paths_IFC
   hs-source-dirs:
@@ -39,6 +40,7 @@ library
     , megaparsec >=9.2.0 && <10
     , mtl
     , parser-combinators >=1.3.0
+    , sbv
   default-language: Haskell2010
 
 executable IFC-exe
@@ -55,6 +57,7 @@ executable IFC-exe
     , megaparsec >=9.2.0 && <10
     , mtl
     , parser-combinators >=1.3.0
+    , sbv
   default-language: Haskell2010
 
 test-suite IFC-test
@@ -72,4 +75,5 @@ test-suite IFC-test
     , megaparsec >=9.2.0 && <10
     , mtl
     , parser-combinators >=1.3.0
+    , sbv
   default-language: Haskell2010

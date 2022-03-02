@@ -1,5 +1,5 @@
 -- a is counter
-a := 10;
+a := 10000;
 fib1 := 0;
 res := 1;
 tmp  := 0;
