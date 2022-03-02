@@ -30,10 +30,9 @@ type Formular a = StateT Store (Either String) a
 runWLP st s = runStateT (preP s (Cond $ BoolConst True) >>=
                          \x -> formatState >> resolveQ x) $ M.fromList st
 
-proveWLP st s = let q = evalStateT (preP s (Cond $ BoolConst True) >>=
-                           \x -> formatState >> resolveQ x) $ M.fromList st
+proveWLP st s = let q = runWLP st s
                 in case q of
-                     Right q' -> return $ evalStateT (fToS q') M.empty
+                     Right (q', _) -> return $ fToS q' M.empty
                      Left e -> Left e
 
 formatState :: Formular ()
@@ -107,38 +106,37 @@ mrVar x = do
       Just ((x',a):as,c) -> return x'
       Nothing -> lift . Left $ "variable " <> x <> " not declared"
 
-fToS :: FOL -> Sym Bool
-fToS (Cond b) = bToS b
-fToS (Forall x a) = lift $ forAll [x] $ \(x'::SInteger) ->
-  modify (M.insert x x') >> fToS a
-fToS (Exists x a) = lift $ forSome [x] $ \(x'::SInteger) ->
-  modify (M.insert x x') >> fToS a
-fToS (ANegate a) = sNot <$> fToS a
-fToS (AConj a b) = on (liftM2 (.&&)) fToS a b
-fToS (ADisj a b) = on (liftM2 (.||)) fToS a b
-fToS (AImp a b) = on (liftM2 (.=>)) fToS a b
+fToS :: FOL -> SymTable -> Predicate
+fToS (Cond b) st = bToS b st
+fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
+  fToS a (M.insert x x' st)
+fToS (Exists x a) st = forSome [x] $ \(x'::SInteger) ->
+  fToS a (M.insert x x' st)
+fToS (ANegate a) st = sNot <$> fToS a st
+fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
+fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
+fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
-bToS :: BExpr -> Sym Bool
-bToS (BoolConst b) = return $ fromBool b
-bToS (Negate b) = sNot <$> bToS b
-bToS (BBinary op a b) = on (liftM2 (f op)) bToS a b
+bToS :: BExpr -> SymTable -> Predicate
+bToS (BoolConst b) st = return $ fromBool b
+bToS (Negate b) st = sNot <$> bToS b st
+bToS (BBinary op a b) st = on (liftM2 (f op)) (`bToS` st) a b
   where f Conj = (.&&)
         f Disj = (.||)
-bToS (RBinary op a b) = on (liftM2 (f op)) aToS a b
+bToS (RBinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
   where f Less = (.<)
         f Eq   = (.==)
         f Greater = (.>)
 
-aToS :: AExpr -> Sym Integer
-aToS (Var x) = do
-  s <- get
-  case M.lookup x s of
+aToS :: AExpr -> SymTable -> Symbolic SInteger
+aToS (Var x) st = do
+  case M.lookup x st of
     Just a -> return a
-    Nothing -> error "Should not be possible"
-aToS (Ghost x) = undefined
-aToS (IntConst i) = return $ literal i
-aToS (Neg a) = negate <$> aToS a
-aToS (ABinary op a b) = on (liftM2 (f op)) aToS a b
+    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
+aToS (Ghost x) st = undefined
+aToS (IntConst i) st = return $ literal i
+aToS (Neg a) st = negate <$> aToS a st
+aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
   where f Add = (+)
         f Sub = (-)
         f Mul = (*)

@@ -20,19 +20,19 @@ formular p = case runWLP [] p of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right f -> print  f
 
--- prover :: Stmt -> IO ThmResult
--- prover p = case proveWLP [] p of
---              Left e -> error "hmm ok then"
---              Right f -> prove f
+prover :: Stmt -> IO ThmResult
+prover p = case proveWLP [] p of
+             Left e -> error "hmm ok then"
+             Right f -> prove f
 
 main :: IO ()
 main = do args <- getArgs
           case args of
-            -- ["-q", file] -> do
-            --   s <- readFile file
-            --   case parseString s of
-            --     Left e -> putStrLn $ "*** Parse error: " ++ show e
-            --     Right p -> void (prover p)
+            ["-q", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn $ "*** Parse error: " ++ show e
+                Right p -> prover p >>= print
             ["-f", file] -> do
               s <- readFile file
               case parseString s of
