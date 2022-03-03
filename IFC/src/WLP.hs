@@ -17,7 +17,6 @@ import Data.List (isInfixOf)
 import Data.Function (on)
 import Control.Monad.RWS (modify)
 import Data.Bifunctor (first)
-import Debug.Trace
 
 type Sym a = StateT SymTable Symbolic (SBV a)
 type SymTable = M.Map String SInteger
@@ -81,9 +80,10 @@ popStack x =
     let x' = takeWhile (/='#') x
     modify (M.adjust (\(a:as, c) -> (as,c)) x')
     )
+
 resolveBExpr :: BExpr -> Formular FOL
 resolveBExpr b@(BoolConst _) = return $ Cond b
-resolveBExpr b@(Negate _) = return $ Cond b
+resolveBExpr (Negate b) = ANegate <$> resolveBExpr b
 resolveBExpr (BBinary Conj a b) = on (liftM2 AConj) resolveBExpr a b
 resolveBExpr (BBinary Disj a b) = on (liftM2 ADisj) resolveBExpr a b
 resolveBExpr (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr a b
