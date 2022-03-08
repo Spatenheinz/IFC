@@ -13,27 +13,22 @@ import           Control.Monad                  (void)
 import           Data.Function                  (on)
 import           Data.Void
 import Data.Foldable
+import Control.Monad.State
+import Control.Monad.Reader
+import Control.Monad.Identity
+import Debug.Trace
 
-type Parser = Parsec Void String
+type Parser = ParsecT Void String (ReaderT Bool Identity)
 
-parseIO :: String -> IO ()
-parseIO s = case parse (between sc eof programP) "" s of
-         Left bundle -> putStrLn (errorBundlePretty bundle)
-         Right xs    -> print xs
+-- parseIO :: String -> IO ()
+-- parseIO s = case runIdentity $ runStateT (runReaderT (runParserT (between sc eof programP) "" s) False) [] of
+--          (Left bundle, st) -> putStrLn (errorBundlePretty bundle)
+--          (Right xs, st)    -> print xs
 
 parseString :: String -> Either String Stmt
-parseString s = case parse (between sc eof programP) "" s of
+parseString s = case runIdentity $ runReaderT (runParserT (between sc eof programP) "" s) False of
          Left bundle -> Left $ errorBundlePretty bundle
          Right xs    -> return xs
-
-parseString2 :: FilePath -> String -> Either String Stmt
-parseString2 f s = case runParser programP f s of
-         Left bundle -> Left $ errorBundlePretty bundle
-         Right xs    -> return xs
-
-parseFromFile :: FilePath -> IO (Either String Stmt)
-parseFromFile fname = do input <- readFile fname
-                         return (parseString2 fname input)
 
 sc :: Parser ()
 sc = L.space (void spaceChar) lc bc
@@ -73,18 +68,20 @@ identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
       | i `elem` keywords = fail $ "keyword " ++ show i ++ "used as an identifier"
       | otherwise = return i
 
-idGhostP :: Parser String
-idGhostP = (char '_' >> ('_':) <$> identP) <|> identP
+ghostAssP :: Parser Stmt
+ghostAssP = do
+  vname <- ghostidP
+  void $ symbol ":="
+  GhostAss vname <$> aExprP
+
+ghostidP :: Parser String
+ghostidP = string "👻" >> ("👻"<>) <$> identP
 
 varP :: Parser AExpr
-varP = (char '_' >> Ghost <$> (('_':) <$> identP))
-       <|> Var <$> identP
-
-ghostP :: Parser String
-ghostP = (lexeme . try) ident <?> "ghost"
-  where
-    ident = liftA2 (:) identH $ many (identH <|> digitChar)
-    identH = char '-'
+varP = do
+  ask >>= \case
+    True -> Ghost <$> ghostidP <|> Var <$> identP
+    False -> Var <$> identP
 
 programP :: Parser Stmt
 programP = option Skip seqP
@@ -95,16 +92,16 @@ seqP = do
   return $ foldr1 Seq xs
 
 stmtP :: Parser Stmt
-stmtP = asstP <|> defP <|> ifP <|> whileP <|> skipP <|> violateP
+stmtP = asstP <|> assignP <|> ifP <|> whileP <|> skipP <|> violateP <|> ghostAssP
 
 asstP :: Parser Stmt
 asstP = do
   void $ symbol "#"
-  Asst <$> cbrackets quantP
+  Asst <$> cbrackets (local (const True) quantP)
 
 quantP :: Parser FOL
 quantP = quant <|> impP
-  where quant = (on eitherP (\x -> between x (symbol ".") (some idGhostP)) `on` rword)
+  where quant = (on eitherP (\x -> between x (symbol ".") (some identP)) `on` rword)
                   "forall" "exists" >>= \case
                       Left [fa] -> basef fa
                       Left fas -> fold_ (fmap . Forall) basef fas
@@ -140,8 +137,8 @@ negPreP = (symbol "~" >> ANegate <$> negPreP) <|> topP
 topP :: Parser FOL
 topP = try (Cond <$> bTermP) <|> parens quantP
 
-defP :: Parser Stmt
-defP = do
+assignP :: Parser Stmt
+assignP = do
   vname <- identP
   void $ symbol ":="
   Assign vname <$> aExprP
@@ -196,9 +193,9 @@ bExprP = makeExprParser bTermP operators
 
 aTermP :: Parser AExpr
 aTermP =
-  parens aExprP
-  <|> varP
-  <|> IntConst <$> integer
+    parens aExprP
+    <|> varP
+    <|> IntConst <$> integer
 
 bTermP :: Parser BExpr
 bTermP =

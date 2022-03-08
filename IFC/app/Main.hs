@@ -23,7 +23,7 @@ formular p = case runWLP [] p of
 
 prover :: Stmt -> IO ThmResult
 prover p = case proveWLP [] p of
-             Left e -> error "hmm ok then"
+             Left e -> error e
              Right f -> prove f
 
 main :: IO ()
@@ -53,4 +53,4 @@ main = do args <- getArgs
               die "Usage:\n\
                     \  IFC -f PROGRAM.ast    (interpret only)\n\
                     \  IFC -p PROGRAM.boa    (parse only)\n\
-                    \  boa PROGRAM.boa       (parse & interpret)"
+                    \  IFC PROGRAM.boa       (parse & interpret)"

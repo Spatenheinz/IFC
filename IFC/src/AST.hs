@@ -25,7 +25,8 @@ data ArithOp = Add | Sub | Mul | Div | Mod
   deriving (Eq, Show)
 
 data Stmt = Seq Stmt Stmt
-  | Assign  VName AExpr
+  | GhostAss VName AExpr
+  | Assign VName AExpr
   | If BExpr Stmt Stmt
   | Asst FOL
   | While BExpr [FOL] (Maybe Variant) Stmt
