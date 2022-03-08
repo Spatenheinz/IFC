@@ -29,6 +29,7 @@ library
       Eval
       Lib
       Parser
+      Pretty
       WLP
   other-modules:
       Paths_IFC

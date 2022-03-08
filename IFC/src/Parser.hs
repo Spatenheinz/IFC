@@ -210,7 +210,7 @@ bTermP =
 
 relationP :: Parser (AExpr -> AExpr -> BExpr)
 relationP = choice [ symbol "=" >> return (RBinary Eq)
-                   , symbol "!=" >> return (notOp Eq)
+                   , symbol "/=" >> return (notOp Eq)
                    , try $ symbol ">=" >> return (notOp Less)
                    , try $ symbol "<=" >> return (notOp Greater)
                    , symbol "<"  >> return (RBinary Less)

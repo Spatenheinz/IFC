@@ -9,6 +9,7 @@ import System.Environment (getArgs)
 import Data.SBV (prove)
 import Data.SBV.Trans (ThmResult)
 import Control.Monad (void)
+import Pretty
 
 run :: Stmt -> IO ()
 run p = case runEval [] p of
@@ -18,7 +19,7 @@ run p = case runEval [] p of
 formular :: Stmt -> IO ()
 formular p = case runWLP [] p of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
-          Right f -> print  f
+          Right (f,s) -> putStrLn (prettyF f 4) >> print s
 
 prover :: Stmt -> IO ThmResult
 prover p = case proveWLP [] p of
