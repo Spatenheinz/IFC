@@ -3,41 +3,19 @@
 \usepackage{amssymb,amsmath}
 \usepackage{svg}
 \usepackage{subfig}
-\usepackage[pdftex]{graphicx}
+% \usepackage[pdftex]{graphicx}
 % \graphicspath{{graphics/}}
-\usepackage[babel, en]{ku-frontpage}
+\usepackage[english, science, titlepage]{ku-frontpage}
 \usepackage{float}
 \usepackage{caption}
 \usepackage[toc,page]{appendix}
 \usepackage{fancyvrb}
 \usepackage{url}
 \usepackage{tabularx}
-% use to make grammar
-% ----------------------
-% \usepack\def\HyperLinks{                        % Hyperlinks-pakke, der laver referencer til links og tillader links til www             %
-% \usepackage[pdftitle={\TITEL},pdfauthor={\FORFATTER}, %             %  Der er foretaget et lille trick så pakken indlæses efter  %
-% pdfsubject={\UNDERTITEL}, linkbordercolor={0.8 0.8 0.8}]{hyperref}} %  titlen defineres.                                         %
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,
-    urlcolor=cyan,
-}
-\usepackage{listings}
-\lstset{
-  basicstyle=\ttfamily,
-  mathescape
-}
-% \setmainfont{cmr}
-\usepackage[a4paper, hmargin={1.5in, 1.5in}, vmargin={1.5in, 1.5in}]{geometry}      % Geometri-pakke: Styrer bl.a. maginer       %
-\usepackage{minted}
-\usepackage{mdframed}
-\usepackage{sourcecodepro}
 \usepackage{booktabs}
-% \BeforeBeginEnvironment{verbatim}{\begin{mdframed}}
-%   \AfterEndEnvironment{verbatim}{\end{mdframed}}
 \setlength\parindent{0pt}
 \usepackage{titlesec}
+\usepackage{emoji}
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
@@ -75,5 +53,5 @@
         \bfseries{\summaryname} \end{center}}
 
 \usepackage{syntax}
-\setlength{\grammarparsep}{20pt plus 1pt minus 1pt} % increase separation between rules
-\setlength{\grammarindent}{12em} % increase separation between LHS/RHS
+\setlength{\grammarparsep}{8pt plus 1pt minus 1pt} % increase separation between rules
+\setlength{\grammarindent}{7em} % increase separation between LHS/RHS

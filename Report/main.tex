@@ -1,48 +1,21 @@
-% Created 2022-03-14 Mon 11:07
-% Intended LaTeX compiler: pdflatex
 \documentclass[a4paper, openany]{article}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{graphicx}
-\usepackage{longtable}
-\usepackage{wrapfig}
-\usepackage{rotating}
-\usepackage[normalem]{ulem}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{capt-of}
-\usepackage{hyperref}
+
 \input{baseHeader.tex}
-\titel{\textbf{IFC}} \undertitel{An imperative language with static verification} \opgave{Project outside course scope} \forfatter{Jacob Herbst(mwr148), Matilde Broløs (jtw868)} \dato{1. April 2022} \vejleder{Advisor: Ken Friis Larsen}
-\date{}
-\title{ Introduction Language Notes}
+
+\title{\textbf{IFC}} \subtitle{An imperative language with static verification} \assignment{Project outside course scope} \author{Jacob Herbst(mwr148), Matilde Broløs (jtw868)} \date{1. April 2022} \advisor{Advisor: Ken Friis Larsen}
 \begin{document}
 
 \maketitle
-\maketitle
-
-\chapter*{\begin{center}\begin{normalsize}Abstract\end{normalsize}\end{center}}
+\chapter{\begin{center}\begin{normalsize}Abstract\end{normalsize}\end{center}}
 \begin{changemargin}{1.5cm}{1.5cm}
 \end{changemargin}
 
 \newpage
 
-\tableofcontents
+\include{Introduction}
 
-IFC is a small imperative programming language with a build in assertion language enabeling the possibility for statically verifying programs by the use of external provers. In this section we will present the syntax and semantics of the imperative language and the assertion language.
+\include{Background}
 
-\begin{grammar}
+\include{Implementation}
 
-<statement> ::= <ident> `=' <expr>
-\alt `for' <ident> `=' <expr> `to' <expr> `do' <statement>
-\alt `{' <stat-list> `}'
-\alt <empty>
-
-<stat-list> ::= <statement> `;' <stat-list> | <statement>
-
-\end{grammar}
-
-Abstract: Udpensl delen om forventningen til projektet. Hvad er den korte version om alt hvad vi har lavet (forklar det til en hypotetisk Fritz) Background - husk weakest precondition vs wlp vs strongest postcondition Designvalg - fx method 1 vs method 2 Spekulationer om udvidelse til PER - er det nemt at udvidde det vi har skrevet Concurrency? Et nondeterministisk valg mellem s1 og s2? At tænke over hvor nemt det er at udvidde er en måde at lave en evaluering ar vores arbejde
-
-Skal vi skrive noget contribution? Så skal vi have nogle overvejelser at basere det på
 \end{document}
