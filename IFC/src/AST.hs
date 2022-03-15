@@ -1,7 +1,5 @@
 module AST where
 
-import Data.SBV
-
 data BExpr = BoolConst Bool
   | Negate BExpr
   | BBinary BoolOp BExpr BExpr

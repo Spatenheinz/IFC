@@ -156,7 +156,7 @@ whileP :: Parser Stmt
 whileP = do
   rword "while"
   c <- bExprP
-  invs <- sepBy (symbol "?" >> cbrackets quantP) (symbol ";")
+  invs <- sepBy (symbol "?" >> local (const True) (cbrackets quantP)) (symbol ";")
   var <- option Nothing (symbol "!" >> Just <$> cbrackets aExprP)
   While c invs var <$> cbrackets seqP
 

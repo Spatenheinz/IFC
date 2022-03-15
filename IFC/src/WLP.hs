@@ -132,7 +132,7 @@ wlp (While b inv var s) q = do
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ1 inner
-  let fas' = foldr Forall inner' (map snd fas)
+  let fas' = foldr Exists inner' (map snd fas)
   return $ invs ./\. fas'
   where
     resolveVar :: Variant -> PreProcess (FOL -> FOL, FOL)

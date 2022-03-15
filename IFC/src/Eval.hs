@@ -30,6 +30,7 @@ runEval xs ast =
 
 eval :: Stmt -> Eval ()
 eval (Seq s1 s2) = eval s1 >> eval s2
+eval (GhostAss vname a) = return ()
 eval (Assign vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
 eval (If c s1 s2) = do
   c' <- evalBExpr c
@@ -50,7 +51,7 @@ evalAExpr (Var vname) = do
   case M.lookup vname st of
     Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
     Just a -> return a
-evalAExpr (Neg a) = evalAExpr a >>= return . negate
+evalAExpr (Neg a) = evalAExpr a <&> negate
 evalAExpr (ABinary op a1 a2) =
   liftM2 (evalAOp op) (evalAExpr a1) (evalAExpr a2) >>= \case
     Left e -> lift $ Left e
@@ -69,7 +70,7 @@ binops = [(Add, (+)), (Sub, (-)), (Mul, (*)), (Div, div), (Mod, mod)]
 
 evalBExpr :: BExpr -> Eval Bool
 evalBExpr (BoolConst b) = return b
-evalBExpr (Negate b) = evalBExpr b >>= return . not
+evalBExpr (Negate b) = evalBExpr b <&> not
 evalBExpr (BBinary op b1 b2) =
   liftM2 (evalBOp op) (evalBExpr b1) (evalBExpr b2)
 evalBExpr (RBinary op a1 a2) =

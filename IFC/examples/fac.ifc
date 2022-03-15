@@ -1,7 +1,6 @@
-#{x=_n};
-#{forall _n. x = _n};
 q := 1;
-while r > 0 {
+r := 6;
+while r > 0 ?{true} !{r} {
   q := q * r;
   r := r - 1;
 };

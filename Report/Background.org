@@ -1,7 +1,11 @@
 #+TITLE: Background
 skriv noget om sproget her!
 
-* Hoare L0gic
+Vi vil gerne give en kort præsentation. og hvorfor det er interessant.
+eksempel?
+
+
+* Hoare Logic
 
 * Verification Condition Generation
 
