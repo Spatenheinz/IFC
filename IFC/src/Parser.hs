@@ -106,9 +106,9 @@ quantP = quant <|> impP
                       Left [fa] -> basef fa
                       Left fas -> fold_ (fmap . Forall) basef fas
                       Right [ex] -> basee ex
-                      Right exs ->  fold_ (\x a -> ANegate . Forall x . ANegate <$> a) basee exs
+                      Right exs ->  fold_ (\x a -> Exists x <$> a) basee exs
         basef x = Forall x <$> quantP
-        basee x = ANegate . Forall x . ANegate <$> quantP
+        basee x = Exists x <$> quantP
         fold_ f b xs = foldr f (b $ last xs) (init xs)
 
 impP :: Parser FOL
@@ -173,8 +173,9 @@ aExprP = makeExprParser aTermP operators
                 ]
                 , [ InfixL (ABinary Mul <$ symbol "*")
                   , InfixL (ABinary Div <$ try (do s <- symbol "/"
-                                                   void $ notFollowedBy $ symbol "\\"
+                                                   void $ notFollowedBy $ symbol "\\" <|> symbol "="
                                                    return s))
+                  , InfixL (ABinary Mod <$ symbol "%")
                   ]
                 , [ InfixL (ABinary Add <$ symbol "+")
                   , InfixL (ABinary Sub <$ symbol "-")

@@ -7,11 +7,11 @@ prettyF (Forall x a) i = "forall " <> x <> ".\n" <> replicate i ' ' <> prettyF a
 prettyF (Exists x a) i = "exists " <> x <> ".\n" <> replicate i ' ' <> prettyF a (i + 4)
 prettyF (ANegate (Cond (RBinary Less a b))) i = "(" <> prettyA a <> " >= " <> prettyA b <> ")"
 prettyF (ANegate (Cond (RBinary Greater a b))) i = "(" <> prettyA a <> " <= " <> prettyA b <> ")"
-prettyF (ANegate (Cond (RBinary Eq a b))) i = "(" <> prettyA a <> " / " <> prettyA b <> ")"
+prettyF (ANegate (Cond (RBinary Eq a b))) i = "(" <> prettyA a <> " /= " <> prettyA b <> ")"
 prettyF (ANegate a) i = "~" <> "(" <> prettyF a i <> ")"
 prettyF (AConj a b) i = "(" <> prettyF a i <> " /\\ " <> prettyF b i <> ")"
 prettyF (ADisj a b) i = "(" <> prettyF a i <> " \\/ " <> prettyF b i <> ")"
-prettyF (AImp a b) i = prettyF a i <> " => " <> prettyF b i
+prettyF (AImp a b) i = "(" <> prettyF a i <> " => " <> prettyF b i <> ")"
 
 prettyB :: BExpr -> String
 prettyB (BoolConst b) = show b

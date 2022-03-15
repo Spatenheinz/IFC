@@ -1,0 +1,79 @@
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage{svg}
+\usepackage{subfig}
+\usepackage[pdftex]{graphicx}
+% \graphicspath{{graphics/}}
+\usepackage[babel, en]{ku-frontpage}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[toc,page]{appendix}
+\usepackage{fancyvrb}
+\usepackage{url}
+\usepackage{tabularx}
+% use to make grammar
+% ----------------------
+% \usepack\def\HyperLinks{                        % Hyperlinks-pakke, der laver referencer til links og tillader links til www             %
+% \usepackage[pdftitle={\TITEL},pdfauthor={\FORFATTER}, %             %  Der er foretaget et lille trick så pakken indlæses efter  %
+% pdfsubject={\UNDERTITEL}, linkbordercolor={0.8 0.8 0.8}]{hyperref}} %  titlen defineres.                                         %
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+}
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily,
+  mathescape
+}
+% \setmainfont{cmr}
+\usepackage[a4paper, hmargin={1.5in, 1.5in}, vmargin={1.5in, 1.5in}]{geometry}      % Geometri-pakke: Styrer bl.a. maginer       %
+\usepackage{minted}
+\usepackage{mdframed}
+\usepackage{sourcecodepro}
+\usepackage{booktabs}
+% \BeforeBeginEnvironment{verbatim}{\begin{mdframed}}
+%   \AfterEndEnvironment{verbatim}{\end{mdframed}}
+\setlength\parindent{0pt}
+\usepackage{titlesec}
+
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+
+% this alters "before" spacing (the second length argument) to 0
+\titlespacing*{\chapter}{0pt}{-60pt}{10pt}
+\raggedbottom
+
+\makeatletter
+\providecommand\phantomsection{}% for hyperref
+
+\newcommand\listofillustrations{%
+    \chapter*{List of Illustrations}%
+    \phantomsection
+    \addcontentsline{toc}{chapter}{List of Illustrations}%
+    \section*{Figures}%
+    \phantomsection
+    \addcontentsline{toc}{section}{\protect\numberline{}Figures}%
+    \@starttoc{lof}%
+    \bigskip
+    \section*{Tables}%
+    \phantomsection
+    \addcontentsline{toc}{section}{\protect\numberline{}Tables}%
+    \@starttoc{lot}}
+
+\makeatother
+%   Reduce the margin of the summary:
+\def\changemargin#1#2{\list{}{\rightmargin#2\leftmargin#1}\item[]}
+\let\endchangemargin=\endlist
+
+%   Generate the environment for the abstract:
+\newcommand\summaryname{Abstract}
+\newenvironment{Abstract}%
+    {\small\begin{center}%
+        \bfseries{\summaryname} \end{center}}
+
+\usepackage{syntax}
+\setlength{\grammarparsep}{20pt plus 1pt minus 1pt} % increase separation between rules
+\setlength{\grammarindent}{12em} % increase separation between LHS/RHS

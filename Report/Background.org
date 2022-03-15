@@ -1,0 +1,8 @@
+#+TITLE: Background
+skriv noget om sproget her!
+
+* Hoare L0gic
+
+* Verification Condition Generation
+
+* SAT-solvers?
