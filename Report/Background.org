@@ -1,12 +1,32 @@
 #+TITLE: Background
+* Language
 skriv noget om sproget her!
 
-Vi vil gerne give en kort præsentation. og hvorfor det er interessant.
-eksempel?
+IFC is a small imperative programming language with a build in assertion language enabeling the possibility for statically verifying programs by the use of external provers. In this section we will present the syntax and semantics of the imperative language and the assertion language.
 
+\begin{grammar}
+
+<statement> ::= <ident> `=' <expr>
+\alt `for' <ident> `=' <expr> `to' <expr> `do' <statement>
+\alt `{' <stat-list> `}'
+\alt <empty>
+
+<stat-list> ::= <statement> `;' <stat-list> | <statement>
+
+\end{grammar}
+
+Vi vil gerne give en kort præsentation. og hvorfor det er interessant.
+eksempel? mult?
+skriv noget om det.
 
 * Hoare Logic
+- Beskriv hvad hoare logik er, og hvorfor det er brugbart?
 
 * Verification Condition Generation
+- snak om Weakest precondition, i en figur?
+- Beskrive de vigtige af dem?
+- gennemgå det i eksemplet
+- Sound og Complete?
 
 * SAT-solvers?
+- IDK noget klogt.

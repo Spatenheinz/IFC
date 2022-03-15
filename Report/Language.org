@@ -1,14 +1,2 @@
 #+TITLE: Language
 
-IFC is a small imperative programming language with a build in assertion language enabeling the possibility for statically verifying programs by the use of external provers. In this section we will present the syntax and semantics of the imperative language and the assertion language.
-
-\begin{grammar}
-
-<statement> ::= <ident> `=' <expr>
-\alt `for' <ident> `=' <expr> `to' <expr> `do' <statement>
-\alt `{' <stat-list> `}'
-\alt <empty>
-
-<stat-list> ::= <statement> `;' <stat-list> | <statement>
-
-\end{grammar}
