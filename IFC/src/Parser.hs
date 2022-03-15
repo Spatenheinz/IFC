@@ -20,11 +20,6 @@ import Debug.Trace
 
 type Parser = ParsecT Void String (ReaderT Bool Identity)
 
--- parseIO :: String -> IO ()
--- parseIO s = case runIdentity $ runStateT (runReaderT (runParserT (between sc eof programP) "" s) False) [] of
---          (Left bundle, st) -> putStrLn (errorBundlePretty bundle)
---          (Right xs, st)    -> print xs
-
 parseString :: String -> Either String Stmt
 parseString s = case runIdentity $ runReaderT (runParserT (between sc eof programP) "" s) False of
          Left bundle -> Left $ errorBundlePretty bundle

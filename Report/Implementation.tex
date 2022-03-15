@@ -1,4 +1,51 @@
 \section{Implementation}
+IFC is yet to be more than just a toy-language, however in the design of the language and the actual compiler, we have tried to focus making the code modular and easy to extend.
+Currently the program consists of 4 parts.
+\begin{enumerate}
+  \item Parser
+  \item Evaluator
+  \item Verification Condition Generator
+  \item External SMT-solver API
+\end{enumerate}
+Each part will carry out a task for the program. There is no explicit dependency between any of these parts. Though the main interface is setup to the following tasks:
+\begin{enumerate}
+  \item Extract the Abstract Syntax Tree generated in the Parser
+  \item Run a program with an initial store (TODO!!!! REALLY NEED THIS)
+  \item Extract the formula by Verification Condition Generator
+  \item Run the formular through an external prover (Z3).
+\end{enumerate}
+Section ?? explains each of these are used. In the following section we describe how each the 4 program parts are implemented.
+
+\subsection{Parser}
+For the parsing stage of the compiler we use the parser combinator library MegaParsec. Most of the parsing is fairly standard, however the following is noticable.
+
+In the previous sections we described the syntax and the semantics of IFC, in that section we describe only a few of the semantics and state some operators which is simply syntactic sugar for the ones presented in the semantics. However, for certain parts of the actual AST, we use the unsugared constructs, an example of this is the \texttt{exists} in the assertion language. This is purely, because it reads better in the output of the vc generator. This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, ??? THIS IS GARBAGE.
+
+Another point that is worth mentioning is how we handle illegal uses of ghost variables.
+An illegal use of a ghost variable is a semantical, that is a ghost variable can be declared and occur in the assertion language, but never appear elsewhere in the program logic.
+However, we have gone with an approach which will simply fail to parse if a ghost variable appears anywhere not allowed.
+We do so by adding a reader monadtransformer.
+
+\begin{verbatim}
+type Parser = ParsecT Void String (ReaderT Bool Identity)
+\end{verbatim}
+
+The boolean value in this environment will tell if the next parser must allow for parsing ghost variables. Which will certainly only happen in assertions.
+We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator.
+
+\subsection{Evaluator}
+The evaluator follows directly from the semantics presented in section ??. That is the intial store provided to the evalutor will be modified over the course of the program according to the semantics. As of now the type of the evaluator is quite bloated compared to what is actually used. We define the \verb\Eval\ type as follows such:
+
+\begin{verbatim}
+type STEnv = M.Map VName Integer
+type Eval a = RWST () String STEnv (Either String) a
+\end{verbatim}
+
+
+\inference[Assign]{ \\ \cmd{\lttdots} \\ \lra{x,\sigma} }{〈conclusion〉}
+
+\subsection{Verification Condition Generator}
+\subsection{proof-assistant API}
 
 - Why have we taken the approach we have. Multistage generation?
 - Following is interesting:

@@ -11,7 +11,6 @@ import AST (AExpr(ABinary), ArithOp, BExpr (BoolConst), BoolOp)
 
 type STEnv = M.Map VName Integer
 type Err a = Either String a
-data RunError = EBadVar VName | EBadArg String
 type Eval a =
   RWST ()               -- We dont use Reader at the moment
        String           -- Do we want to be able to print?
@@ -30,7 +29,11 @@ runEval xs ast =
 
 eval :: Stmt -> Eval ()
 eval (Seq s1 s2) = eval s1 >> eval s2
-eval (GhostAss vname a) = return ()
+eval (GhostAss vname a) = do
+  st <- get
+  case M.lookup vname st of
+    Just a -> lift . Left $ "Ghost " <> vname <> " defined multiple times"
+    Nothing -> evalAExpr a >>= \a' -> modify (updateEnv vname a')
 eval (Assign vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
 eval (If c s1 s2) = do
   c' <- evalBExpr c
@@ -39,7 +42,7 @@ eval (Asst _) = return ()
 eval (While c invs var s) =
   evalBExpr c >>= \c' -> when c' $ eval s >> eval (While c invs var s)
 eval Skip = return ()
-eval Fail = lift $ Left "you failed horribly"
+eval Fail = lift $ Left "violation have happened"
 
 updateEnv :: VName -> Integer -> STEnv -> STEnv
 updateEnv = M.insert
@@ -58,8 +61,8 @@ evalAExpr (ABinary op a1 a2) =
     Right r -> return r
 
 evalAOp :: ArithOp -> Integer -> Integer -> Err Integer
-evalAOp Div _ 0  = Left "Division by 0. Go home"
-evalAOp Mod _ 0 = Left "Modulo by 0. Go home"
+evalAOp Div _ 0  = Left "Division by 0"
+evalAOp Mod _ 0 = Left "Modulo by 0"
 evalAOp op a b =
   case lookup op binops of
     Nothing -> error "operator not supported"
