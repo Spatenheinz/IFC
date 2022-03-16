@@ -8,22 +8,26 @@
 % - Beskrive de vigtige af dem?
 % assign, seq, while
 % wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
+In the previous section we presented Hoare Triples and how they can be used to ``assign meaning to programas''. However, it might not always be possible that the Precondition is known. In such a case, we can use Weakest Precondition Calculus (denoted $WP$), which essentially states:
+$$
+ \{WP(S,Q)\}S\{Q\}
+$$
+That is, we can use a well-defined calculus to find the weakest (least restrictive) precondition that will make $Q$ hold after $S$. By this calculus, which we present in this section, validation of Hoare Triples can be reduced to a logical sentence, since Weakest Precondition calculus is functional compared instead of realational as the Hoare logic.
 
 Below the structure for computing the weakest liberal precondition for the different constructs is shown.
 \begin{align*}
 	WLP(\texttt{skip}, Q) &= Q \\
-	WLP(x:=e,Q) &= Q[x \leftarrow e] \\
+	WLP(x:=e,Q) &= \forall y, y = e \Rightarrow Q[x \leftarrow y] \\
 	WLP(s_1;s_2, Q) &= WLP(s_1, WLP(s_2, Q)) \\
-	WLP(\texttt{if } e \texttt{ then } s_1 \texttt{ else } s_2, Q) &= (e \neq 0 \Rightarrow WLP(s_1, Q)) \land (e = 0 \Rightarrow WLP(s_2, Q)) \\
+	WLP(\texttt{if } e \texttt{ then } s_1 \texttt{ else } s_2, Q) &= (e \Rightarrow WLP(s_1, Q)) \land (\neg e \Rightarrow WLP(s_2, Q)) \\
 	WLP(\texttt{while } e \texttt{ invariant } I \texttt{ do } s, Q) &= 
 		I \land \\
     &\quad \forall x_1, ..., x_k, \\
-    &\quad (((e \neq 0 \land I) \Rightarrow WLP(s, I)) \land ((e = 0 \land I) \Rightarrow Q))
+    &\quad (((e \land I) \Rightarrow WLP(s, I)) \land (( \neg e \land I) \Rightarrow Q))
        [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
   &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.}
 \end{align*}
-
 
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
@@ -31,10 +35,10 @@ Below the structure for computing the weakest liberal precondition for the diffe
 Modified syntax for \textit{while}-loop, in order to prove termination using weakest precondition.
 $$
 	\frac{
-		\{I \land e \neq 0 \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
+		\{I \land e \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
 	}{
 		\{I\} \texttt{ while } e \texttt{ invariant } I 
-          \texttt{ variant } v, \prec \texttt{ do } s \{I \land e = 0\}
+          \texttt{ variant } v, \prec \texttt{ do } s \{I \land \neg e\}
 	}
 $$
 
@@ -54,8 +58,8 @@ Now the structure for computing the weakest preconditions for the constructs for
     &= 
 		I \land \\
     &\quad \forall x_1, ..., x_k, \xi, \\
-    &\quad \quad (((e \neq 0 \land I \land \xi = v) \Rightarrow WP(s, I \land v \prec \xi)) \\
-    &\quad \quad \quad \land ((e = 0 \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
+    &\quad \quad (((e \land I \land \xi = v) \Rightarrow WP(s, I \land v \prec \xi)) \\
+    &\quad \quad \quad \land ((\neg e \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
   &\quad \text{statement } s \text{ and } x_1, ..., x_k, \xi \text{ are fresh logical variables.}
 \end{align*}
