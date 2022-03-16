@@ -1,0 +1,89 @@
+% Beskriv hvad hoare logik er, og hvorfor det er brugbart?
+Now we look at Hoare logic, and how we can use it to verify our program.
+To assert that a program works as intended, we want to be able to prove it formally. To avoid the proofs being too detailed and comprehensive, one wants to look at the essential properties of the constructs of the program. We look at partial correctness of a program, meaning that we do not ensure that a program terminates, only that \textit{if} it terminates, certain properties will hold.
+
+% assertions
+%  partial correctness is not termination
+%  invariants and variants help prove the termination of a program
+For expressing this we use \textit{assertions}, which are a way of claiming something about a program state at a specific point in the program.
+Assertions consist of a \textit{precondition} P and a \textit{postcondition} Q, and is written as a triple
+$$ \{ P \} S \{ Q \} $$
+
+This triple states that \textit{if} the precondition P holds in the initial state, and \textit{if} S terminates when executed from that state, \textit{then} Q will hold in the state in which S halts.
+Thus the assertion does not say anything about whether S terminates, only that if it terminates we know Q to hold afterwards. These triples are called Hoare triples.
+
+% logical variables vs program variables
+When using assertions we differ between \textit{program variables} and \textit{logical variables}.
+Sometimes we might need to keep the original value of a variable that is changed through the program. Here we can use a \textit{logical variable}, or \textit{ghost variable}, to maintain the value. The ghost variables can only be used in assertions, not in the actual program, and thus cannot be changed. All ghost variables must be fresh variables. 
+For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
+
+As an example of this we will show how our example project \texttt{mult.ifc} looks when adding some assertions.
+\begin{lstlisting}
+q := 10;
+r := 55;
+#{q >= 0 /\ r >= 0};
+res := 0;
+ghosta := q;
+while (q > 0) {
+      res := res + r;
+      q := q - 1;
+};
+#{res = ghosta * r };
+\end{lstlisting}
+
+In line 3 we have an assertion saying that both $q$ and $r$ must be non-negative, as we do not wish to multiply by zero.
+In line 10 we have a assertion claiming that the final result will be the original value of $q$ multiplied by $r$. Here we use a ghost variable, or a logical variable, for keeping the original value og $q$.
+
+% hoare triples
+%  {P}S{Q} - where P is precondition and Q is postcondition
+%  if P holds in the initial stase, and if S terminates starting from that state, then Q will hold in the state in which S halts
+
+% axiomatic system for partial correctness
+The Hoare logic specifies am inference system for the partial correctness assertions, that show the axiomatic semantics for the different constructs of the language. The axiomatic system is shown in \autoref{table:axiomatic}.
+
+This axiomatic system shows how assertions are evaluated in the Hoare logic. For example, for an assignment we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if P holds in this state, then after assigning $x$ to $a$, P must still hold.
+For the \textit{skip} command we see that the assertion must hold both before and after, as \textit{skip} does nothing.
+The axiomatic semantics for an assertion around a sequence of statements $\{P\} S_1;S_2\{R\}$ state that if P hold in the initial state, and executing $S_1$ in this state produces a new state in which $Q$ holds, and if executing $S_2$ in this new state produces a state in which R holds, then $\{P\} S_1;S_2 \{R\}$ holds.
+Another interesting construct is the \textit{while}-loop, especially for our small \textit{while}-language.
+Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluates to $true$ and P holds in the initial environment, and executing S in this environment produces a new state in which P holds, then we know that after the \textit{while}-loop has terminated we must have a state where P holds and where $b$ evaluates to $false$.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c c|} 
+ \hline
+	& \\
+ $[ass_p ]$ & $\{ P[x \mapsto \mathcal{A} \llbracket a \rrbracket ] \} \; x := a \; \{ P \}$ \\ 
+	& \\
+ $[skip_p ]$ & $\{ P \} skip \{ P \}$ \\ 
+	& \\
+ $[seq_p ]$ & 
+		$\frac{\{ P \} S_1 \{Q \} \quad \{ Q\} S_2 \{ R \}}{\{ P \} S_1;S_2 \{ R \}}$ \\ 
+	& \\
+ $[if_p ]$ & 
+		$\frac{ \{\mathcal{B} \llbracket b \rrbracket \land P \} S_1 \{ Q \} \quad 
+           \{ \neg \mathcal{B} \llbracket b \rrbracket \land P\} S_2 \{ Q \} }
+          {\{P\} \texttt{ if } b \texttt{ then } S_1 \texttt{ else } S_2 \{Q\}}$ \\
+	& \\
+ $[while_p ]$ & 
+		$\frac{ \{\mathcal{B} \llbracket b \rrbracket \land P \} S \{ P \}}
+          {\{P\} \texttt{ while } b \texttt{ do } S 
+           \{\neg \mathcal{B} \llbracket b \rrbracket \land Q\}}$ \\
+	& \\
+ $[cons_p ]$ & 
+		$\frac{ \{P'\} S \{Q'\}}{\{P\} S \{Q\}} \quad 
+     \text{ if } P \Rightarrow P' \text{ and } Q' \Rightarrow Q $ \\
+	& \\
+ \hline
+\end{tabular}
+\caption{Axiomatic system for partial correctness.}
+\label{table:axiomatic}
+\end{table}
+
+
+% annotated programs (example)
+
+
+Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant. 
+
+% assertion language
+%   is super powerful, to be able to express pre and post conditions ? Se section 7 in proj
