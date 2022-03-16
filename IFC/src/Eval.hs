@@ -13,7 +13,7 @@ type STEnv = M.Map VName Integer
 type Err a = Either String a
 type Eval a =
   RWST ()               -- We dont use Reader at the moment
-       String           -- Do we want to be able to print?
+       ()           -- Do we want to be able to print?
        STEnv               -- Imperative stateful variables
        (Either String)
        a-- ...
@@ -39,10 +39,10 @@ eval (If c s1 s2) = do
   c' <- evalBExpr c
   if c' then eval s1 else eval s2
 eval (Asst _) = return ()
-eval (While c invs var s) =
-  evalBExpr c >>= \c' -> when c' $ eval s >> eval (While c invs var s)
+eval w@(While c invs var s) =
+  evalBExpr c >>= \c' -> when c' $ eval s >> eval w
 eval Skip = return ()
-eval Fail = lift $ Left "violation have happened"
+eval Fail = lift $ Left "A violation has happened"
 
 updateEnv :: VName -> Integer -> STEnv -> STEnv
 updateEnv = M.insert

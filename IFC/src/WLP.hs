@@ -42,10 +42,7 @@ runWLP st s = runReaderT (runStateT (wlpAndvc s) M.empty) $ M.fromList st
 --                                   Left e -> Left e
 --                 Left e -> Left e
 
-wlpAndvc s = do
-  w <- wlp s (Cond $ BoolConst True)
-  -- formatState
-  return w
+wlpAndvc s = wlp s (Cond $ BoolConst True)
 
 proveWLP st s =
   case runWLP st s of
