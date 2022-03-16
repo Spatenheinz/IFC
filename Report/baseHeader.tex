@@ -15,8 +15,10 @@
 \usepackage{booktabs}
 \setlength\parindent{0pt}
 \usepackage{titlesec}
-\usepackage{emoji}
+%\usepackage{emoji}
 \usepackage{semantic}
+\usepackage{stmaryrd}
+\usepackage{hyperref}
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
@@ -56,3 +58,32 @@
 \usepackage{syntax}
 \setlength{\grammarparsep}{8pt plus 1pt minus 1pt} % increase separation between rules
 \setlength{\grammarindent}{7em} % increase separation between LHS/RHS
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
