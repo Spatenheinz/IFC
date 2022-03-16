@@ -5,3 +5,6 @@ Skal vi skrive noget contribution? Så skal vi have nogle overvejelser at basere
 
 
 OK Så det mærkeligt at vi bruger INTEGER og ikke INT, det er nice at man kan udregne store ting, men gør bruteforcing quantifers umuligt og i guess varianten stadig giver mening men kommer til at tage unreasonably lang tid.
+
+
+Burde vi tænke over run-time assertions? Der står i de der slides at run-time assertions kan introduce run-time failures, og at verification skal garantere absence of run-time failures (slide 26).
