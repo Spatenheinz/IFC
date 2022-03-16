@@ -26,9 +26,9 @@ An illegal use of a ghost variable is a semantical, that is a ghost variable can
 However, we have gone with an approach which will simply fail to parse if a ghost variable appears anywhere not allowed.
 We do so by adding a reader monadtransformer.
 
-\begin{verbatim}
+\begin{lstlisting}{haskell}
 type Parser = ParsecT Void String (ReaderT Bool Identity)
-\end{verbatim}
+\end{lstlisting}
 
 The boolean value in this environment will tell if the next parser must allow for parsing ghost variables. Which will certainly only happen in assertions.
 We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator.
@@ -36,31 +36,29 @@ We find that eliminating illegal usecases for ghosts in the parser is far prefer
 \subsection{Evaluator}
 The evaluator follows directly from the semantics presented in section ??. That is the intial store provided to the evalutor will be modified over the course of the program according to the semantics. As of now the type of the evaluator is quite bloated compared to what is actually used. We define the \verb\Eval\ type as follows such:
 
-\begin{verbatim}
+\begin{lstlisting}
 type STEnv = M.Map VName Integer
 type Eval a = RWST () () STEnv (Either String) a
-\end{verbatim}
+\end{lstlisting}
 
 At the moment there is no use for reader, however when the language in the future is extended to have procedures the reader monad will be a natural choice for the scoping rules of said procedures.
 Likewise there is no real use of the writer monad yet. Again this is for proofing for a future where the language supports some sort of IO, and atleast being able to print would be nice.
 The store described in section ?? is kept in the State. The Store is simply a map from VName to Integers. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and easily allows for mutable variables.
 Duely note that ghost variables will also reside in this environment but will not be mutable or even callable as previously explained.
 We make use of the error monad to resolve any runtime-errors that would arise, that is if a violation is done, a ghost is assigned, a variable is used before it is defined or if undefined behaviour arises such as division by 0.
-
+\\~\\
 Each non-terminal in the grammar are resolved by different functions which all operate under the $Eval$ monad, which allows for a clean and modular monadic compiler.
-
-Ideally the assertions, should actually work. At the moment they do nothing.
-
-% \inference[Assign]{ \\ \cmd{\lttdots} \\ \lra{x,\sigma} }{〈conclusion〉}
+\\~\\
+One important note about the interpreter is that we have no good way of checking assertions which includes qunatifiers. The reasons is that we wanted to support arbitrary precision integers, however this means that we at the moment has no feasible way to handle these. A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover. Though the interpreter would then also require external dependencies. Hereby assertions with quantifiers do nothing at the moment, while non-qunatified assertions, will be evauluated as per the operational semantics (At the moment they do nothing).
 
 \subsection{Verification Condition Generator}
 The verification condition generator, uses the weakest liberal precondition, or weakest precondition (if while contains a variant). Again we want to be able to chain the actions and include a state and reader environment.
 
-\begin{verbatim}
+\begin{lstlisting}
 type Counter = M.Map VName Count
 type Env = M.Map VName VName
 type WP a = StateT Counter (ReaderT Env (Either String)) a
-\end{verbatim}
+\end{lstlisting}
 
 The Counter state is used to give unique names to variables. Whereas we want the reader environment to resolve variable substitution in the formula generated from the weakest preconditions.
 
@@ -69,16 +67,44 @@ As described in section ??, we use the forall rule, when encountering assignment
 \subsubsection{First approach}
 The initial approach tried to resolve $Q$ only after the entire formula were build. This would allows for WLP to be resolve in only two passes, one over the imperative language AST and one over Assertion Language AST in the formula. The approach was intended to build up a map as such, where \verb\VName\ is an identifier (String):
 
-\begin{verbatim}
+\begin{lstlisting}
 type Env1 = M.Map VName [VName]
-\end{verbatim}
+\end{lstlisting}
 
-Whenever encountering a variable we would add a unique identifier to is value-list. The result of running WP will then give a partially resolved formula and the final state. When resolving ... Jeg tænker lige.
+Whenever encountering a variable we would add a unique identifier to its value-list along with extending $Q$ by the WP rules, as such:
 
-\subsection{Second approach}
-The second approach and current approach is to resolve $Q$ whenever we go over
+\begin{lstlisting}
+missing
+\end{lstlisting}
+
+The result of running WP will then give a partially resolved formula and the final state. When resolving ... Jeg tænker lige.
+
+\subsubsection{Second approach}
+The second and current approach is to resolve $Q$ whenever we encounters a variable. We generate the forall as such:
+\begin{lstlisting}
+wp (Assign x a) q = do
+    x' <- genVar x
+    q' <- local (M.insert x x') $ resolveQ1 q
+    return $ Forall x' (Cond (RBinary Eq (Var x') a) .=>. q')
+\end{lstlisting}
+We make a new variable (simply generating a unique identifier), then we proceed to resolve $q$ with the new environment, such that every occurence of $x$ will be substituted by $x'$. The \verb\Aexpr\ which $x$ evaluates to should not be resolved in this case, as this will potentially depend on variables not yet encounted.
+\\~\\
+This approach will go over the entire formula every time an assignment is made, which is quite inefficient, hence why the initial approach seemed better (and potentially still is, if we can make it work).
+\\~\\
+Because of their uniqueness ghost variables on the other hand is straight forward to resolve as we need no substitution.
+\\~\\
+Furthermore the current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. This would easily be fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\.
+
+\subsubsection{While - invariants and variants}
+NOTICE WE HAVE A BUG:
+If two assignments are done inside the while loop we cannot prove it.
+otherwise it seem to work???
+
+The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Thus we enfore the user to provide as a minimum the invariant. If no invariant is provided an error is reported. If an invariant is provided, we start by folding the (potentially many) invariants together by conjunction. We then handle the variant if any. We do so by either generate a new \verb\invariant\ variable $x$, and return a \verb\Forall x\ function, if the variant is not present, we return \verb\id\, for monadic composition. Then compute wlp for the body, and resolve the entire formula as explained in ??.
 
 \subsection{proof-assistant API}
+The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simply symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for. Again this can be good in the future but is also a big dependency. The only real
+
 
 - Why have we taken the approach we have. Multistage generation?
 - Following is interesting:
