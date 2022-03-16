@@ -3,7 +3,7 @@
 module Parser where
 
 import           Control.Monad.Combinators.Expr
-import           Text.Megaparsec
+import Text.Megaparsec
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer     as L
 
@@ -38,6 +38,9 @@ symbol = L.symbol sc
 
 parens :: Parser a -> Parser a
 parens = (between `on` symbol) "(" ")"
+
+brackets :: Parser a -> Parser a
+brackets = (between `on` symbol) "[" "]"
 
 cbrackets :: Parser a -> Parser a
 cbrackets = (between `on` symbol) "{" "}"

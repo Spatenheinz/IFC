@@ -24,7 +24,7 @@ import Pretty
 import Data.Foldable (foldrM)
 
 type Sym a = StateT SymTable Symbolic (SBV a)
-type SymTable = M.Map String SInteger
+type SymTable = M.Map VName SInteger
 
 type Count = Int
 type Counter = M.Map VName Count

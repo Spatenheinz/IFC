@@ -28,6 +28,7 @@ library
       AST
       Eval
       Lib
+      OptParser
       Parser
       Pretty
       WLP

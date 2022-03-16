@@ -18,9 +18,9 @@ Section ?? explains each of these are used. In the following section we describe
 
 \subsection{Parser}
 For the parsing stage of the compiler we use the parser combinator library MegaParsec. Most of the parsing is fairly standard, however the following is noticable.
-
-In the previous sections we described the syntax and the semantics of IFC, in that section we describe only a few of the semantics and state some operators which is simply syntactic sugar for the ones presented in the semantics. However, for certain parts of the actual AST, we use the unsugared constructs, an example of this is the \texttt{exists} in the assertion language. This is purely, because it reads better in the output of the vc generator. This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, ??? THIS IS GARBAGE.
-
+\\~\\
+In the previous sections we described the syntax and the semantics of IFC, in that section we describe only a few of the semantics and state some operators which is simply syntactic sugar for the ones presented in the semantics. However, for certain parts of the actual AST, we use the unsugared constructs, this is mainly seen in the first order logic, in terms of the \verb\exists\ and implication. This is purely, because it reads better in the output of the vc generator. This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, we settle for a slightly bigger AST, and as of now this does not add much overhead to the other parts of the program, although this might be rethought in the future.
+\\~\\
 Another point that is worth mentioning is how we handle illegal uses of ghost variables.
 An illegal use of a ghost variable is a semantical, that is a ghost variable can be declared and occur in the assertion language, but never appear elsewhere in the program logic.
 However, we have gone with an approach which will simply fail to parse if a ghost variable appears anywhere not allowed.
@@ -100,10 +100,36 @@ NOTICE WE HAVE A BUG:
 If two assignments are done inside the while loop we cannot prove it.
 otherwise it seem to work???
 
-The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Thus we enfore the user to provide as a minimum the invariant. If no invariant is provided an error is reported. If an invariant is provided, we start by folding the (potentially many) invariants together by conjunction. We then handle the variant if any. We do so by either generate a new \verb\invariant\ variable $x$, and return a \verb\Forall x\ function, if the variant is not present, we return \verb\id\, for monadic composition. Then compute wlp for the body, and resolve the entire formula as explained in ??.
+The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Thus we enfore the user to provide as a minimum the invariant.
+If no invariant is provided an error is reported.
+If an invariant is provided, we start by folding the (potentially many) invariants together by conjunction. We then handle the variant if any.
+We do so by either generate a new \verb\invariant\ variable $x$, and return a \verb\Forall x\ function, if the variant is not present, we return \verb\id\, for monadic composition.
+Then compute wlp for the body, and resolve the entire formula as explained in ??.
 
 \subsection{proof-assistant API}
-The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simply symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for. Again this can be good in the future but is also a big dependency. The only real
+The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simply symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for. Again this can be good in the future but is also a big dependency. We mostly make use of the higher level functions and dont mess with any of the internals. The code which generates a \verb\Predicate\ is simple, since the formula generated in the previous stage, will be a first order logic formula, which straight forwardly can be converted into SBV's types. For the entire highlevel logic we resolve it as simple as this:
+\begin{lstlisting}
+type SymTable = M.Map VName SInteger
+
+fToS :: FOL -> SymTable -> Predicate
+fToS (Cond b) st = bToS b st
+fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
+  fToS a (M.insert x x' st)
+fToS (Exists x a) st = forSome [x] $ \(x'::SInteger) ->
+  fToS a (M.insert x x' st)
+fToS (ANegate a) st = sNot <$> fToS a st
+fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
+fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
+fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
+\end{lstlisting}
+
+And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Notice how this simply will generate a single collective predicate, instead of the often more used DSL like use of monadically generating quantified variables and constraints. The generated predicate will then try to be proved by the SBV function \verb\prove\, If the program can correctly be proved by the external SMT solver, the output will be \verb\Q.E.D.\, whereas if the formula cannot be proved, a falsifiable instance of the variables will be presented. For instance the output of the following program will obviously always be falsified.
+
+\begin{lstlistings}
+violate;
+\end{lstlistings}
+
+on the otherhand the previously shown multiplication example, will be proved.
 
 
 - Why have we taken the approach we have. Multistage generation?

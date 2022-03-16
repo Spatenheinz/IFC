@@ -11,9 +11,10 @@ import Data.SBV.Trans (ThmResult)
 import Control.Monad (void)
 import qualified Data.Map as M
 import Pretty
+import OptParser
 
-run :: Stmt -> IO ()
-run p = case runEval [] p of
+run :: Stmt -> [(VName, Integer)] -> IO ()
+run p st = case runEval st p of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right store -> printEval store
 
@@ -46,11 +47,13 @@ main = do args <- getArgs
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right p -> print p
             ["-test"] -> testOfMul >>= print
-            [file] -> do
+            [file, argslist] -> do
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
-                Right p -> run p
+                Right p -> case parseStore argslist of
+                            Left e -> print e
+                            Right st -> run p st
             _ ->
               die "Usage:\n\
                     \  IFC FIX       (parse & interpret)"
@@ -60,14 +63,14 @@ testOfMul = prove $ fToS thing M.empty
   where thing =
          Forall "q#3" ((Cond (RBinary Eq (Var "q#3") (IntConst 10))) .=>.
           Forall "r#1" ((Cond (RBinary Eq (Var "r#1") (IntConst 55))) .=>.
-                ((ANegate (Cond (RBinary Less (Var "q#3") (IntConst 0))))
-                ./\. ANegate (Cond (RBinary Less (Var "r#1") (IntConst 0))))
+                (ANegate (Cond (RBinary Less (Var "q#3") (IntConst 0))))
+                ./\. (ANegate (Cond (RBinary Less (Var "r#1") (IntConst 0))))
                 ./\. Forall "res#3" ((Cond (RBinary Eq (Var "res#3") (IntConst 0))) .=>.
                 Forall "ghosta" ((Cond (RBinary Eq (Var "ghosta") (Var "q#3"))) .=>.
                 (Cond (RBinary Eq (Var "res#3") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#3")) (Var "r#1"))))
-                ./\. Forall "q#1" (Forall "res#1" ((((Cond (RBinary Greater (Var "q#1") (IntConst 0))) ./\. (Cond (RBinary Eq (Var "res#1") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#1")) (Var "r#1")))))
-                        .=>. Forall "res#2" ((Cond (RBinary Eq (Var "res#2") (ABinary Add (Var "res#1") (Var "r#1"))))
+                ./\. Forall "q#1" (Forall "res#1" (((Cond (RBinary Greater (Var "q#1") (IntConst 0))) ./\. (Cond (RBinary Eq (Var "res#1") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#1")) (Var "r#1")))))
+                        .=>. (Forall "res#2" ((Cond (RBinary Eq (Var "res2") (ABinary Add (Var "res#1") (Var "r#1"))))
                         .=>. Forall "q#2" ((Cond (RBinary Eq (Var "q#2") (ABinary Sub (Var "q#1") (IntConst 1))))
-                        .=>. (Cond (RBinary Eq (Var "res#2") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#2")) (Var "r#1")))))))
+                        .=>. (Cond (RBinary Eq (Var "res#2") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#2")) (Var "r#1"))))))
                         ./\. ((ANegate (Cond (RBinary Greater (Var "q#1") (IntConst 0)))) ./\. (Cond (RBinary Eq (Var "res#1") (ABinary Mul (ABinary Sub (Var "ghosta") (Var "q#1")) (Var "r#1"))))
-                        .=>. (Cond (RBinary Eq (Var "res#1") (ABinary Mul (Var "ghosta") (Var "r#1")))))))))))
+                        .=>. (Cond (RBinary Eq (Var "res#1") (ABinary Mul (Var "ghosta") (Var "r#1"))))))))))))
