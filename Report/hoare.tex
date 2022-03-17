@@ -18,7 +18,8 @@ Sometimes we might need to keep the original value of a variable that is changed
 For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
 
 As an example of this we will show how our example project \texttt{mult.ifc} looks when adding some assertions.
-\begin{lstlisting}[caption={Example program \texttt{mult.ifc}}, captionpos=b]
+\begin{figure}
+\begin{lstlisting}
 q := 10;
 r := 55;
 #{q >= 0 /\ r >= 0};
@@ -30,9 +31,9 @@ while (q > 0) {
 };
 #{res = ghosta * r };
 \end{lstlisting}
+\caption{Example program \texttt{mult.ifc}}
 \label{figure:mult}
-%\captionof{lstlisting}{My caption}
-%\caption{Example program \texttt{mult.ifc}}
+\end{figure}
 
 In line 3 we have an assertion saying that both $q$ and $r$ must be non-negative, as we do not wish to multiply by zero.
 In line 10 we have a assertion claiming that the final result will be the original value of $q$ multiplied by $r$. Here we use a ghost variable, or a logical variable, for keeping the original value og $q$.
