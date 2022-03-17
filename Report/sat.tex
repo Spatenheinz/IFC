@@ -1,1 +1,10 @@
 % IDK noget klogt.
+
+A SAT solver is a program that can determine whether a boolean formula is satisfiable. The advantage of this is that is becomes possible to automatically verify whether very large logical formulae are satisfiable.
+When given a boolean formula, a SAT solver will determine if there are values for the free variables which satisfy the formula. If this is not the case, the SAT solver comes up with a suiting counter example.
+
+\textit{Satifiability modulo theories} is the problem of determining whether a mathematical formula is satisfiable, and thus generalizes the SAT problem. SMT solvers can take as input some first-order logic formula, and determine if it is satisfiable, similar to SAT solvers.
+Verification condition generators are often coupled with SMT solvers, so that one can finde the weakest precondition of a program, and then use an SMT solver to determine whether the condition is satisfiable.
+
+An example of an SMT solver is the \textit{Z3 Theorem Prover}, which is such a solver created by Microsoft. The goal of \textit{Z3} is to verify and analyse software. (wiki)
+In our project we use \textit{Z3} to verify program, by first computing the \textit{wp} of the program, given the assertions provided by the user, and then feeding this to the SMT solver.
