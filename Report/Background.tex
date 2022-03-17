@@ -1,60 +1,7 @@
 \section{Background}
 
 \subsection{Language}
-IFC is a small imperative programming language with a build in assertion language enabeling the possibility for statically verifying programs by the use of external provers. In this section we will present the syntax and semantics of the imperative language and the assertion language.
-\begin{table}[h!]
-% \centering
-\begin{grammar}
-<statement> ::= <statement> ';' <statement>
-\alt <ghostid> ':=' <aexpr>
-\alt <id> ':=' <aexpr>
-\alt 'if' <bexpr> '\{' <statement> '\}'
-\alt 'if' <bexpr> '\{' <statement> '\}' 'else' '\{' <statement> '\}'
-\alt 'while' <bexpr> <invariant> <variant> '\{' <statement> '\}'
-\alt '\#\{' <assertion> '\}'
-\alt 'skip' | 'violate'
-
-<invariant> ::= '?\{' <assertion> '\}'
-\alt <invariant> ';' <invariant>
-
-<variant> ::= '!\{' <aexpr> '\}' | $\epsilon$
-
-<assertion> ::= 'forall' <id> <assertion>
-\alt 'exists' <id> <assertion>
-\alt '$\sim$' <assertion>
-\alt <assertion> <assertionop> <assertion>
-\alt <bexpr>
-
-<assertionop> ::= '\verb|/\|' | '\verb|\/|' | '\verb|=>|'
-
-<bexpr> ::= 'true' | 'false'
-\alt '!'<bexpr>
-\alt <bexpr> <bop> <bexpr>
-\alt <bexpr> <rop> <bexpr>
-
-<bop> ::= '\&\&' | '||'
-
-<rop> ::= '\verb|<|' | '\verb|<=|' | '\verb|=|' | '\verb|/=|' | '\verb|>|' | '\verb|>=|'
-
-<aexpr> ::= <id>
-\alt <ghostid>
-\alt <integer>
-\alt '-'<axpr>
-\alt <aexpr> <aop> <aexpr>
-
-<aop> ::= '$+$' | '$-$' | '$*$' | '$/$' | '\%'
-
-<ghostid> ::= \emoji{ghost} <string>
-
-<id> ::= <string>
-\end{grammar}
-\caption{Grammar of IFC}
-\label{table:grammar}
-\end{table}
-
-Vi vil gerne give en kort præsentation. og hvorfor det er interessant.
-eksempel? mult?
-skriv noget om det.
+\input{Language}
 
 \subsection{Hoare Logic}
 % Beskriv hvad hoare logik er, og hvorfor det er brugbart?
