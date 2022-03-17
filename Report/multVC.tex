@@ -1,76 +1,75 @@
 
-\begin{verbatim}
-Forall q#3 . q#3 = 10 =>
-    Forall r#1 . r#1 = 55 =>
-        (q#3 >= 0 /\ r#1 >= 0) /\ Forall res#3 . res#3 = 0 =>
-            Forall ghosta . ghosta = q#3 =>
-                res#3 = (ghosta - q#3) * r#1 /\ Forall q#1 . Forall res#1 . 
-                    (q#1 >= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
-                        Forall res#2 . res#2 = res#1 + r#1 =>
-                            Forall q#2 . q#2 = q#1 - 1 =>
-                              res#2 = (ghosta - q#2) * r#1
-                        /\ (q#1 <= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
-                              res#1 = ghosta * r#1
-\end{verbatim}
+% \begin{verbatim}
+% Forall q#3 . q#3 = 10 =>
+%     Forall r#1 . r#1 = 55 =>
+%         (q#3 >= 0 /\ r#1 >= 0) /\ Forall res#3 . res#3 = 0 =>
+%             Forall ghosta . ghosta = q#3 =>
+%                 res#3 = (ghosta - q#3) * r#1 /\ Forall q#1 . Forall res#1 .
+%                     (q#1 >= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
+%                         Forall res#2 . res#2 = res#1 + r#1 =>
+%                             Forall q#2 . q#2 = q#1 - 1 =>
+%                               res#2 = (ghosta - q#2) * r#1
+%                         /\ (q#1 <= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
+%                               res#1 = ghosta * r#1
+% \end{verbatim}
 
-\begin{align*}
-         &\forall q\#3 . q\#3 = 10 \Rightarrow \\
-         &\quad \forall r\#1 . r\#1 = 55 \Rightarrow \\
-         &\quad \quad (q\#3 \geq 0 \land r\#1 \geq 0) 
-         							\land \forall res\#3 . res\#3 = 0 \Rightarrow \\
-         &\quad \quad \quad \quad \forall ghosta . ghosta = q\#3 \Rightarrow \\
-         &\quad \quad \quad \quad \quad res\#3 = (ghosta - q\#3) \cdot r\#1 \\
-         &\quad \quad \quad \quad \quad \land 
-           \forall q\#1 . \forall res\#1 . 
-              (q\#1 \geq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
-         &\quad \quad \quad \quad \quad \quad
-           \forall res\#2 . res\#2 = res\#1 + r\#1 \Righarrow \\
-         &\quad \quad \quad \quad \quad \quad \quad
-           \forall q\#2 . q\#2 = q\#1 - 1 \Rightarrow \\
-         &\quad \quad \quad \quad \quad \quad \quad \quad
-           res\#2 = (ghosta - q\#2) \cdot r\#1 \\
-         &\quad \quad \quad \quad \quad \quad \land
-           (q\#1 \leq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
-         &\quad \quad \quad \quad \quad \quad \quad
-           res\#1 = ghosta \cdot r\#1
-\end{align*}
+% \begin{align*}
+%          &\forall q\#3 . q\#3 = 10 \Rightarrow \\
+%          &\quad \forall r\#1 . r\#1 = 55 \Rightarrow \\
+%          &\quad \quad (q\#3 \geq 0 \land r\#1 \geq 0)
+%          							\land \forall res\#3 . res\#3 = 0 \Rightarrow \\
+%          &\quad \quad \quad \quad \forall ghosta . ghosta = q\#3 \Rightarrow \\
+%          &\quad \quad \quad \quad \quad res\#3 = (ghosta - q\#3) \cdot r\#1 \\
+%          &\quad \quad \quad \quad \quad \land
+%            \forall q\#1 . \forall res\#1 .
+%               (q\#1 \geq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
+%          &\quad \quad \quad \quad \quad \quad
+%            \forall res\#2 . res\#2 = res\#1 + r\#1 \Righarrow \\
+%          &\quad \quad \quad \quad \quad \quad \quad
+%            \forall q\#2 . q\#2 = q\#1 - 1 \Rightarrow \\
+%          &\quad \quad \quad \quad \quad \quad \quad \quad
+%            res\#2 = (ghosta - q\#2) \cdot r\#1 \\
+%          &\quad \quad \quad \quad \quad \quad \land
+%            (q\#1 \leq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
+%          &\quad \quad \quad \quad \quad \quad \quad
+%            res\#1 = ghosta \cdot r\#1
+% \end{align*}
 
 
-\begin{lstlisting}
-Forall q#3 . q#3 = 10 =>
-    Forall r#1 . r#1 = 55 =>
-        (q#3 >= 0 /\ r#1 >= 0) /\ Forall res#3 . res#3 = 0 =>
-            Forall ghosta . ghosta = q#3 =>
-                res#3 = (ghosta - q#3) * r#1
-                /\ 
-                Forall q#1 . Forall res#1 . 
-                    (q#1 >= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
-                        Forall res#2 . res#2 = res#1 + r#1 =>
-                            Forall q#2 . q#2 = q#1 - 1 =>
-                                res#2 = (ghosta - q#2) * r#1
-                        /\ 
-                        (q#1 <= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
-                            res#1 = ghosta * r#1
-\end{lstlisting}
+% \begin{lstlisting}
+% Forall q#3 . q#3 = 10 =>
+%     Forall r#1 . r#1 = 55 =>
+%         (q#3 >= 0 /\ r#1 >= 0) /\ Forall res#3 . res#3 = 0 =>
+%             Forall ghosta . ghosta = q#3 =>
+%                 res#3 = (ghosta - q#3) * r#1
+%                 /\
+%                 Forall q#1 . Forall res#1 .
+%                     (q#1 >= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
+%                         Forall res#2 . res#2 = res#1 + r#1 =>
+%                             Forall q#2 . q#2 = q#1 - 1 =>
+%                                 res#2 = (ghosta - q#2) * r#1
+%                         /\
+%                         (q#1 <= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
+%                             res#1 = ghosta * r#1
+% \end{lstlisting}
 
 \begin{lstlisting}[mathescape=true]
-         \forall q\#3 . q\#3 = 10 \Rightarrow \\
-         \quad \forall r\#1 . r\#1 = 55 \Rightarrow \\
-         \quad \quad (q\#3 \geq 0 \land r\#1 \geq 0) 
-         						\land \forall res\#3 . res\#3 = 0 \Rightarrow \\
-         \quad \quad \quad \quad \forall ghosta . ghosta = q\#3 \Rightarrow \\
-         \quad \quad \quad \quad \quad res\#3 = (ghosta - q\#3) \cdot r\#1 \\
-         \quad \quad \quad \quad \quad \land 
-          \forall q\#1 . \forall res\#1 . 
-             (q\#1 \geq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
-         \quad \quad \quad \quad \quad \quad
-          \forall res\#2 . res\#2 = res\#1 + r\#1 \Righarrow \\
-         \quad \quad \quad \quad \quad \quad \quad
-          \forall q\#2 . q\#2 = q\#1 - 1 \Rightarrow \\
-         \quad \quad \quad \quad \quad \quad \quad \quad
-          res\#2 = (ghosta - q\#2) \cdot r\#1 \\
-         \quad \quad \quad \quad \quad \quad \land
-          (q\#1 \leq 0 \land res\#1 = (ghosta - q\#1) \cdot r\#1) \Rightarrow \\
-         \quad \quad \quad \quad \quad \quad \quad
-          res\#1 = ghosta \cdot r\#1
+$\forall \, q_3, \, (q_3 = 10) \Rightarrow$
+$\quad \forall r_1 , r_1 = 55 \Rightarrow$
+$\quad \quad (q_3 \geq 0 \land r_1 \geq 0)
+						\land \forall \, res_3 , \, res_3 = 0 \Rightarrow$
+$\quad \quad \quad \quad \forall \, ghosta, \, (ghosta = q_3) \Rightarrow$
+$\quad \quad \quad \quad \quad res_3 = (ghosta - q_3) \cdot r_1$
+$\quad \quad \quad \quad \quad \land
+         \forall q_1 , \forall res_1 , \,
+             (q_1 \geq 0 \land res_1 = (ghosta - q_1) \cdot r_1) \Rightarrow$
+$ \quad \quad \quad \quad \quad \quad
+        \forall res_2 , \, res_2 = (res_1 + r_1) \Rightarrow $
+$ \quad \quad \quad \quad \quad \quad \quad
+          \forall q_2 , q_2 = (q_1 - 1) \Rightarrow$
+$\quad \quad \quad \quad \quad \quad \quad \quad
+          res_2 = (ghosta - q_2) \cdot r_1$
+$\quad \quad \quad \quad \quad \quad \land
+          (q_1 \leq 0 \land res_1 = (ghosta - q_1) \cdot r_1) \Rightarrow$
+$\quad \quad \quad \quad \quad \quad \quad res_1 = ghosta \cdot r_1$
 \end{lstlisting}
