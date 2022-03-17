@@ -7,12 +7,12 @@
 
 % - Beskrive de vigtige af dem?
 % assign, seq, while
-% wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
-In the previous section we presented Hoare Triples and how they can be used to ``assign meaning to programas''. However, it might not always be possible that the Precondition is known. In such a case, we can use Weakest Precondition Calculus (denoted $WP$), which essentially states:
+In the previous section we presented Hoare Triples and how they can be used to ``assign meaning to programs''. However, it might not always be possible that the Precondition is known. In such a case, we can use Weakest Precondition Calculus (denoted $WP$), which essentially states:
 $$
  \{WP(S,Q)\}S\{Q\}
 $$
 That is, we can use a well-defined calculus to find the weakest (least restrictive) precondition that will make $Q$ hold after $S$. By this calculus, which we present in this section, validation of Hoare Triples can be reduced to a logical sentence, since Weakest Precondition calculus is functional compared to the relational nature of Hoare logic.
+That is, by finding the weakest precondition, we have a condition that can be used to verify the program, and that is called \textit{verification condition generation}.
 
 Below the structure for computing the weakest liberal precondition for the different constructs is shown.
 \begin{align*}
@@ -29,10 +29,14 @@ Below the structure for computing the weakest liberal precondition for the diffe
   &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.}
 \end{align*}
 
+% TODO: write something about the above?
+
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
-
-Modified syntax for \textit{while}-loop, in order to prove termination using weakest precondition.
+% wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
+The Hoare logic can help us prove correctness, but does not guarantee termination of loops. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
+The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
+To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
 $$
 	\frac{
 		\{I \land e \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
@@ -42,18 +46,17 @@ $$
 	}
 $$
 
-Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. This makes the difference between partial and total correctness.
+Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
+This makes it possible to prove termination, and is the difference between partial and total correctness.
 
-The loop variant is an expression that decreases, for example in the \textit{while}-loop form our example program decreases $q$ in each iteration, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
-
-Now the structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
+The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
 
 \begin{align*}
 	WP\left(
      \begin{array}{c}
      \texttt{while } e \texttt{ invariant } I \\
      \texttt{ variant } v, \prec \texttt{ do } s
-    \end{array}
+     \end{array}
     , Q \right) 
     &= 
 		I \land \\
