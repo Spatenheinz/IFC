@@ -125,9 +125,9 @@ fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
 And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Notice how this simply will generate a single collective predicate, instead of the often more used DSL like use of monadically generating quantified variables and constraints. The generated predicate will then try to be proved by the SBV function \verb\prove\, If the program can correctly be proved by the external SMT solver, the output will be \verb\Q.E.D.\, whereas if the formula cannot be proved, a falsifiable instance of the variables will be presented. For instance the output of the following program will obviously always be falsified.
 
-\begin{lstlistings}
+\begin{lstlisting}
 violate;
-\end{lstlistings}
+\end{lstlisting}
 
 on the otherhand the previously shown multiplication example, will be proved.
 
