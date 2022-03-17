@@ -61,16 +61,16 @@ resolveQ1 :: FOL -> WP FOL
 resolveQ1 (Cond b) = resolveBExpr1 b
 resolveQ1 (Forall x q) = Forall x <$> resolveQ1 q
 resolveQ1 (Exists x q) = Exists x <$> resolveQ1 q
-resolveQ1 (ANegate q) = ANegate <$> resolveQ1 q
+resolveQ1 (ANegate q) = anegate <$> resolveQ1 q
 resolveQ1 (AConj a b) = liftM2 AConj (resolveQ1 a) (resolveQ1 b)
 resolveQ1 (ADisj a b) = liftM2 ADisj (resolveQ1 a) (resolveQ1 b)
 resolveQ1 (AImp a b) = liftM2 AImp (resolveQ1 a) (resolveQ1 b)
 
 resolveBExpr1 :: BExpr -> WP FOL
 resolveBExpr1 b@(BoolConst _) = return $ Cond b
-resolveBExpr1 (Negate b) = ANegate <$> resolveBExpr1 b
-resolveBExpr1 (BBinary Conj a b) = on (liftM2 AConj) resolveBExpr1 a b
-resolveBExpr1 (BBinary Disj a b) = on (liftM2 ADisj) resolveBExpr1 a b
+resolveBExpr1 (Negate b) = anegate <$> resolveBExpr1 b
+resolveBExpr1 (BBinary Conj a b) = on (liftM2 aconj) resolveBExpr1 a b
+resolveBExpr1 (BBinary Disj a b) = on (liftM2 adisj) resolveBExpr1 a b
 resolveBExpr1 (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr1 a b
 
 resolveAExpr1 :: AExpr -> WP AExpr
@@ -78,7 +78,7 @@ resolveAExpr1 (Var x) = Var <$> mrVar1 x
 resolveAExpr1 (Ghost a) = return $ Var a
 resolveAExpr1 i@(IntConst _) = return i
 resolveAExpr1 (Neg a) = Neg <$> resolveAExpr1 a
-resolveAExpr1 (ABinary op a b) = on (liftM2 (ABinary op)) resolveAExpr1 a b
+resolveAExpr1 (ABinary op a b) = on (liftM2 (abinary op)) resolveAExpr1 a b
 
 wlp :: Stmt -> FOL -> WP FOL
 wlp (Seq s1 s2) q = wlp s2 q >>= wlp s1
@@ -93,7 +93,7 @@ wlp (If b s1 s2) q = do
   s1' <- wlp s1 q
   s2' <- wlp s2 q
   let b' = Cond b
-  return $ (b' .=>. s1') ./\. (ANegate b' .=>. s2')
+  return $ (b' .=>. s1') ./\. (anegate b' .=>. s2')
 wlp s@(Asst a) q =
   findVars s [] >> return (a ./\. q)
 wlp Fail _q = false
@@ -106,7 +106,7 @@ wlp (While b inv var s) q = do
   w <- wlp s (invs ./\. var')
   fas <- findVars s []
   let inner = fa ((Cond b ./\. invs ./\. var' .=>. w)
-                          ./\. (ANegate (Cond b) ./\. invs .=>. q))
+                          ./\. (anegate (Cond b) ./\. invs .=>. q))
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ1 inner

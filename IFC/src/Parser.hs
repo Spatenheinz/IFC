@@ -112,7 +112,7 @@ quantP = quant <|> impP
 impP :: Parser FOL
 impP = do
   a0 <- cdP
-  option a0 (symbol "=>" >> ANegate . AConj a0 . ANegate <$> impP)
+  option a0 (symbol "=>" >> aimp a0 <$> impP)
 
 cdP :: Parser FOL
 cdP = negPreP >>= cdOptP
@@ -124,13 +124,13 @@ cdOptP a0 = option a0 (do
             return (a0 `op` a1))
 
 cdchoiceP :: Parser (FOL -> FOL -> FOL)
-cdchoiceP = choice [ symbol "/\\" >> return AConj
-                   , symbol "\\/" >> return (ANegate ... (AConj `on` ANegate))
+cdchoiceP = choice [ symbol "/\\" >> return aconj
+                   , symbol "\\/" >> return adisj
                    ]
          where (...) = (.).(.)
 
 negPreP :: Parser FOL
-negPreP = (symbol "~" >> ANegate <$> negPreP) <|> topP
+negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
 
 topP :: Parser FOL
 topP = try (Cond <$> bTermP) <|> parens quantP
@@ -169,14 +169,14 @@ aExprP = makeExprParser aTermP operators
   where operators =
                 [ [ Prefix (Neg <$ symbol "-")
                 ]
-                , [ InfixL (ABinary Mul <$ symbol "*")
-                  , InfixL (ABinary Div <$ try (do s <- symbol "/"
+                , [ InfixL (abinary Mul <$ symbol "*")
+                  , InfixL (abinary Div <$ try (do s <- symbol "/"
                                                    void $ notFollowedBy $ symbol "\\" <|> symbol "="
                                                    return s))
-                  , InfixL (ABinary Mod <$ symbol "%")
+                  , InfixL (abinary Mod <$ symbol "%")
                   ]
-                , [ InfixL (ABinary Add <$ symbol "+")
-                  , InfixL (ABinary Sub <$ symbol "-")
+                , [ InfixL (abinary Add <$ symbol "+")
+                  , InfixL (abinary Sub <$ symbol "-")
                   ]
                 ]
 
