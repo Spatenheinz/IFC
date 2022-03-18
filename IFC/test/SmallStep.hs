@@ -49,8 +49,18 @@ equivalence = testGroup "Tests for equivalences" [
                 runEval [] (If (BoolConst False) s1 s1) === runEval [] (If (BoolConst True) s1 s1)
             , testProperty "If swap" $ \(s1 :: Stmt) (s2 :: Stmt) (b :: BExpr) ->
                 runEval [] (If b s1 s2) === runEval [] (If (Negate b) s2 s1)
+            , testProperty "While False" $ \(s :: Stmt) ->
+                runEval [] (sWhile (BoolConst False) s) === runEval [] Skip
+            , testProperty "While ~ If" $ \(s :: Stmt) -> do
+                (b,c,e) <- whileConds
+                b' <- b
+                c' <- c
+                e' <- e
+                return $ runEval [] (Seq b' (sWhile c' (Seq s e'))) === runEval [] (Seq b' (Seq (If c' (Seq s e') Skip) (sWhile c' (Seq s e'))))
             ]
         ]
+
+sWhile c = While c [] Nothing
 
 vacous = True === True
 

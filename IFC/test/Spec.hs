@@ -2,8 +2,15 @@ import WLP
 import AST
 import Data.SBV (ThmResult)
 import Pretty
+
+import Test.Tasty
+import Test.Tasty.HUnit
+import SmallStep
+
 main :: IO ()
-main = testOfMul
+main = defaultMain $ localOption (mkTimeout 1000000) tests
+
+tests = equivalence
 
 testOfMul :: IO ()
 testOfMul = putStrLn $ prettyF thing 0
