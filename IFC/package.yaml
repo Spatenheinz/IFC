@@ -55,3 +55,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - IFC
+    - tasty
+    - tasty-hunit
+    - QuickCheck
+    - tasty-quickcheck

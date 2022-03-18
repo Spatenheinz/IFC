@@ -9,6 +9,11 @@ data BExpr = BoolConst Bool
 data BoolOp = Conj | Disj
   deriving (Show)
 
+bnegate :: BExpr -> BExpr
+bnegate (Negate (Negate b)) = b
+bnegate (BoolConst True) = BoolConst False
+bnegate (BoolConst False) = BoolConst True
+bnegate b = b
 -- should we also have for false?
 bconj :: BExpr -> BExpr -> BExpr
 bconj b1 b2 = case (b1,b2) of
@@ -34,7 +39,7 @@ data AExpr = Var VName
   deriving (Show)
 
 data ArithOp = Add | Sub | Mul | Div | Mod
-  deriving (Eq, Show)
+  deriving (Eq, Show, Enum)
 
 abinary :: ArithOp -> AExpr -> AExpr -> AExpr
 abinary Add (IntConst 0) a = a
@@ -93,7 +98,6 @@ aimp f1 f2 = case (f1, f2) of
   (Cond (BoolConst True), _) -> f2
   (Cond (BoolConst False), _) -> Cond (BoolConst True)
   _ -> AImp f1 f2
-
 
 type VName = String
 

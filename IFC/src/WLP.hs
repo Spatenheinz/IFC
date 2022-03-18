@@ -185,23 +185,3 @@ aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Mul = (*)
         f Div = sDiv
         f Mod = sMod
-
--- simplify :: FOL -> FOL
--- simplify b@(Cond _) = b
--- simplify (Forall x a) = Forall x $ simplify a
--- simplify (Exists x a) = Exists x $ simplify a
--- simplify (ANegate x) = x
--- simplify (AConj a b) | Cond (BoolConst True) <- simplify a = simplify b
---                      | Cond (BoolConst True) <- simplify b = simplify a
---                      | Cond (BoolConst False) <- simplify b = Cond (BoolConst False)
---                      | Cond (BoolConst False) <- simplify a = Cond (BoolConst False)
---                      | otherwise = on AConj simplify a b
--- simplify (ADisj a b) | Cond (BoolConst True) <- simplify a = Cond (BoolConst True)
---                      | Cond (BoolConst True) <- simplify b = Cond (BoolConst True)
---                      | Cond (BoolConst False) <- simplify b = simplify a
---                      | Cond (BoolConst True) <- simplify a = simplify b
---                      | otherwise = on ADisj simplify a b
--- simplify (AImp a b)  | Cond (BoolConst False) <- simplify a = Cond (BoolConst True)
---                      | Cond (BoolConst True) <- simplify a,
---                        Cond (BoolConst False) <- simplify b = Cond (BoolConst False)
---                      | otherwise = on AImp simplify a b

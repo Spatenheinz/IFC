@@ -54,6 +54,11 @@ evalAExpr (Var vname) = do
   case M.lookup vname st of
     Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
     Just a -> return a
+evalAExpr (Ghost vname) = do
+  st <- get
+  case M.lookup vname st of
+    Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
+    Just a -> return a
 evalAExpr (Neg a) = evalAExpr a <&> negate
 evalAExpr (ABinary op a1 a2) =
   liftM2 (evalAOp op) (evalAExpr a1) (evalAExpr a2) >>= \case
