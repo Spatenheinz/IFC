@@ -13,7 +13,7 @@ bnegate :: BExpr -> BExpr
 bnegate (Negate (Negate b)) = b
 bnegate (BoolConst True) = BoolConst False
 bnegate (BoolConst False) = BoolConst True
-bnegate b = b
+bnegate b = Negate b
 -- should we also have for false?
 bconj :: BExpr -> BExpr -> BExpr
 bconj b1 b2 = case (b1,b2) of
@@ -79,7 +79,7 @@ anegate :: FOL -> FOL
 anegate (ANegate (ANegate a)) = a
 anegate (Cond (BoolConst True)) = Cond (BoolConst False)
 anegate (Cond (BoolConst False)) = Cond (BoolConst True)
-anegate a = a
+anegate a = ANegate a
 
 aconj :: FOL -> FOL -> FOL
 aconj f1 f2 = case (f1, f2) of

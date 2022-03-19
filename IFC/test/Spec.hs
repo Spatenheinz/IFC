@@ -6,11 +6,12 @@ import Pretty
 import Test.Tasty
 import Test.Tasty.HUnit
 import SmallStep
+import StatVDyn
 
 main :: IO ()
 main = defaultMain $ localOption (mkTimeout 1000000) tests
 
-tests = equivalence
+tests = testGroup "All tests" [equivalence, dynstat]
 
 testOfMul :: IO ()
 testOfMul = putStrLn $ prettyF thing 0

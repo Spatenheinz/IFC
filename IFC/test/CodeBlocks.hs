@@ -4,6 +4,7 @@ import           Test.Tasty.QuickCheck
 import AST
 import Control.Monad
 import QCInstances
+import Data.Function (on)
 
 
 whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
@@ -31,7 +32,8 @@ instance Arbitrary Stmt where
           leaf = frequency [ (2, return Skip)
                            , (1, return Fail)
                            , (5, assign)
-                           , (1, ghost)
+                           -- , (1, ghost)
+                           , (1, assert)
                            ]
           assign = do
             i <- fixednames
@@ -51,3 +53,14 @@ instance Arbitrary Stmt where
             variant' <- variant
             body <- expr n
             return $ Seq bef' (While con' [] Nothing (Seq body variant'))
+          assert = Asst <$> arbitrary
+
+instance Arbitrary FOL where
+  arbitrary = sized expr
+    where expr 0 = leaf
+          expr n = frequency [ (5, leaf)
+                             , (1, on (liftM2 AConj) (expr . subExpr) n n)
+                             , (1, on (liftM2 ADisj) (expr . subExpr) n n)
+                             , (1, on (liftM2 AImp) (expr . subExpr) n n)
+                             ]
+          leaf = Cond <$> arbitrary

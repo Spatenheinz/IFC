@@ -4,11 +4,12 @@
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE MultiWayIf #-}
 
-module WLP where
+module WLP2 where
 
-import Data.SBV
+import Data.SBV.Trans
 import Control.Monad(liftM2)
 import qualified Data.Map as M
+import Control.Monad.Except
 import Control.Monad.State.Strict
 import AST
 import Eval
@@ -23,7 +24,7 @@ import Debug.Trace
 import Pretty
 import Data.Foldable (foldrM)
 
-type Sym a = StateT SymTable Symbolic (SBV a)
+type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger
 
 type Count = Int
@@ -157,7 +158,7 @@ findInAsst (AConj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (ADisj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (AImp a b) st = findInAsst a st >>= findInAsst b
 
-fToS :: FOL -> SymTable -> Predicate
+fToS :: FOL -> SymTable -> Sym SBool
 fToS (Cond b) st = bToS b st
 fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
@@ -168,7 +169,7 @@ fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
 fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
 fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
-bToS :: BExpr -> SymTable -> Predicate
+bToS :: BExpr -> SymTable -> Sym SBool
 bToS (BoolConst b) st = return $ fromBool b
 bToS (Negate b) st = sNot <$> bToS b st
 bToS (BBinary op a b) st = on (liftM2 (f op)) (`bToS` st) a b
@@ -179,11 +180,11 @@ bToS (RBinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Eq   = (.==)
         f Greater = (.>)
 
-aToS :: AExpr -> SymTable -> Symbolic SInteger
+aToS :: AExpr -> SymTable -> Sym SInteger
 aToS (Var x) st =
   case M.lookup x st of
     Just a -> return a
-    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
+    Nothing -> throwError $ "Var " <> x <> " Not found in " <> show st
 aToS (Ghost x) st = undefined
 aToS (IntConst i) st = return $ literal i
 aToS (Neg a) st = negate <$> aToS a st
@@ -193,3 +194,13 @@ aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Mul = (*)
         f Div = sDiv
         f Mod = sMod
+
+
+
+prover p st = case proveWLP p st of
+             Left e -> error e
+             Right f -> do
+               p' <- runExceptT $ runSMT $ f
+               case p' of
+                 Left e -> error e
+                 Right p'' -> trace (show p'') $ prove p''
