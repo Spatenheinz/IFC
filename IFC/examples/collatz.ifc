@@ -1,7 +1,8 @@
--- n is initial number
-n := 11;
+vars: [n]
+requirements: {n > 0 /\ n = 11}
+<!=_=!>
 length := 1;
-while (n /= 1) ?{ length < 16 /\ n > 0} {
+while (n /= 1) ?{n > 0} {
       if (n % 2 = 0) {
          n := n / 2;
       } else {

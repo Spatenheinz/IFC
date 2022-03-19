@@ -13,6 +13,10 @@ import Control.Monad (void)
 import qualified Data.Map as M
 import Pretty
 import OptParser
+import Control.Monad.Except
+import qualified Data.SBV.Trans as T
+import Debug.Trace
+import qualified WLP2 as W
 
 run :: Stmt -> [(VName, Integer)] -> IO ()
 run p st = case runEval st p of
@@ -29,9 +33,21 @@ prover p st = case proveWLP p st of
              Left e -> error e
              Right f -> prove f
 
+prover2 p st = case W.proveWLP p st of
+             Left e -> error e
+             Right f -> do
+               p' <- runExceptT $ T.runSMT $ f
+               case p' of
+                 Left e -> error e
+                 Right p'' -> trace (show p'') $ T.prove p''
 main :: IO ()
 main = do args <- getArgs
           case args of
+            ["-q2", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn $ "*** Parse error: " ++ show e
+                Right (p,st) -> prover2 p st >>= print
             ["-q", file] -> do
               s <- readFile file
               case parseString s of
@@ -48,13 +64,13 @@ main = do args <- getArgs
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> print p
             -- ["-test"] -> testOfMul >>= print
-            -- [file, argslist] -> do
-            --   s <- readFile file
-            --   case parseString s of
-            --     Left e -> putStrLn $ "*** Parse error: " ++ show e
-            --     Right (p,st) -> case parseStore argslist of
-            --                 Left e -> print e
-            --                 Right st -> run p st
+            [file, argslist] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn $ "*** Parse error: " ++ show e
+                Right (p,st) -> case parseStore argslist of
+                            Left e -> print e
+                            Right st -> run p st
             _ ->
               die "Usage:\n\
                     \  IFC FIX       (parse & interpret)"

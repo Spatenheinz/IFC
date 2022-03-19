@@ -1,7 +1,10 @@
-n := 10;
+vars: [n]
+requirements: {n > 0}
+<!=_=!>
 sum := 0;
-while (n > 0) ?{true} !{n} {
-      sum := sum + n;
-      n := n-1;
+m := 0;
+while (m <= n) ?{ sum = (m * (m + 1)) / 2 } {
+      sum := sum + m;
+      m := m + 1;
 };
-#{ sum = 55 };
+#{ sum = (n* (n + 1)) / 2};

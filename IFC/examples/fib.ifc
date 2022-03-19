@@ -1,13 +1,14 @@
--- a is counter
-a := 100000;
+vars: [a]
+requirements: {a = 10}
+<!=_=!>
 fib1 := 0;
 res := 1;
 tmp  := 0;
 while a > 1
-?{ true } {
+?{ a > 0 } {
      tmp := res;
      res := res + fib1;
      fib1 := tmp;
      a := a - 1;
 };
-#{ res = 5};
+#{ res = 55};
