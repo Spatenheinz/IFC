@@ -38,9 +38,9 @@ instance Arbitrary Stmt where
           assign = do
             i <- fixednames
             Assign i <$> arbitrary
-          ghost = do
-            i <- ghostid
-            GhostAss i <$> arbitrary
+          -- ghost = do
+          --   i <- ghostid
+          --   GhostAss i <$> arbitrary
           ifs n = do
             b <- arbitrary
             e1 <- expr n

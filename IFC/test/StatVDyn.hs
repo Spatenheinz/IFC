@@ -2,8 +2,6 @@
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module StatVDyn where
-
-import Test.Tasty (testGroup)
 import AST
 import QCInstances
 import CodeBlocks
@@ -20,21 +18,20 @@ import Data.SBV (prove, SMTResult(..))
 import Data.SBV.Trans.Control
 import WLP
 import System.IO.Unsafe
-import Data.SBV.Trans (ThmResult(ThmResult))
+import Data.SBV.Trans (ThmResult(ThmResult), Modelable (modelExists))
+import Test.QuickCheck.Monadic (monadicIO, run)
 
 dynstat = testGroup "Test between static and dynamic" [
         testGroup "QC" [
-            -- testProperty "Eval ~ VC-SAT" $ \(s :: Stmt) ->
-            --     case runEval [] s of
-            --       Left _ -> case proveWLP s ([],Nothing) of
-            --                   Left _ -> True === True
-            --                   Right p -> case unsafePerformIO $ prove p of
-            --                               ThmResult (Satisfiable _ _) -> False === True
-            --                               _ -> True === True
-            --       Right _ -> case proveWLP s ([],Nothing) of
-            --                   Left _ -> False === True
-            --                   Right p -> case unsafePerformIO $ prove p of
-            --                               ThmResult (Satisfiable _ _) -> True === True
-            --                               _ -> False === True
+            testProperty "Eval ~ VC-SAT" $ \(s :: Stmt) ->
+                case runEval [] s of
+                  Left _ -> case proveWLP s ([],Nothing) of
+                              Left _ -> True === True
+                              Right p -> monadicIO $ do
+                                res <- run $ prove p
+                                return $ modelExists res
+                  Right _ -> case proveWLP s ([],Nothing) of
+                              Left _ -> False === True
+                              Right p -> monadicIO $ run (prove p) >>= return . not . modelExists
         ]
         ]

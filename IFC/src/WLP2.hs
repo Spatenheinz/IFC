@@ -194,13 +194,3 @@ aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Mul = (*)
         f Div = sDiv
         f Mod = sMod
-
-
-
-prover p st = case proveWLP p st of
-             Left e -> error e
-             Right f -> do
-               p' <- runExceptT $ runSMT $ f
-               case p' of
-                 Left e -> error e
-                 Right p'' -> trace (show p'') $ prove p''

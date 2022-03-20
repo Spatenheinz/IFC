@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 module Main where
 
 import AST
@@ -33,13 +35,20 @@ prover p st = case proveWLP p st of
              Left e -> error e
              Right f -> prove f
 
+prover2 :: Stmt -> ([VName], Maybe FOL) -> IO ThmResult
 prover2 p st = case W.proveWLP p st of
              Left e -> error e
              Right f -> do
-               p' <- runExceptT $ T.runSMT $ f
+               p' <- runExceptT $ T.prove $ f
                case p' of
                  Left e -> error e
-                 Right p'' -> trace (show p'') $ T.prove p''
+                 Right p'' -> return $ p''
+                 -- Left e -> error e
+                 -- Right p'' -> p''
+               -- p' <- runExceptT $ T.runSMT $ f
+               -- case p' of
+               --   Left e -> error e
+               --   Right p'' -> trace (show p'') $ T.prove p''
 main :: IO ()
 main = do args <- getArgs
           case args of
@@ -63,7 +72,6 @@ main = do args <- getArgs
               case parseString s of
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> print p
-            -- ["-test"] -> testOfMul >>= print
             [file, argslist] -> do
               s <- readFile file
               case parseString s of
