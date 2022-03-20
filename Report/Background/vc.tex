@@ -60,7 +60,7 @@ $$
 
 where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation:
 $$x \prec y \quad = \quad x < y \land 0 \leq y $$
-(poly1.pdf)
+reference: (poly1.pdf)
 
 Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
 This makes it possible to prove termination, and is the difference between partial and total correctness.
@@ -84,12 +84,21 @@ The structure for computing the weakest preconditions for the constructs for tot
 \end{align*}
 
 % What are the differences? explain!
-
+We see that the difference between the computation of \textit{wp} and \textit{wlp} is the presence of the \textit{variant}. When given a variant expression $v$ for the loop, we add the assertion that this expression decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.
 
 %- gennemgå det i eksemplet
 % hvert fald for noget af eksemplet ?
+For our example program \texttt{mult.ifc}, we can compute the weakest precondition, as we have both a variant and an invariant in the while loop.
+By applying the \textit{wp} rules on the example, we get the weakest precondition seen in \autoref{figure:wpmult}.
 
-\input{Background/multVC.tex}
+SKRIV LIDT MERE OM HVORFOR HER!
+
+\begin{figure}[h]
+\input{Background/multVC}
+\caption{Weakest precondition of \texttt{mult.ifc}}
+\label{figure:wpmult}
+\end{figure}
+
 
 % Sound og Complete?
 %   - Soundness:
