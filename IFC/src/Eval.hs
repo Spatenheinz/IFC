@@ -5,9 +5,11 @@ module Eval where
 import Control.Monad.RWS
 import Data.Functor
 import qualified Data.Map.Strict as M
+import Data.Function (on)
 import System.IO (putStrLn)
 import AST
 import AST (AExpr(ABinary), ArithOp, BExpr (BoolConst), BoolOp)
+import Pretty
 
 type STEnv = M.Map VName Integer
 type Err a = Either String a
@@ -38,11 +40,24 @@ eval (Assign vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
 eval (If c s1 s2) = do
   c' <- evalBExpr c
   if c' then eval s1 else eval s2
-eval (Asst _) = return ()
+eval (Asst f) = evalFOL f >>= \case
+  True -> return ()
+  False -> lift . Left $ "Assertion " <> prettyF f 0 <> " Failed"
 eval w@(While c invs var s) =
   evalBExpr c >>= \c' -> when c' $ eval s >> eval w
 eval Skip = return ()
 eval Fail = lift $ Left "A violation has happened"
+
+evalFOL :: FOL -> Eval Bool
+evalFOL (Cond b) = evalBExpr b
+evalFOL (Forall _ _) = lift $ Left "Forall are currently unsupported"
+evalFOL (Exists _ _) = lift $ Left "Exists are current unsupported"
+evalFOL (ANegate a) = not <$> evalFOL a
+evalFOL (AConj a b) = on (liftM2 (&&)) evalFOL a b
+evalFOL (ADisj a b) = on (liftM2 (||)) evalFOL a b
+evalFOL (AImp a b) = liftM2 (\x y -> not (x && y)) (evalFOL a) (not <$> evalFOL b)
+
+
 
 updateEnv :: VName -> Integer -> STEnv -> STEnv
 updateEnv = M.insert
@@ -50,6 +65,11 @@ updateEnv = M.insert
 evalAExpr :: AExpr -> Eval Integer
 evalAExpr (IntConst i) = return i
 evalAExpr (Var vname) = do
+  st <- get
+  case M.lookup vname st of
+    Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
+    Just a -> return a
+evalAExpr (Ghost vname) = do
   st <- get
   case M.lookup vname st of
     Nothing -> lift $ Left $ "Variable " <> vname <> " not found"

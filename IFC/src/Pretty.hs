@@ -27,7 +27,7 @@ prettyA (Var x) = x
 prettyA (Ghost x) = x
 prettyA (IntConst i) = show i
 prettyA (Neg a) = "-" <> show a
-prettyA (ABinary op a b) = prettyA a <> prettyAOp op <> prettyA b
+prettyA (ABinary op a b) = "(" <> prettyA a <> prettyAOp op <> prettyA b <> ")"
 
 prettyBOp :: BoolOp -> String
 prettyBOp Conj = " && "

@@ -1,10 +1,8 @@
-a := 10;
-b := 8;
-#{0 <= a /\ 0 < b};
+vars: [a,b]
+requirements: {0 <= a /\ 0 < b}
+<!=_=!>
 q := 0;
 r := a;
-👻n := a;
-#{a = 👻n};
 while r >= b
 ?{ a = q * b + r /\ 0 <= r}
 !{r}

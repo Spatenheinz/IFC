@@ -1,4 +1,22 @@
-#{0 <= a /\ 0 < b};
-👻a := 5;
--- b := 👻a;
-b := b;
+forall q.
+    forall r.
+        (
+        (q > 0 /\ (r >= 0)) => forall res#3.
+            (res#3 = 0 => forall 👻a.
+                (👻a = q =>
+                     (res#3 = 👻a - q * r /\
+                     forall q#2. forall res#2. forall variant#1.
+                        (((q#2 > 0 /\ (res#2 = 👻a - q#2 * r /\ variant#1 = q#2)) =>
+                               --- KROP
+                               forall res#1.
+                               (res#1 = res#2 + r => forall q#1.
+                                    (q#1 = q#2 - 1 => (res#1 = 👻a - q#1 * r /\ ((0 <= variant#1) /\ q#1 < variant#1)))
+                                    )
+                               -----
+                         )
+                          /\ (((q#2 <= 0) /\ res#2 = 👻a - q#2 * r) => res#2 = 👻a * r)
+                        )
+                    )
+                )
+            )
+        )

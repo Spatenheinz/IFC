@@ -4,11 +4,12 @@
 {-# LANGUAGE PatternGuards #-}
 {-# LANGUAGE MultiWayIf #-}
 
-module WLP where
+module WLP2 where
 
-import Data.SBV
+import Data.SBV.Trans
 import Control.Monad(liftM2)
 import qualified Data.Map as M
+import Control.Monad.Except
 import Control.Monad.State.Strict
 import AST
 import Eval
@@ -23,7 +24,7 @@ import Debug.Trace
 import Pretty
 import Data.Foldable (foldrM)
 
-type Sym a = StateT SymTable Symbolic (SBV a)
+type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger
 
 type Count = Int
@@ -83,7 +84,7 @@ resolveBExpr1 (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr1
 
 resolveAExpr1 :: AExpr -> WP AExpr
 resolveAExpr1 (Var x) = Var <$> mrVar1 x
-resolveAExpr1 (Ghost a) = return $ Ghost a
+resolveAExpr1 (Ghost a) = return $ Var a
 resolveAExpr1 i@(IntConst _) = return i
 resolveAExpr1 (Neg a) = Neg <$> resolveAExpr1 a
 resolveAExpr1 (ABinary op a b) = on (liftM2 (abinary op)) resolveAExpr1 a b
@@ -108,31 +109,25 @@ wlp Fail _q = false
 wlp (While b [] _var _s) q = lift . lift . Left $ "while with condition "
                              <> prettyB b <> " has no invariant!"
 wlp (While b inv var s) q = do
-  let invs = foldr1 (./\.) inv   -- Foldr all invariants
+  let invs = foldr1 (./\.) inv
   st <- get
-  -- Give back condition for unbounded integer variant
-  (fa, var', veq) <- maybe (return (id, Cond $ BoolConst True, Cond $ BoolConst True)) resolveVar var
-  -- wlp(s, I /\ invariant condition)
+  (fa, var') <- maybe (return (id, Cond $ BoolConst True)) resolveVar var
   w <- wlp s (invs ./\. var')
-  -- check which variables we wanna forall over
   fas <- findVars s []
-  let inner = fa (((Cond b ./\. invs ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. invs) .=>. q))
-  --- Fix the bound variables and resolve them
+  let inner = fa ((Cond b ./\. invs ./\. var' .=>. w)
+                          ./\. (anegate (Cond b) ./\. invs .=>. q))
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ1 inner
   let fas' = foldr (Forall . snd) inner' fas
   return $ invs ./\. fas'
   where
-    resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
+    resolveVar :: Variant -> WP (FOL -> FOL, FOL)
     resolveVar var = do
       x <- genVar "variant"
       return (Forall x,
-               Cond (Negate (RBinary Greater (IntConst 0) (Var x))) ./\.
-               Cond (RBinary Less var (Var x))
-             , Cond (RBinary Eq (Var x) var)
-             )
+               Cond (Negate (RBinary Greater (IntConst 0) var)) ./\.
+               Cond (RBinary Less (Var x) var))
 
 mrVar1 :: VName -> WP VName
 mrVar1 x =
@@ -163,7 +158,7 @@ findInAsst (AConj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (ADisj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (AImp a b) st = findInAsst a st >>= findInAsst b
 
-fToS :: FOL -> SymTable -> Predicate
+fToS :: FOL -> SymTable -> Sym SBool
 fToS (Cond b) st = bToS b st
 fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
@@ -174,7 +169,7 @@ fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
 fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
 fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
-bToS :: BExpr -> SymTable -> Predicate
+bToS :: BExpr -> SymTable -> Sym SBool
 bToS (BoolConst b) st = return $ fromBool b
 bToS (Negate b) st = sNot <$> bToS b st
 bToS (BBinary op a b) st = on (liftM2 (f op)) (`bToS` st) a b
@@ -185,15 +180,12 @@ bToS (RBinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Eq   = (.==)
         f Greater = (.>)
 
-aToS :: AExpr -> SymTable -> Symbolic SInteger
+aToS :: AExpr -> SymTable -> Sym SInteger
 aToS (Var x) st =
   case M.lookup x st of
     Just a -> return a
-    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
-aToS (Ghost x) st =
-  case M.lookup x st of
-    Just a -> return a
-    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
+    Nothing -> throwError $ "Var " <> x <> " Not found in " <> show st
+aToS (Ghost x) st = undefined
 aToS (IntConst i) st = return $ literal i
 aToS (Neg a) st = negate <$> aToS a st
 aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
@@ -202,3 +194,13 @@ aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Mul = (*)
         f Div = sDiv
         f Mod = sMod
+
+
+
+prover p st = case proveWLP p st of
+             Left e -> error e
+             Right f -> do
+               p' <- runExceptT $ runSMT $ f
+               case p' of
+                 Left e -> error e
+                 Right p'' -> trace (show p'') $ prove p''

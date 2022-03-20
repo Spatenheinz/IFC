@@ -1,10 +1,10 @@
--- q := 10;
--- r := 55;
-#{q >= 0 /\ r >= 0};
+vars: [q,r]
+requirements: {q >= 0 /\ r >= 0}
+<!=_=!>
 res := 0;
 👻a := q;
-while (q > 0) ?{res = (👻a - q) * r} {
+while (q > 0) ?{res = (👻a - q) * r /\ q >= 0} !{q} {
       res := res + r;
       q := q - 1;
 };
-#{res = 👻a * r };
+#{res = 👻a * r};

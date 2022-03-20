@@ -18,12 +18,13 @@ import Control.Monad.Reader
 import Control.Monad.Identity
 import Debug.Trace
 
-type Parser = ParsecT Void String (ReaderT Bool Identity)
+type PreConds = ([VName], Maybe FOL)
+type Parser = ParsecT Void String (ReaderT Bool (StateT PreConds Identity))
 
-parseString :: String -> Either String Stmt
-parseString s = case runIdentity $ runReaderT (runParserT (between sc eof programP) "" s) False of
-         Left bundle -> Left $ errorBundlePretty bundle
-         Right xs    -> return xs
+parseString :: String -> Either String (Stmt, PreConds)
+parseString s = case runIdentity $ runStateT (runReaderT (runParserT (between sc eof programP) "" s) False) ([],Nothing) of
+         (Left bundle, _) -> Left $ errorBundlePretty bundle
+         (Right xs, st) -> return (xs, st)
 
 sc :: Parser ()
 sc = L.space (void spaceChar) lc bc
@@ -82,7 +83,17 @@ varP = do
     False -> Var <$> identP
 
 programP :: Parser Stmt
-programP = option Skip seqP
+programP = preconds >> option Skip seqP
+
+preconds :: Parser ()
+preconds = do
+  symbol "vars:"
+  vs <- brackets (sepBy identP (symbol ","))
+  symbol "requirements:"
+  req <- cbrackets (option Nothing (Just <$> impP))
+  symbol "<!=_=!>"
+  modify (const (vs,req))
+
 
 seqP :: Parser Stmt
 seqP = do
@@ -112,7 +123,7 @@ quantP = quant <|> impP
 impP :: Parser FOL
 impP = do
   a0 <- cdP
-  option a0 (symbol "=>" >> ANegate . AConj a0 . ANegate <$> impP)
+  option a0 (symbol "=>" >> aimp a0 <$> impP)
 
 cdP :: Parser FOL
 cdP = negPreP >>= cdOptP
@@ -124,16 +135,18 @@ cdOptP a0 = option a0 (do
             return (a0 `op` a1))
 
 cdchoiceP :: Parser (FOL -> FOL -> FOL)
-cdchoiceP = choice [ symbol "/\\" >> return AConj
-                   , symbol "\\/" >> return (ANegate ... (AConj `on` ANegate))
+cdchoiceP = choice [ symbol "/\\" >> return aconj
+                   , symbol "\\/" >> return adisj
                    ]
          where (...) = (.).(.)
 
 negPreP :: Parser FOL
-negPreP = (symbol "~" >> ANegate <$> negPreP) <|> topP
+negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
 
 topP :: Parser FOL
-topP = try (Cond <$> bTermP) <|> parens quantP
+topP = ask >>= \case
+  True -> try (Cond <$> bTermP) <|> parens quantP
+  False -> try (Cond <$> bTermP) <|> parens impP
 
 assignP :: Parser Stmt
 assignP = do
@@ -169,14 +182,14 @@ aExprP = makeExprParser aTermP operators
   where operators =
                 [ [ Prefix (Neg <$ symbol "-")
                 ]
-                , [ InfixL (ABinary Mul <$ symbol "*")
-                  , InfixL (ABinary Div <$ try (do s <- symbol "/"
+                , [ InfixL (abinary Mul <$ symbol "*")
+                  , InfixL (abinary Div <$ try (do s <- symbol "/"
                                                    void $ notFollowedBy $ symbol "\\" <|> symbol "="
                                                    return s))
-                  , InfixL (ABinary Mod <$ symbol "%")
+                  , InfixL (abinary Mod <$ symbol "%")
                   ]
-                , [ InfixL (ABinary Add <$ symbol "+")
-                  , InfixL (ABinary Sub <$ symbol "-")
+                , [ InfixL (abinary Add <$ symbol "+")
+                  , InfixL (abinary Sub <$ symbol "-")
                   ]
                 ]
 
