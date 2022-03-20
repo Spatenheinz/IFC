@@ -78,13 +78,16 @@ We see that the difference between the computation of \textit{wp} and \textit{wl
 For our example program \texttt{mult.ifc}, we can compute the weakest precondition, as we have both a variant and an invariant in the while loop.
 By applying the \textit{wp} rules on the example, we get the weakest precondition seen in \autoref{figure:wpmult}.
 
-SKRIV LIDT MERE OM HVORFOR HER!
-
 \begin{figure}[h]
 \input{Background/multVC}
 \caption{Weakest precondition of \texttt{mult.ifc}}
 \label{figure:wpmult}
 \end{figure}
+
+The interesting thing is how the \textit{while}-loop is resolved. First the \textit{invariant} is checked in line $4$, according to the first part of the \textit{wp} rule. 
+Next the rule requires a forall statement over all the variables altered in the loop bode, and that is what happens in line $5$ of the formula.
+Inside this forall we now check that the loop invariant and condition holds when entering each iteration (lines $6$-$9$), and that the invariant and the negated loop condition holds when the loop terminates(line $10$).
+The variant is used in line $6$, where the logical variable $\xi$ is set to hold the value of the variant, and in line $9$, where it is checked that the variant has decreased by comparing to the logical variable holding the value that the variant had at the beginning of the loop.
 
 
 % Sound og Complete?
