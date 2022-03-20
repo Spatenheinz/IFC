@@ -43,10 +43,6 @@ Because of their uniqueness ghost variables on the other hand is straight forwar
 Furthermore the current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. This would easily be fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\.
 
 \subsubsection{While - invariants and variants}
-NOTICE WE HAVE A BUG:
-If two assignments are done inside the while loop we cannot prove it.
-otherwise it seem to work???
-
 The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Thus we enfore the user to provide as a minimum the invariant.
 If no invariant is provided an error is reported.
 If an invariant is provided, we start by folding the (potentially many) invariants together by conjunction. We then handle the variant if any.
