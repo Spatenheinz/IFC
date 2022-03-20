@@ -5,15 +5,14 @@
 
 % verification conditions
 
-% - Beskrive de vigtige af dem?
-% assign, seq, while
 In the previous section we presented Hoare Triples and how they can be used to ``assign meaning to programs''. However, it might not always be possible that the Precondition is known. In such a case, we can use Weakest Precondition Calculus (denoted $WP$), which essentially states:
 $$
  \{WP(S,Q)\}S\{Q\}
 $$
 That is, we can use a well-defined calculus to find the weakest (least restrictive) precondition that will make $Q$ hold after $S$. By this calculus, which we present in this section, validation of Hoare Triples can be reduced to a logical sentence, since Weakest Precondition calculus is functional compared to the relational nature of Hoare logic.
-That is, by finding the weakest precondition, we have a condition that can be used to verify the program, and that is called \textit{verification condition generation}.
+By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that is called \textit{verification condition generation}.
 
+\subsubsection{Weakest Liberal Precondition}
 Below the structure for computing the weakest liberal precondition for the different constructs is shown.
 \begin{align*}
 	WLP(\texttt{skip}, Q) &= Q \\
@@ -30,11 +29,24 @@ Below the structure for computing the weakest liberal precondition for the diffe
 \end{align*}
 
 % TODO: write something about the above?
+The rules are somewhat self-explanatory, but we would like to go through some rules which have been important for our work.
 
+\paragraph{Assignments.}
+The rule for computing weakest liberal precondition for assignments says that for all variables $y$ where $y = e$, we should exchange $x$ in $Q$ with $y$. That is, we exchange all occurrences of $x$ with the value that we assign to $x$.
+
+\paragraph{Sequence.}
+For finding the \textit{wlp} of a sequence of statements $s_1;s_2$, we need to first find the \textit{wlp} $Q'$ of $s_2$ with $Q$, and then compute the \textit{wlp} of $s_1$ with $Q'$. This shows how we compute the weakest liberal precondition using a bottom-up approach.
+
+\paragraph{While-loops.}
+To compute the \textit{wlp} of a while loop we have to eensure that the loop invariant holds before, inside, and after the loop. That is why the first condition is simply that the invariant $I$ must evaluate to $true$.
+Next we need to assert that no matter what values the variables inside the loop have, the invariant and loop condition will hold whenever we go into the loop, and the invariant and negated loop condition will hold when the loop terminates.
+For these variables, we must also exchange all the occurrences in the currently accumulated weakest liberal precondition $Q$.
+
+\subsubsection{Weakest Precondition}
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
 % wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
-The Hoare logic can help us prove correctness, but does not guarantee termination of loops. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
+Right now, the Hoare logic can help us prove partial correctness, but does not guarantee termination of loops. We would like to be able to prove total correctness, meaning we want to prove termination. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
 The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
 To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
 $$
@@ -45,6 +57,10 @@ $$
           \texttt{ variant } v, \prec \texttt{ do } s \{I \land \neg e\}
 	}
 $$
+
+where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation:
+$$x \prec y \quad = \quad x < y \land 0 \leq y $$
+(poly1.pdf)
 
 Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
 This makes it possible to prove termination, and is the difference between partial and total correctness.
@@ -66,6 +82,9 @@ The structure for computing the weakest preconditions for the constructs for tot
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
   &\quad \text{statement } s \text{ and } x_1, ..., x_k, \xi \text{ are fresh logical variables.}
 \end{align*}
+
+% What are the differences? explain!
+
 
 %- gennemgå det i eksemplet
 % hvert fald for noget af eksemplet ?
