@@ -5,7 +5,7 @@ fib1 := 0;
 res := 1;
 tmp  := 0;
 while a > 1
-?{ a > 0 } {
+?{ a > 0 } !{a} {
      tmp := res;
      res := res + fib1;
      fib1 := tmp;

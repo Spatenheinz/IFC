@@ -83,7 +83,7 @@ resolveBExpr1 (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr1
 
 resolveAExpr1 :: AExpr -> WP AExpr
 resolveAExpr1 (Var x) = Var <$> mrVar1 x
-resolveAExpr1 (Ghost a) = return $ Var a
+resolveAExpr1 (Ghost a) = return $ Ghost a
 resolveAExpr1 i@(IntConst _) = return i
 resolveAExpr1 (Neg a) = Neg <$> resolveAExpr1 a
 resolveAExpr1 (ABinary op a b) = on (liftM2 (abinary op)) resolveAExpr1 a b
@@ -108,25 +108,31 @@ wlp Fail _q = false
 wlp (While b [] _var _s) q = lift . lift . Left $ "while with condition "
                              <> prettyB b <> " has no invariant!"
 wlp (While b inv var s) q = do
-  let invs = foldr1 (./\.) inv
+  let invs = foldr1 (./\.) inv   -- Foldr all invariants
   st <- get
-  (fa, var') <- maybe (return (id, Cond $ BoolConst True)) resolveVar var
+  -- Give back condition for unbounded integer variant
+  (fa, var', veq) <- maybe (return (id, Cond $ BoolConst True, Cond $ BoolConst True)) resolveVar var
+  -- wlp(s, I /\ invariant condition)
   w <- wlp s (invs ./\. var')
+  -- check which variables we wanna forall over
   fas <- findVars s []
-  let inner = fa ((Cond b ./\. invs ./\. var' .=>. w)
-                          ./\. (anegate (Cond b) ./\. invs .=>. q))
+  let inner = fa (((Cond b ./\. invs ./\. veq) .=>. w)
+                          ./\. ((anegate (Cond b) ./\. invs) .=>. q))
+  --- Fix the bound variables and resolve them
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ1 inner
   let fas' = foldr (Forall . snd) inner' fas
   return $ invs ./\. fas'
   where
-    resolveVar :: Variant -> WP (FOL -> FOL, FOL)
+    resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
     resolveVar var = do
       x <- genVar "variant"
       return (Forall x,
-               Cond (Negate (RBinary Greater (IntConst 0) var)) ./\.
-               Cond (RBinary Less (Var x) var))
+               Cond (Negate (RBinary Greater (IntConst 0) (Var x))) ./\.
+               Cond (RBinary Less var (Var x))
+             , Cond (RBinary Eq (Var x) var)
+             )
 
 mrVar1 :: VName -> WP VName
 mrVar1 x =
@@ -184,7 +190,10 @@ aToS (Var x) st =
   case M.lookup x st of
     Just a -> return a
     Nothing -> error $ "Var " <> x <> " Not found in " <> show st
-aToS (Ghost x) st = undefined
+aToS (Ghost x) st =
+  case M.lookup x st of
+    Just a -> return a
+    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
 aToS (IntConst i) st = return $ literal i
 aToS (Neg a) st = negate <$> aToS a st
 aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
