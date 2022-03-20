@@ -12,7 +12,7 @@ $$
  \{WP(S,Q)\}S\{Q\}
 $$
 That is, we can use a well-defined calculus to find the weakest (least restrictive) precondition that will make $Q$ hold after $S$. By this calculus, which we present in this section, validation of Hoare Triples can be reduced to a logical sentence, since Weakest Precondition calculus is functional compared to the relational nature of Hoare logic.
-That is, by finding the weakest precondition, we have a condition that can be used to verify the program, and that is called \textit{verification condition generation}.
+By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that is called \textit{verification condition generation}.
 
 Below the structure for computing the weakest liberal precondition for the different constructs is shown.
 \begin{align*}
@@ -30,6 +30,12 @@ Below the structure for computing the weakest liberal precondition for the diffe
 \end{align*}
 
 % TODO: write something about the above?
+% assignments
+%		rule say that for all y, where y has the value e, we should exchange the value of x with y in Q
+% sequence
+%		rule says that finding the weakest precondition of a sequence c0;c1 is the same as finding the weakest precondition of c1 (combined with what what previously found), and then compute wp of c0 combined with that wp. This shows how we compute the weakest precondition bottom-up.
+% while-loops
+%		For while loops we need the invariant to hold, and that for all variables 
 
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
