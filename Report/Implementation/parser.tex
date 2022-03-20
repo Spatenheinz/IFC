@@ -1,0 +1,16 @@
+\subsection{Parser}
+For the parsing stage of the compiler we use the parser combinator library MegaParsec. Most of the parsing is fairly standard, however the following is noticable.
+\\~\\
+In the previous sections we described the syntax and the semantics of IFC, in that section we describe only a few of the semantics and state some operators which is simply syntactic sugar for the ones presented in the semantics. However, for certain parts of the actual AST, we use the unsugared constructs, this is mainly seen in the first order logic, in terms of the \verb\exists\ and implication. This is purely, because it reads better in the output of the vc generator. This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, we settle for a slightly bigger AST, and as of now this does not add much overhead to the other parts of the program, although this might be rethought in the future.
+\\~\\
+Another point that is worth mentioning is how we handle illegal uses of ghost variables.
+An illegal use of a ghost variable is a semantical, that is a ghost variable can be declared and occur in the assertion language, but never appear elsewhere in the program logic.
+However, we have gone with an approach which will simply fail to parse if a ghost variable appears anywhere not allowed.
+We do so by adding a reader monadtransformer.
+
+\begin{lstlisting}{haskell}
+type Parser = ParsecT Void String (ReaderT Bool Identity)
+\end{lstlisting}
+
+The boolean value in this environment will tell if the next parser must allow for parsing ghost variables. Which will certainly only happen in assertions.
+We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator.

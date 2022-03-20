@@ -1,0 +1,54 @@
+\subsection{Verification Condition Generator}
+The verification condition generator, uses the weakest liberal precondition, or weakest precondition (if while contains a variant). Again we want to be able to chain the actions and include a state and reader environment.
+
+\begin{lstlisting}
+type Counter = M.Map VName Count
+type Env = M.Map VName VName
+type WP a = StateT Counter (ReaderT Env (Either String)) a
+\end{lstlisting}
+
+The Counter state is used to give unique names to variables. Whereas we want the reader environment to resolve variable substitution in the formula generated from the weakest preconditions.
+
+As described in section ??, we use the forall rule, when encountering assignments. In the development process we considered two different approaches to resolve this.
+
+\subsubsection{First approach}
+The initial approach tried to resolve $Q$ only after the entire formula were build. This would allows for WLP to be resolve in only two passes, one over the imperative language AST and one over Assertion Language AST in the formula. The approach was intended to build up a map as such, where \verb\VName\ is an identifier (String):
+
+\begin{lstlisting}
+type Env1 = M.Map VName [VName]
+\end{lstlisting}
+
+Whenever encountering a variable we would add a unique identifier to its value-list along with extending $Q$ by the WP rules, as such:
+
+\begin{lstlisting}
+missing
+\end{lstlisting}
+
+The result of running WP will then give a partially resolved formula and the final state. When resolving ... Jeg tænker lige.
+
+\subsubsection{Second approach}
+The second and current approach is to resolve $Q$ whenever we encounters a variable. We generate the forall as such:
+\begin{lstlisting}
+wp (Assign x a) q = do
+    x' <- genVar x
+    q' <- local (M.insert x x') $ resolveQ1 q
+    return $ Forall x' (Cond (RBinary Eq (Var x') a) .=>. q')
+\end{lstlisting}
+We make a new variable (simply generating a unique identifier), then we proceed to resolve $q$ with the new environment, such that every occurence of $x$ will be substituted by $x'$. The \verb\Aexpr\ which $x$ evaluates to should not be resolved in this case, as this will potentially depend on variables not yet encounted.
+\\~\\
+This approach will go over the entire formula every time an assignment is made, which is quite inefficient, hence why the initial approach seemed better (and potentially still is, if we can make it work).
+\\~\\
+Because of their uniqueness ghost variables on the other hand is straight forward to resolve as we need no substitution.
+\\~\\
+Furthermore the current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. This would easily be fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\.
+
+\subsubsection{While - invariants and variants}
+NOTICE WE HAVE A BUG:
+If two assignments are done inside the while loop we cannot prove it.
+otherwise it seem to work???
+
+The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Thus we enfore the user to provide as a minimum the invariant.
+If no invariant is provided an error is reported.
+If an invariant is provided, we start by folding the (potentially many) invariants together by conjunction. We then handle the variant if any.
+We do so by either generate a new \verb\invariant\ variable $x$, and return a \verb\Forall x\ function, if the variant is not present, we return \verb\id\, for monadic composition.
+Then compute wlp for the body, and resolve the entire formula as explained in ??.

@@ -1,0 +1,25 @@
+\section{Implementation}
+IFC is yet to be more than just a toy-language, however in the design of the language and the actual compiler, we have tried to focus making the code modular and easy to extend.
+Currently the program consists of 4 parts.
+\begin{enumerate}
+  \item Parser
+  \item Evaluator
+  \item Verification Condition Generator
+  \item External SMT-solver API
+\end{enumerate}
+Each part will carry out a task for the program. There is no explicit dependency between any of these parts. Though the main interface is setup to the following tasks:
+\begin{enumerate}
+  \item Extract the Abstract Syntax Tree generated in the Parser
+  \item Run a program with an initial store (TODO!!!! REALLY NEED THIS)
+  \item Extract the formula by Verification Condition Generator
+  \item Run the formular through an external prover (Z3).
+\end{enumerate}
+Section ?? explains each of these are used. In the following section we describe how each the 4 program parts are implemented.
+
+\input{Implementation/parser.tex}
+
+\input{Implementation/evaluator.tex}
+
+\input{Implementation/VCGImp.tex}
+
+\input{Implementation/api.tex}
