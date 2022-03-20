@@ -46,24 +46,11 @@ For these variables, we must also exchange all the occurrences in the currently 
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
 % wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
-Right now, the Hoare logic can help us prove partial correctness, but does not guarantee termination of loops. We would like to be able to prove total correctness, meaning we want to prove termination. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
-The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
-To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
-$$
-	\frac{
-		\{I \land e \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
-	}{
-		\{I\} \texttt{ while } e \texttt{ invariant } I 
-          \texttt{ variant } v, \prec \texttt{ do } s \{I \land \neg e\}
-	}
-$$
-
-where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation:
-$$x \prec y \quad = \quad x < y \land 0 \leq y $$
-reference: (poly1.pdf)
+%Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant.
 
 Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
-This makes it possible to prove termination, and is the difference between partial and total correctness.
+Here we have to use the modified Hoare logic for \textit{while}-loops presented in \ref{sec:total-correctness}.
+% This makes it possible to prove termination, and is the difference between partial and total correctness.
 
 The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
 
