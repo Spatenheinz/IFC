@@ -8,7 +8,7 @@ import CodeBlocks
 
 import Test.Tasty
 import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck (testProperty, (===), arbitrary, Property, property)
+import Test.Tasty.QuickCheck (testProperty, (===), (==>), arbitrary, Property, property, cover)
 import Eval
 import qualified Data.Map as M
 import Data.Either
@@ -24,10 +24,13 @@ import Control.Monad.Except
 dynstat = testGroup "Test between static and dynamic" [
         testGroup "QC" [
             testProperty "Eval ~ VC-SAT" $ \(s :: Stmt) ->
+                cover 80 (isRight $ runEval [] s) "non-trivial" $
                 case runEval [] s of
                   Left _ -> qcProver s (property True) id
                   Right _ -> qcProver s (property False) not
-        ]
+            , testProperty "Eval true ~ VC-SAT" $ \(s :: Stmt) ->
+                isRight (runEval [] s) ==> qcProver s (property False) not
+            ]
         ]
 
 qcProver :: Stmt -> Property -> (Bool -> Bool) -> Property
