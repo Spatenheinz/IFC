@@ -1,0 +1,49 @@
+\begin{tabular}{|c c c|}
+ \hline
+  & & \\
+ $skip$ & : & $
+		\frac{}{\langle \texttt{skip}, \sigma \rangle \downarrow \sigma}$ \\
+  & & \\
+ $assign$ & : & $\frac{
+		\langle a, \sigma \rangle \downarrow n
+	}{
+		\langle X:= a, \sigma \rangle \downarrow \sigma [X \mapsto n]
+	} $\\
+  & & \\
+ $seq$ & : & $\frac{
+		\langle s_0, \sigma \rangle \downarrow \sigma '' \quad
+    \langle s_1, \sigma '' \rangle \downarrow \sigma'
+	}{
+		\langle s_0;s_1, \sigma \rangle \downarrow \sigma '
+	} $\\
+  & & \\
+ $if$-$true$ & : & $\frac{
+		\langle b, \sigma \rangle \downarrow \texttt{true} \quad
+    \langle s_0, \sigma \rangle \downarrow \sigma'
+	}{
+		\langle \texttt{if } b \texttt{ then } s_0 \texttt{ else } s_1 \rangle \downarrow \sigma '
+	} $\\
+  & & \\
+ $if$-$false$ & : & $\frac{
+		\langle b, \sigma \rangle \downarrow \texttt{false} \quad
+    \langle s_1, \sigma \rangle \downarrow \sigma'
+	}{
+		\langle \texttt{if } b \texttt{ then } s_0 \texttt{ else } s_1 \rangle \downarrow \sigma '
+	} $\\
+  & & \\
+ $while$-$false$ & : & $\frac{
+		\langle b, \sigma \rangle \downarrow \texttt{false}
+	}{
+		\langle \texttt{while } b \texttt{ do } s_0 \rangle \downarrow \sigma
+	} $\\
+  & & \\
+ $while$-$true$ & : & $\frac{
+		\langle b, \sigma \rangle \downarrow \texttt{true} \quad
+		\langle s_0, \sigma \rangle \downarrow \sigma '' \quad
+		\langle \texttt{while } b \texttt{ do } s_0, \sigma '' \rangle \downarrow \sigma '
+	}{
+		\langle \texttt{while } b \texttt{ do } s_0 \rangle \downarrow \sigma '
+	}$ \\
+  & & \\
+ \hline
+\end{tabular}

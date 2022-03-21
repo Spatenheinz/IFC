@@ -1,0 +1,5 @@
+res := 0;
+while (q > 0) {
+      res := res + r;
+      q := q - 1;
+};
