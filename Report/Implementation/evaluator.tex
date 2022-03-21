@@ -15,8 +15,9 @@ We make use of the error monad to resolve any runtime-errors that would arise, t
 \\~\\
 Each non-terminal in the grammar are resolved by different functions which all operate under the $Eval$ monad, which allows for a clean and modular monadic compiler.
 \\~\\
-One important note about the interpreter is that we have no good way of checking assertions which includes qunatifiers. The reasons is that we wanted to support arbitrary precision integers, however this means that we currently has no feasible way to check such assertions.
+One important note about the interpreter is that we have no good way of checking assertions which includes quantifiers. The reasons is that we wanted (possibly erronously) to support arbitrary precision integers.
+This entails that we currently has no feasible way to check such assertions.
 A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover.
-Though the interpreter would then also require external dependencies, and not be a standalone program any longer. As mentioned in \autoref{sec:parser}, we have found a nice way to temporarily work around this restriction.
-
-Hereby assertions with quantifiers do nothing at the moment, while non-qunatified assertions, will be evauluated as per the operational semantics.
+Though the interpreter would then also require external dependencies, and not be a standalone program any longer.
+All in all, this is unideal, and currently the approach is to ``ignore'' such assertions by considering them true. In \autoref{sec:typesystem} we describe a potential extension to IFC, which could help alleviate this problem.
+Non-qunatified assertions, will still be evauluated as per the operational semantics.

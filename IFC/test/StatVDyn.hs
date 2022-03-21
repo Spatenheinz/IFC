@@ -37,7 +37,7 @@ qcProver :: Stmt -> Property -> (Bool -> Bool) -> Property
 qcProver p prop mneg = case proveWLP p ([],Nothing) of
                     Left e -> prop
                     Right f -> monadicIO $ do
-                       res <- run $ runExceptT $ (T.prove f :: ExceptT String IO ThmResult)
+                       res <- run $ runExceptT (T.prove f :: ExceptT String IO ThmResult)
                        case res of
                          Left e -> return prop
                          Right r -> return . property $ mneg $ modelExists r

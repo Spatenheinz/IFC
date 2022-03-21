@@ -16,7 +16,7 @@ import Data.Foldable
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Identity
-import Debug.Trace
+import Utils
 
 type PreConds = ([VName], Maybe FOL)
 type Parser = ParsecT Void String (ReaderT Bool (StateT PreConds Identity))
@@ -46,8 +46,14 @@ brackets = (between `on` symbol) "[" "]"
 cbrackets :: Parser a -> Parser a
 cbrackets = (between `on` symbol) "{" "}"
 
+signed = L.signed (return ()) integer
+
 integer :: (Num a) => Parser a
-integer = lexeme L.decimal <|> L.binary <|> L.octal <|> L.hexadecimal
+integer = lexeme $ (string "0" >>
+                    (string "b" *> L.binary) <|>
+                    (string "x" *> L.hexadecimal) <|>
+                    (string "o" *> L.octal) <|> return 0)
+                    <|> L.decimal
 
 sep :: Parser String
 sep = symbol ";"
@@ -138,7 +144,6 @@ cdchoiceP :: Parser (FOL -> FOL -> FOL)
 cdchoiceP = choice [ symbol "/\\" >> return aconj
                    , symbol "\\/" >> return adisj
                    ]
-         where (...) = (.).(.)
 
 negPreP :: Parser FOL
 negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
@@ -196,10 +201,10 @@ aExprP = makeExprParser aTermP operators
 bExprP :: Parser BExpr
 bExprP = makeExprParser bTermP operators
   where operators =
-                [ [ Prefix (Negate <$ rword "!")
+                [ [ Prefix (bnegate <$ rword "!")
                 ]
-                , [ InfixL (BBinary Conj <$ symbol "&&")
-                  , InfixL (BBinary Disj <$ symbol "||")
+                , [ InfixL (bconj <$ symbol "&&")
+                  , InfixL (bdisj <$ symbol "||")
                   ]
                 ]
 
@@ -226,6 +231,4 @@ relationP = choice [ symbol "=" >> return (RBinary Eq)
                    , symbol ">"  >> return (RBinary Greater)
                    ]
   -- Just some helpers to make the code look beautiful
-  where (.....) :: (b -> c) -> (a1 -> a2 -> a3 -> b) -> a1 -> a2 -> a3 -> c
-        (.....) = (.).(.).(.)
-        notOp = Negate ..... RBinary
+  where notOp = Negate ..... RBinary

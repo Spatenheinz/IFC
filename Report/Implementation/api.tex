@@ -1,24 +1,34 @@
 \subsection{proof-assistant API}
-The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simply symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for. Again this can be good in the future but is also a big dependency. We mostly make use of the higher level functions and dont mess with any of the internals. The code which generates a \verb\Predicate\ is simple, since the formula generated in the previous stage, will be a first order logic formula, which straight forwardly can be converted into SBV's types. For the entire highlevel logic we resolve it as simple as this:
+The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simplify symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for.
+Again this can be good in the future, but is also a big dependency.
+We mostly make use of the higher level functions and dont mess with any of the internals, however the default type of SBV does not quite fit our needs.
+Instead we use the provided transformer, such that we can embed the Except monad. We want to do so, as when iterating over the formular, we might encounter a variables not yet defined, fail gracefully.
+The code which generates a \verb\Predicate ~ Sym SBool\ is simple, since the formula generated in the previous stage, will be already first order logic formula, which straight forwardly can be converted into SBV's types. For the entire highlevel logic we resolve it as simple as this:
 \begin{lstlisting}
+type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger
 
-fToS :: FOL -> SymTable -> Predicate
+fToS :: FOL -> SymTable -> Sym SBool
 fToS (Cond b) st = bToS b st
 fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
 fToS (Exists x a) st = forSome [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
 fToS (ANegate a) st = sNot <$> fToS a st
-fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
-fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
-fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
+fToS (AConj a b) st = onlM2 (.&&) (`fToS` st) a b
+fToS (ADisj a b) st = onlM2 (.||) (`fToS` st) a b
+fToS (AImp a b) st = onlM2 (.=>) (`fToS` st) a b
 \end{lstlisting}
 
-And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Notice how this simply will generate a single collective predicate, instead of the often more used DSL like use of monadically generating quantified variables and constraints. The generated predicate will then try to be proved by the SBV function \verb\prove\, If the program can correctly be proved by the external SMT solver, the output will be \verb\Q.E.D.\, whereas if the formula cannot be proved, a falsifiable instance of the variables will be presented. For instance the output of the following program will obviously always be falsified.
-
+And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Ideally we would add a ReaderT to the transformerstack to get rid of the explicit state, however we have not been able to resolve the type for this.
+Notice how this simply will generate a single collective predicate, instead of the often more used DSL like use of monadically generating quantified variables and constraints.
+The generated predicate will then try to be proved by the SBV function \verb\prove\.
+If the program can correctly be proved by the external SMT solver, the output will be \verb\Q.E.D.\
+, whereas if the formula cannot be proved, a falsifiable instance of the variables will be presented.
+For instance the output of the following program will obviously always be falsified.
 \begin{lstlisting}
 violate;
 \end{lstlisting}
-
-on the otherhand the previously shown multiplication example, will be proved.
+whereas the multiplication program in \autoref{figure:mult} is proveable.
+\\~\\
+In the current state, there is only possibility of using Z3 as prover, however allowing for the use of any of the other SBV-supported SMT-solvers should quick to implement, whereas non-supported solvers will require quite a lot more work.

@@ -18,8 +18,8 @@ import Data.SBV.Trans
 import Debug.Trace
 -- import qualified WLP2 as W
 
-run :: Stmt -> [(VName, Integer)] -> IO ()
-run p st = case runEval st p of
+run :: Stmt -> PreConds -> [(VName, Integer)] -> IO ()
+run p (_,pre) st = case maybe (runEval st p) (\x -> runEval st (Seq (Asst x) p)) pre of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right store -> printEval store
 
@@ -66,7 +66,7 @@ main = do args <- getArgs
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> case parseStore argslist of
                             Left e -> print e
-                            Right st -> run p st
+                            Right args -> run p st args
             _ ->
               die "Usage:\n\
                     \  IFC FIX       (parse & interpret)"
