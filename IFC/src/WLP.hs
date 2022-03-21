@@ -6,7 +6,7 @@
 
 module WLP where
 
-import Data.SBV
+import Data.SBV.Trans
 import Control.Monad(liftM2)
 import qualified Data.Map as M
 import Control.Monad.State.Strict
@@ -19,11 +19,11 @@ import Data.List (isInfixOf, isPrefixOf)
 import Data.Function (on)
 import Control.Monad.RWS (modify)
 import Data.Bifunctor (first)
-import Debug.Trace
 import Pretty
 import Data.Foldable (foldrM)
+import Control.Monad.Except
 
-type Sym a = StateT SymTable Symbolic (SBV a)
+type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger
 
 type Count = Int
@@ -70,9 +70,9 @@ resolveQ1 (Cond b) = resolveBExpr1 b
 resolveQ1 (Forall x q) = Forall x <$> resolveQ1 q
 resolveQ1 (Exists x q) = Exists x <$> resolveQ1 q
 resolveQ1 (ANegate q) = anegate <$> resolveQ1 q
-resolveQ1 (AConj a b) = liftM2 AConj (resolveQ1 a) (resolveQ1 b)
-resolveQ1 (ADisj a b) = liftM2 ADisj (resolveQ1 a) (resolveQ1 b)
-resolveQ1 (AImp a b) = liftM2 AImp (resolveQ1 a) (resolveQ1 b)
+resolveQ1 (AConj a b) = on (liftM2 aconj) resolveQ1 a b
+resolveQ1 (ADisj a b) = on (liftM2 adisj) resolveQ1 a b
+resolveQ1 (AImp a b) = on (liftM2 AImp) resolveQ1 a b
 
 resolveBExpr1 :: BExpr -> WP FOL
 resolveBExpr1 b@(BoolConst _) = return $ Cond b
@@ -163,7 +163,7 @@ findInAsst (AConj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (ADisj a b) st = findInAsst a st >>= findInAsst b
 findInAsst (AImp a b) st = findInAsst a st >>= findInAsst b
 
-fToS :: FOL -> SymTable -> Predicate
+fToS :: FOL -> SymTable -> Sym SBool
 fToS (Cond b) st = bToS b st
 fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
@@ -174,7 +174,7 @@ fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
 fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
 fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
-bToS :: BExpr -> SymTable -> Predicate
+bToS :: BExpr -> SymTable -> Sym SBool
 bToS (BoolConst b) st = return $ fromBool b
 bToS (Negate b) st = sNot <$> bToS b st
 bToS (BBinary op a b) st = on (liftM2 (f op)) (`bToS` st) a b
@@ -185,15 +185,15 @@ bToS (RBinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Eq   = (.==)
         f Greater = (.>)
 
-aToS :: AExpr -> SymTable -> Symbolic SInteger
+aToS :: AExpr -> SymTable -> Sym SInteger
 aToS (Var x) st =
   case M.lookup x st of
     Just a -> return a
-    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
+    Nothing -> throwError $ "Var " <> x <> " Not found in " <> show st
 aToS (Ghost x) st =
   case M.lookup x st of
     Just a -> return a
-    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
+    Nothing -> throwError $ "Var " <> x <> " Not found in " <> show st
 aToS (IntConst i) st = return $ literal i
 aToS (Neg a) st = negate <$> aToS a st
 aToS (ABinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
