@@ -25,7 +25,8 @@ Below the structure for computing the weakest liberal precondition for the diffe
     &\quad (((e \land I) \Rightarrow WLP(s, I)) \land (( \neg e \land I) \Rightarrow Q))
        [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
-  &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.}
+  &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.} \\
+  WLP(\{P\}, Q) &= P \land Q \quad \text{where P is an assertion}
 \end{align*}
 
 % TODO: write something about the above?
