@@ -17,7 +17,7 @@ parseStore s = case parse (brackets inputP) "" s of
 
 inputP :: Parser [(VName, Integer)]
 inputP = sepBy (parens pairP) (symbol ",")
-  where pairP = identP >>= \v -> symbol "," >> integer >>= \i -> return (v,i)
+  where pairP = identP >>= \v -> symbol "," >> signed >>= \i -> return (v,i)
 
 identP :: Parser String
 identP = (lexeme . try) ident
@@ -37,5 +37,11 @@ parens = (between `on` symbol) "(" ")"
 brackets :: Parser a -> Parser a
 brackets = (between `on` symbol) "[" "]"
 
+signed = L.signed (return ()) integer
+
 integer :: (Num a) => Parser a
-integer = lexeme L.decimal <|> L.binary <|> L.octal <|> L.hexadecimal
+integer = lexeme $ (string "0" >>
+                    (string "b" *> L.binary) <|>
+                    (string "x" *> L.hexadecimal) <|>
+                    (string "o" *> L.octal) <|> return 0)
+                    <|> L.decimal

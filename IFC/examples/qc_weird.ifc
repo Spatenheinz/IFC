@@ -1,0 +1,9 @@
+-- GhostAss "\128123b"
+-- (ABinary Mod (IntConst (-15))
+--              (ABinary Add (IntConst 25)
+--                      (ABinary Sub (IntConst (-9)) (IntConst 16))))
+vars: []
+requirements: {}
+<!=_=!>
+-- THIS CAN BE QUEDDED BUT gets a runtime-error
+👻b := -15 % (25 + ((-9) - 16));

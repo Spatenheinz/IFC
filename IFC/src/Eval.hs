@@ -8,8 +8,8 @@ import qualified Data.Map.Strict as M
 import Data.Function (on)
 import System.IO (putStrLn)
 import AST
-import AST (AExpr(ABinary), ArithOp, BExpr (BoolConst), BoolOp)
 import Pretty
+import Utils
 
 type STEnv = M.Map VName Integer
 type Err a = Either String a
@@ -35,8 +35,8 @@ eval (GhostAss vname a) = do
   st <- get
   case M.lookup vname st of
     Just a -> lift . Left $ "Ghost " <> vname <> " defined multiple times"
-    Nothing -> evalAExpr a >>= \a' -> modify (updateEnv vname a')
-eval (Assign vname a) = evalAExpr a >>= \a' -> modify (updateEnv vname a')
+    Nothing -> modify . updateEnv vname =<< evalAExpr a
+eval (Assign vname a) = modify . updateEnv vname =<< evalAExpr a
 eval (If c s1 s2) = do
   c' <- evalBExpr c
   if c' then eval s1 else eval s2
@@ -50,33 +50,26 @@ eval Fail = lift $ Left "A violation has happened"
 
 evalFOL :: FOL -> Eval Bool
 evalFOL (Cond b) = evalBExpr b
-evalFOL (Forall _ _) = lift $ Left "Forall are currently unsupported"
-evalFOL (Exists _ _) = lift $ Left "Exists are current unsupported"
+evalFOL (Forall _ _) =  return True --lift $ Left "Forall are currently unsupported"
+evalFOL (Exists _ _) = return True --lift $ Left "Exists are current unsupported"
 evalFOL (ANegate a) = not <$> evalFOL a
-evalFOL (AConj a b) = on (liftM2 (&&)) evalFOL a b
-evalFOL (ADisj a b) = on (liftM2 (||)) evalFOL a b
-evalFOL (AImp a b) = liftM2 (\x y -> not (x && y)) (evalFOL a) (not <$> evalFOL b)
-
-
+evalFOL (AConj a b) = onlM2 (&&) evalFOL a b
+evalFOL (ADisj a b) = onlM2 (||) evalFOL a b
+evalFOL (AImp a b) = liftM2 (not ... (&&)) (evalFOL a) (not <$> evalFOL b)
 
 updateEnv :: VName -> Integer -> STEnv -> STEnv
 updateEnv = M.insert
 
 evalAExpr :: AExpr -> Eval Integer
 evalAExpr (IntConst i) = return i
-evalAExpr (Var vname) = do
-  st <- get
-  case M.lookup vname st of
+evalAExpr (Var vname) = get >>= (\case
+  Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
+  Just a -> return a) . M.lookup vname
+evalAExpr (Ghost vname) = get >>= (\case
     Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
-    Just a -> return a
-evalAExpr (Ghost vname) = do
-  st <- get
-  case M.lookup vname st of
-    Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
-    Just a -> return a
+    Just a -> return a) . M.lookup vname
 evalAExpr (Neg a) = evalAExpr a <&> negate
-evalAExpr (ABinary op a1 a2) =
-  liftM2 (evalAOp op) (evalAExpr a1) (evalAExpr a2) >>= \case
+evalAExpr (ABinary op a1 a2) = onlM2 (evalAOp op) evalAExpr a1 a2 >>= \case
     Left e -> lift $ Left e
     Right r -> return r
 
@@ -94,10 +87,8 @@ binops = [(Add, (+)), (Sub, (-)), (Mul, (*)), (Div, div), (Mod, mod)]
 evalBExpr :: BExpr -> Eval Bool
 evalBExpr (BoolConst b) = return b
 evalBExpr (Negate b) = evalBExpr b <&> not
-evalBExpr (BBinary op b1 b2) =
-  liftM2 (evalBOp op) (evalBExpr b1) (evalBExpr b2)
-evalBExpr (RBinary op a1 a2) =
-  liftM2 (evalROp op) (evalAExpr a1) (evalAExpr a2)
+evalBExpr (BBinary op b1 b2) = onlM2 (evalBOp op) evalBExpr b1 b2
+evalBExpr (RBinary op a1 a2) = onlM2 (evalROp op) evalAExpr a1 a2
 
 evalBOp :: BoolOp -> Bool -> Bool -> Bool
 evalBOp Conj a b = a && b

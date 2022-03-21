@@ -10,7 +10,7 @@ import CodeBlocks
 
 import Test.Tasty
 import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck (testProperty, (===), arbitrary)
+import Test.Tasty.QuickCheck (testProperty, (===), arbitrary, property)
 import Eval
 import qualified Data.Map as M
 import Data.Either
@@ -25,15 +25,15 @@ equivalence = testGroup "Tests for equivalences" [
                 evalB [] bexpr === evalB [] bexpr
             , testProperty "Assign" $ \(i :: fixednames) (a :: AExpr) ->
                 case evalA [] a of
-                  Left e -> vacous
+                  Left e -> property True
                   Right a' -> runEval [] (Assign i a ) === Right (M.fromList [(i, a')])
             , testProperty "Assign2" $ \(i :: fixednames) (a :: AExpr) ->
                 case evalA [] a of
-                  Left e -> vacous
+                  Left e -> property True
                   Right a' -> runEval [] (Assign i a) === runEval [] (Assign i (IntConst a'))
             , testProperty "AssignSkip" $ \(i :: fixednames) (a :: AExpr) ->
                 case evalA [] a of
-                  Left e -> vacous
+                  Left e -> property True
                   Right a' -> runEval [] (Assign i (IntConst a')) === runEval [(i,a')] Skip
             , testProperty "Seq associative" $ \(s1 :: Stmt) (s2 :: Stmt) (s3 :: Stmt) ->
                 runEval [] (Seq s1 (Seq s2 s3)) === runEval [] (Seq (Seq s1 s2) s3)
@@ -61,8 +61,6 @@ equivalence = testGroup "Tests for equivalences" [
         ]
 
 sWhile c = While c [] Nothing
-
-vacous = True === True
 
 evalA :: [(VName, Integer)] -> AExpr -> Err Integer
 evalA xs ast =

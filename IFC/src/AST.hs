@@ -36,7 +36,7 @@ data AExpr = Var VName
   | IntConst Integer
   | Neg AExpr
   | ABinary ArithOp AExpr AExpr
-  deriving (Show)
+  deriving (Show, Eq)
 
 data ArithOp = Add | Sub | Mul | Div | Mod
   deriving (Eq, Show, Enum)

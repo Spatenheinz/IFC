@@ -54,7 +54,7 @@ Here we have to use the modified Hoare logic for \textit{while}-loops presented 
 % This makes it possible to prove termination, and is the difference between partial and total correctness.
 
 The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
-
+\begin{equation}\label{eq:wpwhile}
 \begin{align*}
 	WP\left(
      \begin{array}{c}
@@ -63,13 +63,14 @@ The structure for computing the weakest preconditions for the constructs for tot
      \end{array}
     , Q \right) 
     &= 
-		I \land \\
+		I \land \label{eq:wpwhile} \\
     &\quad \forall x_1, ..., x_k, \xi, \\
     &\quad \quad (((e \land I \land \xi = v) \Rightarrow WP(s, I \land v \prec \xi)) \\
     &\quad \quad \quad \land ((\neg e \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
   &\quad \text{statement } s \text{ and } x_1, ..., x_k, \xi \text{ are fresh logical variables.}
 \end{align*}
+\end{equation}
 
 % What are the differences? explain!
 We see that the difference between the computation of \textit{wp} and \textit{wlp} is the presence of the \textit{variant}. When given a variant expression $v$ for the loop, we add the assertion that this expression decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.

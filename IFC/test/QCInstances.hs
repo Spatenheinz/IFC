@@ -15,7 +15,7 @@ identifier = do
   t <- concat <$> replicateM 3 (vectorOf size (oneof [asciiLetter, hyphen, digitgen]))
   return $ (h:t)
 
-fixednames = elements $ map show ['a' .. 'z']
+fixednames = elements $ map (:[]) ['a' .. 'e']
 
 ghostid = ('👻':) <$> fixednames
 
@@ -28,11 +28,11 @@ instance Arbitrary AExpr where
         expr 0 = leaf
         expr n = frequency [ (5, leaf)
                            , (5, operator $ subExpr n)
-                           , (1, Neg <$> (expr $ subExpr n))
+                           , (1, Neg <$> expr (subExpr n))
                            ]
         leaf = frequency [ (1, IntConst <$> arbitrary)
                          , (1, Var <$> fixednames)
-                         , (1, Ghost <$> ghostid)
+                         -- , (1, Ghost <$> ghostid)
                          ]
         operator n = do
           op <- arbitrary

@@ -1,5 +1,5 @@
 \subsection{Evaluator} \label{sec:evaluator}
-The evaluator follows directly from the semantics presented in section ??. That is the intial store provided to the evalutor will be modified over the course of the program according to the semantics. As of now the type of the evaluator is quite bloated compared to what is actually used. We define the \verb\Eval\ type as follows such:
+The evaluator follows directly from the semantics presented in \autoref{sec:Language}. That is the intial store provided to the evalutor will be modified over the course of the program according to the semantics. As of now the type of the evaluator is quite bloated compared to what is actually used. We define the \verb\Eval\ type as follows such:
 
 \begin{lstlisting}
 type STEnv = M.Map VName Integer
@@ -8,10 +8,16 @@ type Eval a = RWST () () STEnv (Either String) a
 
 At the moment there is no use for reader, however when the language in the future is extended to have procedures the reader monad will be a natural choice for the scoping rules of said procedures.
 Likewise there is no real use of the writer monad yet. Again this is for proofing for a future where the language supports some sort of IO, and atleast being able to print would be nice.
-The store described in section ?? is kept in the State. The Store is simply a map from VName to Integers. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and easily allows for mutable variables.
+The store described in \autoref{sec:Language} is kept in the State.
+The Store is simply a map from VName to Integers. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and easily allows for mutable variables.
 Duely note that ghost variables will also reside in this environment but will not be mutable or even callable as previously explained.
 We make use of the error monad to resolve any runtime-errors that would arise, that is if a violation is done, a ghost is assigned, a variable is used before it is defined or if undefined behaviour arises such as division by 0.
 \\~\\
 Each non-terminal in the grammar are resolved by different functions which all operate under the $Eval$ monad, which allows for a clean and modular monadic compiler.
 \\~\\
-One important note about the interpreter is that we have no good way of checking assertions which includes qunatifiers. The reasons is that we wanted to support arbitrary precision integers, however this means that we at the moment has no feasible way to handle these. A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover. Though the interpreter would then also require external dependencies. Hereby assertions with quantifiers do nothing at the moment, while non-qunatified assertions, will be evauluated as per the operational semantics (At the moment they do nothing).
+One important note about the interpreter is that we have no good way of checking assertions which includes quantifiers. The reasons is that we wanted (possibly erronously) to support arbitrary precision integers.
+This entails that we currently has no feasible way to check such assertions.
+A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover.
+Though the interpreter would then also require external dependencies, and not be a standalone program any longer.
+All in all, this is unideal, and currently the approach is to ``ignore'' such assertions by considering them true. In \autoref{sec:typesystem} we describe a potential extension to IFC, which could help alleviate this problem.
+Non-qunatified assertions, will still be evauluated as per the operational semantics.

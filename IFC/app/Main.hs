@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
 module Main where
 
 import AST
@@ -6,20 +8,18 @@ import Parser
 import WLP
 import System.Exit (die)
 import System.Environment (getArgs)
-import Data.SBV (prove, sObserve)
-import Data.SBV.Trans (ThmResult)
 import Data.SBV.Trans.Control
 import Control.Monad (void)
 import qualified Data.Map as M
 import Pretty
 import OptParser
 import Control.Monad.Except
-import qualified Data.SBV.Trans as T
+import Data.SBV.Trans
 import Debug.Trace
-import qualified WLP2 as W
+-- import qualified WLP2 as W
 
-run :: Stmt -> [(VName, Integer)] -> IO ()
-run p st = case runEval st p of
+run :: Stmt -> PreConds -> [(VName, Integer)] -> IO ()
+run p (_,pre) st = case maybe (runEval st p) (\x -> runEval st (Seq (Asst x) p)) pre of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right store -> printEval store
 
@@ -28,26 +28,23 @@ formular p st = case runWLP p st of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right (f,s) -> putStrLn (prettyF f 4 <> "\n\n") >> print s
 
+-- prover :: Stmt -> ([VName], Maybe FOL) -> IO ThmResult
+-- prover p st = case proveWLP p st of
+--              Left e -> error e
+--              Right f -> prove f
+
 prover :: Stmt -> ([VName], Maybe FOL) -> IO ThmResult
 prover p st = case proveWLP p st of
              Left e -> error e
-             Right f -> prove f
-
-prover2 p st = case W.proveWLP p st of
-             Left e -> error e
              Right f -> do
-               p' <- runExceptT $ T.runSMT $ f
+               p' <- runExceptT $ prove f
                case p' of
                  Left e -> error e
-                 Right p'' -> trace (show p'') $ T.prove p''
+                 Right p'' -> return p''
+
 main :: IO ()
 main = do args <- getArgs
           case args of
-            ["-q2", file] -> do
-              s <- readFile file
-              case parseString s of
-                Left e -> putStrLn $ "*** Parse error: " ++ show e
-                Right (p,st) -> prover2 p st >>= print
             ["-q", file] -> do
               s <- readFile file
               case parseString s of
@@ -63,14 +60,13 @@ main = do args <- getArgs
               case parseString s of
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> print p
-            -- ["-test"] -> testOfMul >>= print
             [file, argslist] -> do
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> case parseStore argslist of
                             Left e -> print e
-                            Right st -> run p st
+                            Right args -> run p st args
             _ ->
               die "Usage:\n\
                     \  IFC FIX       (parse & interpret)"
