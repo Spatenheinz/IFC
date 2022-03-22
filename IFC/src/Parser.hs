@@ -67,8 +67,8 @@ keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", 
 identP :: Parser String
 identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
   where
-    ident = liftA2 (:) identH $ many (identH <|> digitChar)
-    identH = letterChar
+    ident = liftA2 (:) identH $ many (letterChar <|> digitChar <|> char '_')
+    identH = lowerChar <|> char '_'
     notRword i
       | i `elem` keywords = fail $ "keyword " ++ show i ++ "used as an identifier"
       | otherwise = return i
@@ -150,8 +150,8 @@ negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
 
 topP :: Parser FOL
 topP = ask >>= \case
-  True -> try (Cond <$> bTermP) <|> parens quantP
-  False -> try (Cond <$> bTermP) <|> parens impP
+  True -> (Cond <$> bTermP) <|> parens quantP
+  False -> (Cond <$> bTermP) <|> parens impP
 
 assignP :: Parser Stmt
 assignP = do
@@ -210,16 +210,17 @@ bExprP = makeExprParser bTermP operators
 
 aTermP :: Parser AExpr
 aTermP =
-    parens aExprP
+     parens aExprP
     <|> varP
     <|> IntConst <$> integer
+    <?> "aterm"
 
 bTermP :: Parser BExpr
 bTermP =
+  try relative <|>
   parens bExprP
   <|> BoolConst True <$ rword "true"
   <|> BoolConst False <$ rword "false"
-  <|> try relative
   where relative = aExprP >>= \a0 -> relationP >>= \r -> r a0 <$> aExprP
 
 relationP :: Parser (AExpr -> AExpr -> BExpr)

@@ -58,7 +58,7 @@ instance Arbitrary Stmt where
             con' <- con
             variant' <- variant
             body <- expr n
-            return $ Seq bef' (While con' [] Nothing (Seq body variant'))
+            return $ Seq bef' (While con' [Cond (BoolConst True)] Nothing (Seq body variant'))
           assert = Asst <$> arbitrary
 
 instance Arbitrary FOL where

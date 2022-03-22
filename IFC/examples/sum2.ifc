@@ -1,0 +1,28 @@
+vars: [cur, lim, step]
+requirements: { step > 0 }
+<!=_=!>
+sum := 0;
+c := 0;
+👻a := cur;
+while lim > (c * step + cur)
+?{ true}
+-- ?{c >= 0 }
+-- !{lim - (c * step + cur)}
+{
+ -- cur := cur + step;
+ if ((c * step + cur) % 2 = 0) {
+    sum := sum + 1;
+ };
+ c := c + 1;
+};
+#{lim <= cur + (c * step)};
+-- while lim > cur
+-- -- ?{sum <= c * cur};
+-- ?{c >= 0}
+-- {
+--       sum := sum + cur;
+--       cur := cur + step;
+--       c := c + 1;
+-- };
+-- #{ c * lim <= c * cur};
+-- -- #{ sum <= c * cur};

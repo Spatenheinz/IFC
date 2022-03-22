@@ -1,0 +1,28 @@
+To complement the example programs our test suite include a couple of property -based tests. Mostly these tests ensure that the evaluator follows the semantics.
+To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
+Firstly, want the number of possible variables to be limited, such that the evaluator will not fail too often, by using variables that have not yet been defined.
+Secondly, while-loops might not terminate, hence we want to define a small subset (skeletons) for while-loops which indeed will terminate. We define 3, versions as follows:
+\begin{lstlisting}
+whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
+  where v = whilenames
+        v' = Var <$> v
+        ass = liftM2 Assign v arbitrary
+        gt = liftM2 (RBinary Greater) v' arbitrary
+        dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
+        lt = liftM2 (RBinary Less) v' arbitrary
+        inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
+        eq = liftM2 (RBinary Eq) v' arbitrary
+        change = liftM2 Assign v arbitrary
+\end{lstlisting}
+We generate an arbitrary variable, which we ensure will never clash with any of the variables that are not possible to generate elsewhere. The constructs will then be one of the following:
+\begin{itemize}
+  \item Bolean condition is $v > a$, where $v$ is the variable and $a$ is an arbitrary arithmetic expression. Inside the while-loop, we will ensure to decrement $v$, eventually terminating the loop.
+  \item Bolean condition is $v < a$. Inside the while-loop, we will ensure to increment $v$, eventually terminating the loop.
+\item Bolean condition is $v = a$. Inside the while-loop, we will ensure to change $v$, eventually terminating the loop.
+\end{itemize}
+
+By this arbitrary value we can quickcheck the following properties, following directly from the big-step semantics:
+
+\begin{figure}
+orker ikke lige.
+\end{figure}

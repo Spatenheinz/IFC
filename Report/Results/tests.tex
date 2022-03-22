@@ -1,0 +1,19 @@
+We have conducted a smaller variety of tests. The tests includes both some testing of properties thorugh QuickCheck along with some examples program.
+The examples can be found in the \verb\examples\ folder. Of these some works correctly and some intentionally dont. In the table below, each program can be seen along with a short description on how and why they are included.
+
+\begin{tabular}{|c|p{4cm}|p{4cm}|}
+%   \hline
+%   \multicolumn{3}{|c|}{examples programs}
+  % \hline
+  program\footnote{is this a bad way of representation?} & description & meaning \\
+  \hline
+  always_wrong & This program is simply a \verb\violate\ statement and should thus always fail. & This is simply to check that violate always makes the store invalid. This Likewise can never be verified.\\
+  % assign & This program simply assigns two variables. & Both the evaluator and vc works as intended.\\
+  % collatz & This program calculates the length of collatz-conjecture until the repeating pattern $1, 4, 2, 1,...$. & This is mostly a really bad example as we cannot do any reasonable assertions about the result or the while loop. & Despite the program have some hardcoded assertions meaning it at the momoent only works on input $n=11$, and cannot be proved. This shows that there indeed are ``problems'' which our language is not expressive enough to handle.\\
+\end{tabular}
+
+\subsubsection{Quickchecking instances}
+\input{Results/qc}
+
+\subsubsection{Dynamic execution compared to static proofs.}
+\input{Results/dynvstat}

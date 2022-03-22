@@ -89,11 +89,11 @@ resolveAExpr1 i@(IntConst _) = return i
 resolveAExpr1 (Neg a) = Neg <$> resolveAExpr1 a
 resolveAExpr1 (ABinary Div a b) = do
   b' <- resolveAExpr1 b
-  if b' == IntConst 0 then flip (abinary Div) b' <$> resolveAExpr1 a
+  if b' /= IntConst 0 then flip (abinary Div) b' <$> resolveAExpr1 a
   else lift . lift . Left $ "Division by 0"
 resolveAExpr1 (ABinary Mod a b) = do
   b' <- resolveAExpr1 b
-  if b' == IntConst 0 then flip (abinary Div) b' <$> resolveAExpr1 a
+  if b' /= IntConst 0 then flip (abinary Div) b' <$> resolveAExpr1 a
   else lift . lift . Left $ "Modulo by 0"
 resolveAExpr1 (ABinary op a b) = onlM2 (abinary op) resolveAExpr1 a b
 

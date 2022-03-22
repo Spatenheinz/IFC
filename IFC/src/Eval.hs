@@ -43,8 +43,14 @@ eval (If c s1 s2) = do
 eval (Asst f) = evalFOL f >>= \case
   True -> return ()
   False -> lift . Left $ "Assertion " <> prettyF f 0 <> " Failed"
-eval w@(While c invs var s) =
-  evalBExpr c >>= \c' -> when c' $ eval s >> eval w
+eval w@(While c invs var s) = do
+  c' <- evalBExpr c
+  invs' <- evalFOL (foldr1 (./\.) invs)
+  if c' && invs' then (eval s >> eval w)
+  else if invs' then (return ())
+  else do
+      st <- get
+      lift. Left $ "invariant " <> prettyF (foldr1 (./\.) invs) 0 <> " does not hold, with store " <> show st
 eval Skip = return ()
 eval Fail = lift $ Left "A violation has happened"
 
