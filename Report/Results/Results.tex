@@ -2,91 +2,9 @@
 In this section, we will present our assessment of how succesful we have been in implementing an interpreter and a verification condition generator for IFC. We argue so based on our different tests. Furthermore we present a list of most pressing extensions.
 
 \subsection{testing}
-We have conducted a smaller variety of tests. The tests includes both some testing of properties thorugh QuickCheck along with some examples program.
-The examples can be found in the \verb\examples\ folder. Of these some works correctly and some intentionally dont. In the table below, each program can be seen along with a short description on how and why they are included.
-
-\begin{tabular}{|c|p{4cm}|p{4cm}|}
-%   \hline
-%   \multicolumn{3}{|c|}{examples programs}
-  % \hline
-  program\footnote{is this a bad way of representation?} & description & meaning \\
-  \hline
-  always_wrong & This program is simply a \verb\violate\ statement and should thus always fail. & This is simply to check that violate always makes the store invalid. This Likewise can never be verified.\\
-  % assign & This program simply assigns two variables. & Both the evaluator and vc works as intended.\\
-  % collatz & This program calculates the length of collatz-conjecture until the repeating pattern $1, 4, 2, 1,...$. & This is mostly a really bad example as we cannot do any reasonable assertions about the result or the while loop. & Despite the program have some hardcoded assertions meaning it at the momoent only works on input $n=11$, and cannot be proved. This shows that there indeed are ``problems'' which our language is not expressive enough to handle.\\
-\end{tabular}
-
-\subsubsection{Quickchecking instances}
-To complement the example programs our test suite include a couple of property -based tests. Mostly these tests ensure that the evaluator follows the semantics.
-To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
-Firstly, want the number of possible variables to be limited, such that the evaluator will not fail too often, by using variables that have not yet been defined.
-Secondly, while-loops might not terminate, hence we want to define a small subset (skeletons) for while-loops which indeed will terminate. We define 3, versions as follows:
-\begin{lstlisting}
-whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
-  where v = whilenames
-        v' = Var <$> v
-        ass = liftM2 Assign v arbitrary
-        gt = liftM2 (RBinary Greater) v' arbitrary
-        dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
-        lt = liftM2 (RBinary Less) v' arbitrary
-        inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
-        eq = liftM2 (RBinary Eq) v' arbitrary
-        change = liftM2 Assign v arbitrary
-\end{lstlisting}
-We generate an arbitrary variable, which we ensure will never clash with any of the variables that are not possible to generate elsewhere. The constructs will then be one of the following:
-\begin{itemize}
-  \item Bolean condition is $v > a$, where $v$ is the variable and $a$ is an arbitrary arithmetic expression. Inside the while-loop, we will ensure to decrement $v$, eventually terminating the loop.
-  \item Bolean condition is $v < a$. Inside the while-loop, we will ensure to increment $v$, eventually terminating the loop.
-\item Bolean condition is $v = a$. Inside the while-loop, we will ensure to change $v$, eventually terminating the loop.
-\end{itemize}
-
-By this arbitrary value we can quickcheck the following properties, following directly from the big-step semantics:
-
-\begin{figure}
-orker ikke lige.
-\end{figure}
-
+\input{Results/tests}
 %% Vi har fundet flere bugs gennem QC. så som undefined for ghosts. ikke checke for div by 0 in formula generation.
 
-\subsubsection{Dynamic execution compared to static proofs.}
-Another important property on the relation between the dynamic execution of a program via the evaluator and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold. It is important to note that the implication does not hold in the other direction. The reason for this is that we might not have provided strong enough assertions to satisfy the generated formula, whilst the dynamic execution, might not need it to be correct.
-
-If we take a closer look at the multiplication example previously.
-% \lstinputlisting{Examplecode/mult.ifc}
-\begin{lstlisting}
-vars: [q,r]
-requirements: {q >= 0 /\ r >= 0}
-<!=_=!>
-res := 0;
-$a := q;
-while (q > 0) ?{res = ($a - q) * r /\ q >= 0} !{q} {
-      res := res + r;
-      q := q - 1;
-};
-#{res = $a * r};
-\end{lstlisting}
-We have previously argued that the code is correct and can correctly be proved by Z3, but if we relax some of the assertions in the program, this will no longer be the case.
-Instead of the loop-invariant \verb|?{res = ($a - q) * r /\ q >= 0}| consider the invariant \verb\?{res = ($a - q) * r}\ in this case Z3 will no longer be able to prove the correctness of said program. The generated formula looks as follows:
-\begin{lstlisting}[mathescape=true]
-$\forall q, r. \; (q \geq 0 \land r \geq 0) \Rightarrow$
-$ \quad \forall res_{3}. \; res_{3} = 0 \Rightarrow$
-$\quad \quad \forall \$a. \; \$a = q \Rightarrow$
-$\quad \quad \quad (res_{3} = (\$a - q) * r \land q \geq 0)$
-$\quad \quad \quad \; \land \forall q_{2}, res_{2}, \xi_{1}.$
-$\quad \quad \quad \quad (q_{2} > 0 \land res_{2} = (\$a - q_{2}) * r \land \xi_{1} = q_{2}) \Rightarrow$
-$\quad \quad \quad \quad \quad \forall res_{1}. \; res_{1} = res_{2} + r \Rightarrow$
-$\quad \quad \quad \quad \quad \quad \forall q_{1}. \, q_{1} = q_{2} - 1 \Rightarrow$
-$\quad \quad \quad \quad \quad \quad \quad (res_{1} = (\$a - q_{1}) * r \land 0 <= \xi_{1} \land q_{1} < \xi_{1})$
-$\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Rightarrow res_{2} = \$a * r)$
-\end{lstlisting}
-It becomes quite apparant that the invariant is no longer strong enough to be proved, since the restriction on $q_{2}$ is too weak. The two first conjuctions line 4 and line 5-9, will be true, given that $q_{2} = -3, res_{2} = 6, \$a = 0, r = 2 $.
-In the last term
-$(q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Rightarrow res_{2} = \$a * r$
-, the RHS of the implication, will be true as
-$(-3 \leq 0 \land 6 = 3 * 2)$, giving a false term.
-Once again we can verify that our program acts correctly, by doing the same modification to the whyML program in \autoref{fig:whyml}. In this case the proof will as expected give a falsifiable counter-example. By this, we have a good certainty that our implementation is correct.
-\\~\\
-We test that whenever we can prove the correctness of an IFC program, the result will be correct. But ideally we would also want to be able to generate programs and test this using QuickCheck. However this is quite a complex situation, since we need to be able to have a strong enough loop-invariant to prove the correctness of the program. As of yet, we have not been succesful in implementing such a property-test.
 \subsection*{Wrap up}
 From the result presented in this Section, we have a fairly good solution, and our program actually works as intended on the example programs.
 In fact most of the problems that still persists in the code is related to the tests, which could be of better quality. Despite this the Quickcheck tests have been useful in finding subtle bugs.

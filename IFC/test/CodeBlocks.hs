@@ -12,15 +12,16 @@ import Utils
 whilenames = elements $ map (("__" ++) . (:[])) ['a'..'e']
 
 whileConds = do
-  let !v = whilenames
-      v' = Var <$> v
-      ass = liftM2 Assign v arbitrary
-      gt = liftM2 (RBinary Greater) v' arbitrary
-      dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
-      lt = liftM2 (RBinary Less) v' arbitrary
-      inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
-      eq = liftM2 (RBinary Eq) v' arbitrary
-      change = liftM2 Assign v arbitrary
+  let !x = whilenames
+  let !v = x
+      !v' = Var <$> v
+      !ass = liftM2 Assign v arbitrary
+      !gt = liftM2 (RBinary Greater) v' arbitrary
+      !dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
+      !lt = liftM2 (RBinary Less) v' arbitrary
+      !inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
+      !eq = liftM2 (RBinary Eq) v' arbitrary
+      !change = liftM2 Assign v arbitrary
   elements $ zip3 [ass, ass, ass] [gt, lt, eq] [dec, inc, change]
         -- neq = Negate BBinary Eq v' <$> arbitrary
         -- Food for thought
