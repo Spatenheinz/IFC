@@ -2,50 +2,40 @@
 Now we look at Hoare logic, and how we can use it to verify our program.
 To assert that a program works as intended, we want to be able to prove it formally. To avoid the proofs being too detailed and comprehensive, one wants to look at the essential properties of the constructs of the program. We look at partial correctness of a program, meaning that we do not ensure that a program terminates, only that \textit{if} it terminates, certain properties will hold.
 
+\subsubsection{Assertions}
 % assertions
 %  partial correctness is not termination
 %  invariants and variants help prove the termination of a program
-For expressing this we use \textit{assertions}, which are a way of claiming something about a program state at a specific point in the program.
+For expressing these properties we use \textit{assertions}, which are a way of claiming something about a program state at a specific point in the program.
 Assertions consist of a \textit{precondition} P and a \textit{postcondition} Q, and is written as a triple
 $$ \{ P \} S \{ Q \} $$
 
 This triple states that \textit{if} the precondition P holds in the initial state, and \textit{if} S terminates when executed from that state, \textit{then} Q will hold in the state in which S halts.
 Thus the assertion does not say anything about whether S terminates, only that if it terminates we know Q to hold afterwards. These triples are called Hoare triples.
 
+\paragraph{Logical variables vs program variables.}
 % logical variables vs program variables
 When using assertions we differ between \textit{program variables} and \textit{logical variables}.
 Sometimes we might need to keep the original value of a variable that is changed through the program. Here we can use a \textit{logical variable}, or \textit{ghost variable}, to maintain the value. The ghost variables can only be used in assertions, not in the actual program, and thus cannot be changed. All ghost variables must be fresh variables. 
 For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
 
-As an example of this we will show how our example project \texttt{mult.ifc} looks when adding some assertions.
+\paragraph{Multiplication example.}
+As an example of this, \autoref{figure:mult} shows how our example program \texttt{mult.ifc} looks when adding some assertions.
 \begin{figure}
-\begin{lstlisting}
-q := 10;
-r := 55;
-#{q >= 0 /\ r >= 0};
-res := 0;
-ghosta := q;
-while (q > 0) {
-      res := res + r;
-      q := q - 1;
-};
-#{res = ghosta * r };
-\end{lstlisting}
+\lstinputlisting{Examplecode/mult.ifc}
 \caption{Example program \texttt{mult.ifc}}
 \label{figure:mult}
 \end{figure}
 
-In line 3 we have an assertion saying that both $q$ and $r$ must be non-negative, as we do not wish to multiply by zero.
+First we have the input variables listed, and the requirements for the input given in line 1-2. The requirements states that bith integers must be nonnegative, as we do not wish to multiply by zero.
 In line 10 we have a assertion claiming that the final result will be the original value of $q$ multiplied by $r$. Here we use a ghost variable, or a logical variable, for keeping the original value og $q$.
-
-% TODO: loop invariants and variants??
-Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant. 
-
+We also have an invariant and a variant in the \textit{while}-loop in line 6, but we will come back to that later.
 
 % hoare triples
 %  {P}S{Q} - where P is precondition and Q is postcondition
 %  if P holds in the initial stase, and if S terminates starting from that state, then Q will hold in the state in which S halts
 
+\subsubsection{Axiomatic system for partial correctness}
 % axiomatic system for partial correctness
 The Hoare logic specifies am inference system for the partial correctness assertions, that show the axiomatic semantics for the different constructs of the language. The axiomatic system is shown in \autoref{table:axiomatic}.
 
@@ -88,8 +78,24 @@ Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluat
 \end{table}
 
 
-% TODO: annotated programs (example)
+\subsubsection{Total correctness}\label{sec:total-correctness}
+Right now, the Hoare logic can help us prove partial correctness, but does not guarantee termination of loops. We would like to be able to prove total correctness, meaning we want to prove termination. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
+The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
+To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
+$$
+  \frac{
+    \{I \land e \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I 
+          \texttt{ variant } v, \prec \texttt{ do } s \{I \land \neg e\}
+  }
+$$
 
+where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation:
+$$x \prec y \quad = \quad x < y \land 0 \leq y $$
+reference: (poly1.pdf)
+
+Using these loop invariants and variants it is possible to prove total correctness of programs containing \textit{while}-loops.
 
 % assertion language
 %   is super powerful, to be able to express pre and post conditions ? Se section 7 in proj

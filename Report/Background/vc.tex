@@ -25,7 +25,8 @@ Below the structure for computing the weakest liberal precondition for the diffe
     &\quad (((e \land I) \Rightarrow WLP(s, I)) \land (( \neg e \land I) \Rightarrow Q))
        [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
-  &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.}
+  &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.} \\
+  WLP(\{P\}, Q) &= P \land Q \quad \text{where P is an assertion}
 \end{align*}
 
 % TODO: write something about the above?
@@ -46,24 +47,11 @@ For these variables, we must also exchange all the occurrences in the currently 
 % hvad med for total correctness?
 % to prove termination of while loop we need variant
 % wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
-Right now, the Hoare logic can help us prove partial correctness, but does not guarantee termination of loops. We would like to be able to prove total correctness, meaning we want to prove termination. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
-The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
-To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
-$$
-	\frac{
-		\{I \land e \land v = \xi \} s \{I \land v \prec \xi \} \quad wf(\prec)
-	}{
-		\{I\} \texttt{ while } e \texttt{ invariant } I 
-          \texttt{ variant } v, \prec \texttt{ do } s \{I \land \neg e\}
-	}
-$$
-
-where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation:
-$$x \prec y \quad = \quad x < y \land 0 \leq y $$
-(poly1.pdf)
+%Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant.
 
 Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
-This makes it possible to prove termination, and is the difference between partial and total correctness.
+Here we have to use the modified Hoare logic for \textit{while}-loops presented in \ref{sec:total-correctness}.
+% This makes it possible to prove termination, and is the difference between partial and total correctness.
 
 The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
 \begin{equation}\label{eq:wpwhile}
@@ -85,12 +73,24 @@ The structure for computing the weakest preconditions for the constructs for tot
 \end{equation}
 
 % What are the differences? explain!
-
+We see that the difference between the computation of \textit{wp} and \textit{wlp} is the presence of the \textit{variant}. When given a variant expression $v$ for the loop, we add the assertion that this expression decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.
 
 %- gennemgå det i eksemplet
 % hvert fald for noget af eksemplet ?
+For our example program \texttt{mult.ifc}, we can compute the weakest precondition, as we have both a variant and an invariant in the while loop.
+By applying the \textit{wp} rules on the example, we get the weakest precondition seen in \autoref{figure:wpmult}.
 
-\input{Background/multVC.tex}
+\begin{figure}[h]
+\input{Background/multVC}
+\caption{Weakest precondition of \texttt{mult.ifc}}
+\label{figure:wpmult}
+\end{figure}
+
+The interesting thing is how the \textit{while}-loop is resolved. First the \textit{invariant} is checked in line $4$, according to the first part of the \textit{wp} rule. 
+Next the rule requires a forall statement over all the variables altered in the loop bode, and that is what happens in line $5$ of the formula.
+Inside this forall we now check that the loop invariant and condition holds when entering each iteration (lines $6$-$9$), and that the invariant and the negated loop condition holds when the loop terminates(line $10$).
+The variant is used in line $6$, where the logical variable $\xi$ is set to hold the value of the variant, and in line $9$, where it is checked that the variant has decreased by comparing to the logical variable holding the value that the variant had at the beginning of the loop.
+
 
 % Sound og Complete?
 %   - Soundness:

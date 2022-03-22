@@ -1,0 +1,45 @@
+\begin{grammar}
+<statement> ::= <statement> ';' <statement>
+\alt <ghostid> ':=' <aexpr>
+\alt <id> ':=' <aexpr>
+\alt 'if' <bexpr> '\{' <statement> '\}'
+\alt 'if' <bexpr> '\{' <statement> '\}' 'else' '\{' <statement> '\}'
+\alt 'while' <bexpr> <invariant> <variant> '\{' <statement> '\}'
+\alt '\#\{' <assertion> '\}'
+\alt 'skip' | 'violate'
+
+<invariant> ::= '?\{' <assertion> '\}'
+\alt <invariant> ';' <invariant>
+
+<variant> ::= '!\{' <aexpr> '\}' | $\epsilon$
+
+<assertion> ::= 'forall' <id> '.' <assertion>
+\alt 'exists' <id> '.' <assertion>
+\alt '$\sim$' <assertion>
+\alt <assertion> <assertionop> <assertion>
+\alt <bexpr>
+
+<assertionop> ::= '\verb|/\|' | '\verb|\/|' | '\verb|=>|'
+
+<bexpr> ::= 'true' | 'false' | \alt '!'<bexpr>
+\alt <bexpr> <bop> <bexpr>
+\alt <bexpr> <rop> <bexpr>
+\alt '(' <bexpr> ')'
+
+<bop> ::= '\&\&' | '||' |
+
+<rop> ::= '\verb|<|' | '\verb|<=|' | '\verb|=|' | '\verb|/=|' | '\verb|>|' | '\verb|>=|'
+
+<aexpr> ::= <id>
+\alt <ghostid>
+\alt <integer>
+\alt '-'<axpr>
+\alt <aexpr> <aop> <aexpr>
+\alt '(' <aexpr> ')'
+
+<aop> ::= '$+$' | '$-$' | '$*$' | '$/$' | '\%'
+
+<ghostid> ::= \emoji{ghost} <string>
+
+<id> ::= <string>
+\end{grammar}
