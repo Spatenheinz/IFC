@@ -8,7 +8,7 @@ import Parser (parseString)
 
 import Test.Tasty
 import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck (testProperty, (===))
+import Test.Tasty.QuickCheck
 import Pretty (prettyProgram, prettyHeader)
 import QCInstances
 import CodeBlocks
@@ -65,7 +65,7 @@ lex = testGroup "Parsing" [
       ]
   , qc
   ]
-qc = localOption (mkTimeout 10000000) $ testGroup "QC" [
+qc = localOption (mkTimeout 4000000) $ testGroup "QC" [
   testProperty "Program" $ \(s :: stmt) ->
       parseString (prettyProgram s header) === Right (s, header)
   ]

@@ -82,7 +82,7 @@ ghostAssP = do
   GhostAss vname <$> aExprP
 
 ghostidP :: Parser String
-ghostidP = string "👻" >> ("👻"<>) <$> identP
+ghostidP = (string "👻" <|> string "$") >> ("👻"<>) <$> identP
 
 varP :: Parser AExpr
 varP = do

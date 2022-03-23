@@ -1,4 +1,4 @@
-vars: [q,r]
+vars: [r]
 requirements: {r > 0}
 <!=_=!>
 q := 1;
