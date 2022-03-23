@@ -27,11 +27,12 @@ instance Arbitrary AExpr where
       where
         expr 0 = leaf
         expr n = frequency [ (5, leaf)
-                           , (5, operator $ subExpr n)
+                           , (3, operator $ subExpr n)
+                           -- is --a allowed?
                            , (1, Neg <$> expr (subExpr n))
                            ]
-        leaf = frequency [ (1, IntConst <$> arbitrary)
-                         , (1, Var <$> fixednames)
+        leaf = frequency [ (100, IntConst <$> arbitrary `suchThat` (> 0))
+                         , (30, Var <$> fixednames)
                          -- , (1, Ghost <$> ghostid)
                          ]
         operator n = do
@@ -39,6 +40,12 @@ instance Arbitrary AExpr where
           e1 <- expr n
           e2 <- expr n
           return $ abinary op e1 e2
+   shrink (IntConst i) = map IntConst $ shrink i
+   shrink (Var v) = [Var v]
+   shrink (Ghost v) = [Ghost v]
+   shrink (Neg a) = map Neg $ shrink a
+   shrink (ABinary op a1 a2) = [a1, a2] <> [ABinary op a1' a2' | (a1',a2') <- shrink (a1,a2)]
+
 
 instance Arbitrary BoolOp where
   arbitrary = elements [Conj, Disj]
@@ -52,7 +59,7 @@ instance Arbitrary BExpr where
         expr n = frequency [ (5, leaf)
                            , (5, rop $ subExpr n)
                            , (5, bop $ subExpr n)
-                           , (1, bnegate <$> (expr $ subExpr n))
+                           , (1, bnegate <$> expr (subExpr n))
                            ]
         leaf = frequency [ (1, BoolConst <$> arbitrary)
                          ]
@@ -69,3 +76,7 @@ instance Arbitrary BExpr where
           e2 <- arbitrary
           return $ RBinary op e1 e2
         subExpr = flip div 2
+  shrink (BoolConst b) = map BoolConst $ shrink b
+  shrink (Negate b) = map Negate $ shrink b
+  shrink (BBinary op b1 b2) = [b1, b2] <> [BBinary op b1' b2' | (b1',b2') <- shrink (b1,b2)]
+  shrink (RBinary op a1 a2) = [RBinary op a1' a2' | (a1',a2') <- shrink (a1,a2)]

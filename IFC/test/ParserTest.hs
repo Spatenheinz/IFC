@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 module ParserTest where
 
 import AST
@@ -5,11 +8,15 @@ import Parser (parseString)
 
 import Test.Tasty
 import Test.Tasty.HUnit
+import Test.Tasty.QuickCheck (testProperty, (===))
+import Pretty (prettyProgram, prettyHeader)
+import QCInstances
+import CodeBlocks
 
 testParseOK :: String -> String -> Stmt -> TestTree
 testParseOK desc con s =
-  testCase desc $ assertEqual ("Parsing: " ++ con) (Right (s,([],Nothing))) (parseString (pre ++ con))
-  where pre = "vars: [] requirements: {} <!=_=!>"
+  testCase desc $ assertEqual ("Parsing: " ++ con) (Right (s,([],Nothing)))
+    (parseString (headerStr <> con))
 
 testParseBad :: String -> String -> TestTree
 testParseBad name s =
@@ -17,6 +24,10 @@ testParseBad name s =
     assertEqual ("Parsing: " ++ show s)
       (Left msg)
       (case parseString s of Left _ -> Left msg; Right p -> Right p)
+
+
+header = ([], Nothing)
+headerStr = prettyHeader header
 
 msg = "<message>"
 
@@ -52,4 +63,10 @@ lex = testGroup "Parsing" [
       testParseOK "a + 4 * 3 - 1" "v := a + 4 * 3 - 1;"
        (Assign "v" (ABinary Sub (ABinary Add (Var "a") (ABinary Mul (IntConst 4) (IntConst 3))) (IntConst 1)))
       ]
+  , qc
   ]
+qc = localOption (mkTimeout 10000000) $ testGroup "QC" [
+  testProperty "Program" $ \(s :: stmt) ->
+      parseString (prettyProgram s header) === Right (s, header)
+  ]
+-- Asst (Cond (BBinary Conj (BoolConst False) (BoolConst False)))

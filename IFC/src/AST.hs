@@ -1,5 +1,7 @@
 module AST where
 
+type Header = ([VName], Maybe FOL)
+
 data BExpr = BoolConst Bool
   | Negate BExpr
   | BBinary BoolOp BExpr BExpr

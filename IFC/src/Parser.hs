@@ -18,11 +18,13 @@ import Control.Monad.Reader
 import Control.Monad.Identity
 import Utils
 
-type PreConds = ([VName], Maybe FOL)
-type Parser = ParsecT Void String (ReaderT Bool (StateT PreConds Identity))
+type Parser = ParsecT Void String (ReaderT Bool (StateT Header Identity))
 
-parseString :: String -> Either String (Stmt, PreConds)
-parseString s = case runIdentity $ runStateT (runReaderT (runParserT (between sc eof programP) "" s) False) ([],Nothing) of
+parseString :: String -> Either String (Stmt, Header)
+parseString s = case runIdentity
+                     $ runStateT
+                     (runReaderT (runParserT (between sc eof programP) "" s) False)
+                     ([],Nothing) of
          (Left bundle, _) -> Left $ errorBundlePretty bundle
          (Right xs, st) -> return (xs, st)
 
@@ -150,8 +152,8 @@ negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
 
 topP :: Parser FOL
 topP = ask >>= \case
-  True -> (Cond <$> bTermP) <|> parens quantP
-  False -> (Cond <$> bTermP) <|> parens impP
+  True -> try (Cond <$> bTermP) <|> parens quantP
+  False -> try (Cond <$> bTermP) <|> parens impP
 
 assignP :: Parser Stmt
 assignP = do

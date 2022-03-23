@@ -19,7 +19,7 @@ import Data.SBV.Trans
 import Debug.Trace
 -- import qualified WLP2 as W
 
-run :: Stmt -> PreConds -> [(VName, Integer)] -> IO ()
+run :: Stmt -> Header -> [(VName, Integer)] -> IO ()
 run p (_,pre) st = case maybe (runEval st p) (\x -> runEval st (Seq (Asst x) p)) pre of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right store -> printEval store
@@ -75,7 +75,7 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
-                Right (p,st) -> print p
+                Right (p,st) -> putStrLn $ prettyProgram p st
             [file, argslist] -> do
               s <- readFile file
               case parseString s of
