@@ -15,12 +15,16 @@
 \usepackage{booktabs}
 \setlength\parindent{0pt}
 \usepackage{titlesec}
-\usepackage{emoji}
+%\usepackage{emoji}
 \usepackage{semantic}
 \usepackage{stmaryrd}
 \usepackage{hyperref}
 \usepackage{cleveref}
 \usepackage{multirow}
+
+\usepackage[backend=biber,dateabbrev=false]{biblatex}
+\usepackage{csquotes} % package to biblatex
+\addbibresource{references.bib}
 
 \titleformat{\chapter}[display]
 {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
