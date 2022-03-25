@@ -1,0 +1,13 @@
+MAINFILE = main.tex
+CC = latexmk -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f
+ALL = $(wildcard *.tex */*.tex */*.sty)
+
+.PHONY: all
+all: $(MAINFILE).pdf
+
+$(MAINFILE).pdf: $(ALL)
+	$(CC) $(MAINFILE)
+
+.PHONY: clean
+clean:
+	latexmk -CA
