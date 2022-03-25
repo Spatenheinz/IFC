@@ -27,6 +27,12 @@ dependencies:
 - containers
 - sbv >= 8.15
 
+ghc-options:
+- -Wall
+- -Werror
+- -Wdefault
+- -fwarn-tabs
+
 library:
   source-dirs: src
   # exposed-modules:

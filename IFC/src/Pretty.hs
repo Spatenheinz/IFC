@@ -16,7 +16,7 @@ prettySt (Seq s1 s2) = prettySt s1 <> prettySt s2
 prettySt (GhostAss x a) = x <> " := " <> prettyA a <> ";\n"
 prettySt (Assign x a) = x <> " := " <> prettyA a <> ";\n"
 prettySt (If b s1 s2) = "if " <> prettyB b <> " {\n" <> prettySt s1 <> "} else {\n" <> prettySt s2 <> "};"
-prettySt (Asst f) = "#{" <> prettyF f 0 <> "};"
+prettySt (Asst f) = "#{" <> prettyF f 0 <> "};\n"
 prettySt (While b invs var s) = "while " <> prettyB b <> "?{" <> prettyF invs' 0 <> "} " <> var'
   <> "{\n" <> prettySt s <> "};\n"
   where var' = case var of
@@ -49,7 +49,7 @@ prettyB (RBinary op a b) = prettyA a <> prettyROp op <> prettyA b
 
 prettyA :: AExpr -> String
 prettyA (Var x) = x
-prettyA (Ghost x) = x
+prettyA (Ghost (x:xs)) = '👻':xs
 prettyA (IntConst i) = show i
 prettyA (Neg a) = "(-" <> prettyA a <> ")"
 prettyA (ABinary op a b) = "(" <> prettyA a <> prettyAOp op <> prettyA b <> ")"

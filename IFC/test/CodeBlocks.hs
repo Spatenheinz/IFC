@@ -1,4 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
 module CodeBlocks where
 
 import           Test.Tasty.QuickCheck
@@ -12,16 +11,15 @@ import Utils
 whilenames = elements $ map (("__" ++) . (:[])) ['a'..'e']
 
 whileConds = do
-  let !x = whilenames
-  let !v = x
-      !v' = Var <$> v
-      !ass = liftM2 Assign v arbitrary
-      !gt = liftM2 (RBinary Greater) v' arbitrary
-      !dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
-      !lt = liftM2 (RBinary Less) v' arbitrary
-      !inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
-      !eq = liftM2 (RBinary Eq) v' arbitrary
-      !change = liftM2 Assign v arbitrary
+  let v = whilenames
+      v' = Var <$> v
+      ass = liftM2 Assign v arbitrary
+      gt = liftM2 (RBinary Greater) v' arbitrary
+      dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
+      lt = liftM2 (RBinary Less) v' arbitrary
+      inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
+      eq = liftM2 (RBinary Eq) v' arbitrary
+      change = liftM2 Assign v arbitrary
   elements $ zip3 [ass, ass, ass] [gt, lt, eq] [dec, inc, change]
         -- neq = Negate BBinary Eq v' <$> arbitrary
         -- Food for thought
@@ -29,9 +27,9 @@ whileConds = do
 
 instance Arbitrary Stmt where
   arbitrary = sized stexpr
-  shrink (Seq s1 s2) = [s1, s2] <> [Seq s1' s2' | (s1',s2') <- shrink (s1,s2)]
+  shrink (Seq s1 s2) = [s1, s2] <> [Seq s1' s2' | (s1',s2') <- shrink (s1, s2)]
   shrink (GhostAss v a) = map (GhostAss v) $ shrink a
-  shrink (Assign v a) = map (GhostAss v) $ shrink a
+  shrink (Assign v a) = map (Assign v) $ shrink a
   shrink (If b s1 s2) = [s1, s2] <> [If b' s1' s2' | (b', s1',s2') <- shrink (b, s1,s2)]
   shrink (Asst f) = map Asst $ shrink f
   shrink (While b invs var s) = [s] <> [While b' invs' var' s |
@@ -41,10 +39,10 @@ instance Arbitrary Stmt where
   shrink Fail = [Fail]
 
 stexpr 0 = stleaf
-stexpr n = frequency [ (3, stleaf)
-                   , (1, ifs $ subExpr n )
-                   , (1, onlM2 Seq (stexpr . subExpr) n n)
-                   , (1, while $ subExpr n)
+stexpr n = frequency [ (15, stleaf)
+                   , (10, ifs $ subExpr n )
+                   , (1, liftM2 Seq (seq1 (subExpr n)) (stexpr $ subExpr n))
+                   -- , (1, while $ subExpr n)
                    ]
 stleaf = frequency [ (1, return Skip)
                  , (1, return Fail)
@@ -52,6 +50,7 @@ stleaf = frequency [ (1, return Skip)
                  , (1, ghost)
                  , (1, assert)
                  ]
+seq1 n = frequency [(15, stleaf), (7, ifs n)] --, (1, while n)]
 assign = do
   i <- fixednames
   Assign i <$> arbitrary

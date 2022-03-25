@@ -12,7 +12,7 @@ import qualified Data.Map as M
 import Control.Monad.State.Strict
 import AST
 import Eval
-import GHC.TypeLits (Symbol)
+-- import GHC.TypeLits (Symbol)
 import Control.Monad.Reader
 import Data.Maybe
 import Data.List (isInfixOf, isPrefixOf)
@@ -23,6 +23,7 @@ import Pretty
 import Data.Foldable (foldrM)
 import Control.Monad.Except
 import Utils
+import Debug.Trace
 
 type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger

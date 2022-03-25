@@ -4,3 +4,4 @@ requirements: {}
 a := i;
 n := 10 + a;
 #{n = i + 10};
+$aa := a;

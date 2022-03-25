@@ -4,7 +4,7 @@ import           Test.Tasty.QuickCheck
 import AST
 import Control.Monad
 
-subExpr = flip div 2
+subExpr = flip div 10
 
 asciiLetter = elements $ ['a'..'z'] ++ ['A'..'Z']
 hyphen      = elements ['_']
