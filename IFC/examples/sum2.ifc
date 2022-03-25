@@ -5,7 +5,7 @@ sum := 0;
 c := 0;
 👻a := cur;
 while lim > (c * step + cur)
-?{ true}
+?{ sum <= c}
 -- ?{c >= 0 }
 -- !{lim - (c * step + cur)}
 {

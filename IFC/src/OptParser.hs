@@ -12,7 +12,7 @@ type Parser = Parsec Void String
 
 parseStore :: String -> Either String [(VName, Integer)]
 parseStore s = case parse (brackets inputP) "" s of
-                 Left e -> Left "Input list not wellformed"
+                 Left _ -> Left "Input list not wellformed"
                  Right r -> return r
 
 inputP :: Parser [(VName, Integer)]

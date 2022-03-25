@@ -1,6 +1,7 @@
-vars: []
+vars: [i]
 requirements: {}
 <!=_=!>
-a := 10;
+a := i;
 n := 10 + a;
-#{n = 20};
+#{n = i + 10};
+$aa := a;

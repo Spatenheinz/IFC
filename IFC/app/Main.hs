@@ -9,14 +9,10 @@ import WLP
 import qualified WLP2 as W
 import System.Exit (die)
 import System.Environment (getArgs)
-import Data.SBV.Trans.Control
-import Control.Monad (void)
-import qualified Data.Map as M
 import Pretty
 import OptParser
 import Control.Monad.Except
 import Data.SBV.Trans
-import Debug.Trace
 -- import qualified WLP2 as W
 
 run :: Stmt -> Header -> [(VName, Integer)] -> IO ()
@@ -31,7 +27,7 @@ formular p st = case runWLP p st of
 
 prover2 :: Stmt -> IO ThmResult
 prover2 p = case W.proveWLP [] p of
-             Left e -> error "hmm ok then"
+             Left e -> error e
              Right f -> prove f
 
 formular1 :: Stmt -> IO ()
@@ -55,7 +51,7 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
-                Right (p,st) -> prover2 p >>= print
+                Right (p,_) -> prover2 p >>= print
             ["-q", file] -> do
               s <- readFile file
               case parseString s of
@@ -65,7 +61,7 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
-                Right (p,st) -> formular1 p
+                Right (p,_) -> formular1 p
             ["-f", file] -> do
               s <- readFile file
               case parseString s of
@@ -82,7 +78,7 @@ main = do args <- getArgs
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
                 Right (p,st) -> case parseStore argslist of
                             Left e -> print e
-                            Right args -> run p st args
+                            Right a -> run p st a
             _ ->
               die "Usage:\n\
                     \  IFC FIX       (parse & interpret)"

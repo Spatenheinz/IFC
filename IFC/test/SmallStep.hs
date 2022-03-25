@@ -60,7 +60,7 @@ equivalence = testGroup "Tests for equivalences" [
             ]
         ]
 
-sWhile c = While c [] Nothing
+sWhile c = While c [Cond $ BoolConst True] Nothing
 
 evalA :: [(VName, Integer)] -> AExpr -> Err Integer
 evalA xs ast =

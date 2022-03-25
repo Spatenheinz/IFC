@@ -46,8 +46,8 @@ eval (Asst f) = evalFOL f >>= \case
 eval w@(While c invs var s) = do
   c' <- evalBExpr c
   invs' <- evalFOL (foldr1 (./\.) invs)
-  if c' && invs' then (eval s >> eval w)
-  else if invs' then (return ())
+  if c' && invs' then eval s >> eval w
+  else if invs' then return ()
   else do
       st <- get
       lift. Left $ "invariant " <> prettyF (foldr1 (./\.) invs) 0 <> " does not hold, with store " <> show st

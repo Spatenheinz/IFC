@@ -1,5 +1,5 @@
 vars: [a]
-requirements: {a = 10}
+requirements: {a > 0}
 <!=_=!>
 fib1 := 0;
 res := 1;
@@ -11,4 +11,4 @@ while a > 1
      fib1 := tmp;
      a := a - 1;
 };
-#{ res = 55};
+-- #{ res = 55};
