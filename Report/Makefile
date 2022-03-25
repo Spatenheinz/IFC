@@ -1,6 +1,6 @@
 MAINFILE = main.tex
 CC = latexmk -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f
-ALL = $(wildcard *.tex */*.tex */*.sty)
+ALL = $(wildcard *.tex */*.tex */*.sty *.bib)
 
 .PHONY: all
 all: $(MAINFILE).pdf
