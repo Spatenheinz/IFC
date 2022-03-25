@@ -30,6 +30,8 @@ dynstat = testGroup "Test between static and dynamic" [
                   Right _ -> qcProver s (property False) not
             , testProperty "Eval true ~ VC-SAT" $ \(s :: Stmt) ->
                 isRight (runEval [] s) ==> qcProver s (property False) not
+            , testProperty "Eval true ~ VC-SAT" $ \(s :: Stmt) ->
+                unsafePerformIO (qcProver2 s not) ==> isRight (runEval [] s)
             ]
         ]
 
@@ -41,3 +43,12 @@ qcProver p prop mneg = case proveWLP p ([],Nothing) of
                        case res of
                          Left e -> return prop
                          Right r -> return . property $ mneg $ modelExists r
+
+qcProver2 :: Stmt -> (Bool -> Bool) -> IO Bool
+qcProver2 p mneg = case proveWLP p ([],Nothing) of
+                    Left e -> return False
+                    Right f -> do
+                       res <- runExceptT (T.prove f :: ExceptT String IO ThmResult)
+                       case res of
+                         Left e -> return False
+                         Right r -> return $ mneg $ modelExists r

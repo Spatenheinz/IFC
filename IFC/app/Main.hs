@@ -6,6 +6,7 @@ import AST
 import Eval
 import Parser
 import WLP
+import qualified WLP2 as W
 import System.Exit (die)
 import System.Environment (getArgs)
 import Data.SBV.Trans.Control
@@ -18,7 +19,7 @@ import Data.SBV.Trans
 import Debug.Trace
 -- import qualified WLP2 as W
 
-run :: Stmt -> PreConds -> [(VName, Integer)] -> IO ()
+run :: Stmt -> Header -> [(VName, Integer)] -> IO ()
 run p (_,pre) st = case maybe (runEval st p) (\x -> runEval st (Seq (Asst x) p)) pre of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right store -> printEval store
@@ -28,10 +29,15 @@ formular p st = case runWLP p st of
           Left e -> putStrLn "*** Runtime error:" >> putStrLn e
           Right (f,s) -> putStrLn (prettyF f 4 <> "\n\n") >> print s
 
--- prover :: Stmt -> ([VName], Maybe FOL) -> IO ThmResult
--- prover p st = case proveWLP p st of
---              Left e -> error e
---              Right f -> prove f
+prover2 :: Stmt -> IO ThmResult
+prover2 p = case W.proveWLP [] p of
+             Left e -> error "hmm ok then"
+             Right f -> prove f
+
+formular1 :: Stmt -> IO ()
+formular1 p = case W.runWLP [] p of
+          Left e -> putStrLn "*** Runtime error:" >> putStrLn e
+          Right f -> print  f
 
 prover :: Stmt -> ([VName], Maybe FOL) -> IO ThmResult
 prover p st = case proveWLP p st of
@@ -45,21 +51,31 @@ prover p st = case proveWLP p st of
 main :: IO ()
 main = do args <- getArgs
           case args of
+            ["-q2", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
+                Right (p,st) -> prover2 p >>= print
             ["-q", file] -> do
               s <- readFile file
               case parseString s of
-                Left e -> putStrLn $ "*** Parse error: " ++ show e
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
                 Right (p,st) -> prover p st >>= print
+            ["-f2", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
+                Right (p,st) -> formular1 p
             ["-f", file] -> do
               s <- readFile file
               case parseString s of
-                Left e -> putStrLn $ "*** Parse error: " ++ show e
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
                 Right (p,st) -> formular p st
             ["-p", file] -> do
               s <- readFile file
               case parseString s of
-                Left e -> putStrLn $ "*** Parse error: " ++ show e
-                Right (p,st) -> print p
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
+                Right (p,st) -> putStrLn $ prettyProgram p st
             [file, argslist] -> do
               s <- readFile file
               case parseString s of

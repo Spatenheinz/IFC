@@ -18,11 +18,13 @@ import Control.Monad.Reader
 import Control.Monad.Identity
 import Utils
 
-type PreConds = ([VName], Maybe FOL)
-type Parser = ParsecT Void String (ReaderT Bool (StateT PreConds Identity))
+type Parser = ParsecT Void String (ReaderT Bool (StateT Header Identity))
 
-parseString :: String -> Either String (Stmt, PreConds)
-parseString s = case runIdentity $ runStateT (runReaderT (runParserT (between sc eof programP) "" s) False) ([],Nothing) of
+parseString :: String -> Either String (Stmt, Header)
+parseString s = case runIdentity
+                     $ runStateT
+                     (runReaderT (runParserT (between sc eof programP) "" s) False)
+                     ([],Nothing) of
          (Left bundle, _) -> Left $ errorBundlePretty bundle
          (Right xs, st) -> return (xs, st)
 
@@ -67,8 +69,8 @@ keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", 
 identP :: Parser String
 identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
   where
-    ident = liftA2 (:) identH $ many (identH <|> digitChar)
-    identH = letterChar
+    ident = liftA2 (:) identH $ many (letterChar <|> digitChar <|> char '_')
+    identH = lowerChar <|> char '_'
     notRword i
       | i `elem` keywords = fail $ "keyword " ++ show i ++ "used as an identifier"
       | otherwise = return i
@@ -210,16 +212,17 @@ bExprP = makeExprParser bTermP operators
 
 aTermP :: Parser AExpr
 aTermP =
-    parens aExprP
+     parens aExprP
     <|> varP
     <|> IntConst <$> integer
+    <?> "aterm"
 
 bTermP :: Parser BExpr
 bTermP =
+  try relative <|>
   parens bExprP
   <|> BoolConst True <$ rword "true"
   <|> BoolConst False <$ rword "false"
-  <|> try relative
   where relative = aExprP >>= \a0 -> relationP >>= \r -> r a0 <$> aExprP
 
 relationP :: Parser (AExpr -> AExpr -> BExpr)

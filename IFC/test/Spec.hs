@@ -7,11 +7,12 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import SmallStep
 import StatVDyn
+import qualified ParserTest as PT
 
 main :: IO ()
 main = defaultMain $ localOption (mkTimeout 1000000) tests
 
-tests = testGroup "All tests" [equivalence, dynstat]
+tests = testGroup "All tests" [PT.lex, equivalence, dynstat]
 
 testOfMul :: IO ()
 testOfMul = putStrLn $ prettyF thing 0

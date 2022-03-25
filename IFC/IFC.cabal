@@ -69,6 +69,7 @@ test-suite IFC-test
   main-is: Spec.hs
   other-modules:
       CodeBlocks
+      ParserTest
       QCInstances
       SmallStep
       StatVDyn

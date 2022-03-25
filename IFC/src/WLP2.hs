@@ -1,164 +1,112 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE PatternGuards #-}
-{-# LANGUAGE MultiWayIf #-}
 
 module WLP2 where
 
-import Data.SBV.Trans
+import Data.SBV
 import Control.Monad(liftM2)
 import qualified Data.Map as M
-import Control.Monad.Except
 import Control.Monad.State.Strict
 import AST
 import Eval
 import GHC.TypeLits (Symbol)
-import Control.Monad.Reader
+import AST (BExpr (BBinary, BoolConst, Negate), AExpr (IntConst), FOL (ANegate, AConj))
+import Control.Monad.State.Strict (StateT(runStateT))
 import Data.Maybe
-import Data.List (isInfixOf, isPrefixOf)
+import Data.List (isInfixOf)
 import Data.Function (on)
 import Control.Monad.RWS (modify)
 import Data.Bifunctor (first)
 import Debug.Trace
-import Pretty
-import Data.Foldable (foldrM)
 
-type Sym a = SymbolicT (ExceptT String IO) a
-type SymTable = M.Map VName SInteger
+type Sym a = StateT SymTable Symbolic (SBV a)
+type SymTable = M.Map String SInteger
 
-type Count = Int
-type Counter = M.Map VName Count
-type Env = M.Map VName VName
+type Counter = Int
+type Store = M.Map String ([(VName, AExpr)], Counter)
 
-type WP a = StateT Counter (ReaderT Env (Either String)) a
+type Formular a = StateT Store (Either String) a
 
-runWLP s (vs, pre) = do
-  runReaderT (runStateT addPre M.empty) M.empty
-  where
-    addPre = do
-      wlp' <- wlp s $ Cond (BoolConst True)
-      pre' <- case pre of
-                Nothing -> return $ wlp'
-                Just a -> return $ a .=>. wlp'
-      return $ foldr Forall pre' vs
+runWLP st s = runStateT (preP s (Cond $ BoolConst True) >>=
+                         \x -> formatState >> resolveQ x) $ M.fromList st
 
-proveWLP s st =
-  case runWLP s st of
-    Right (q', _) -> return $ fToS q' M.empty
-    Left e -> Left e
+proveWLP st s = let q = runWLP st s
+                in case q of
+                     Right (q', _) -> return $ fToS q' M.empty
+                     Left e -> Left e
 
-genGhost :: VName -> WP ()
-genGhost x = do
+formatState :: Formular ()
+formatState = modify (M.map (first (("#", Var "") :)))
+
+genVar :: VName -> AExpr -> Formular VName
+genVar x a = do
   s <- get
-  case M.lookup x s of
-    Nothing -> modify (M.insert x 0)
-    Just a -> lift $ lift $ Left $ "👻-Variable " <> x <> " is already declared!!!"
-
-genVar :: VName -> WP VName
-genVar x = do
-  s <- get
-  let c = fromMaybe 1 (M.lookup x s)
+  let (as,c) = fromMaybe ([],1) (M.lookup x s)
       c' = x <> "#" <> show c
-  modify (M.insert x (c+1))
+  modify (M.insert x ((c',a):as,c+1))
   return c'
 
-false :: WP FOL
 false = return . Cond . BoolConst $ False
 
-resolveQ1 :: FOL -> WP FOL
-resolveQ1 (Cond b) = resolveBExpr1 b
-resolveQ1 (Forall x q) = Forall x <$> resolveQ1 q
-resolveQ1 (Exists x q) = Exists x <$> resolveQ1 q
-resolveQ1 (ANegate q) = anegate <$> resolveQ1 q
-resolveQ1 (AConj a b) = liftM2 AConj (resolveQ1 a) (resolveQ1 b)
-resolveQ1 (ADisj a b) = liftM2 ADisj (resolveQ1 a) (resolveQ1 b)
-resolveQ1 (AImp a b) = liftM2 AImp (resolveQ1 a) (resolveQ1 b)
-
-resolveBExpr1 :: BExpr -> WP FOL
-resolveBExpr1 b@(BoolConst _) = return $ Cond b
-resolveBExpr1 (Negate b) = anegate <$> resolveBExpr1 b
-resolveBExpr1 (BBinary Conj a b) = on (liftM2 aconj) resolveBExpr1 a b
-resolveBExpr1 (BBinary Disj a b) = on (liftM2 adisj) resolveBExpr1 a b
-resolveBExpr1 (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr1 a b
-
-resolveAExpr1 :: AExpr -> WP AExpr
-resolveAExpr1 (Var x) = Var <$> mrVar1 x
-resolveAExpr1 (Ghost a) = return $ Var a
-resolveAExpr1 i@(IntConst _) = return i
-resolveAExpr1 (Neg a) = Neg <$> resolveAExpr1 a
-resolveAExpr1 (ABinary op a b) = on (liftM2 (abinary op)) resolveAExpr1 a b
-
-wlp :: Stmt -> FOL -> WP FOL
-wlp (Seq s1 s2) q = wlp s2 q >>= wlp s1
-wlp Skip q = return q
-wlp (GhostAss x a) q =
-  genGhost x >> resolveQ1 (Forall x (Cond (RBinary Eq (Ghost x) a) .=>. q))
-wlp (Assign x a) q = do
-    x' <- genVar x
-    q' <- local (M.insert x x') $ resolveQ1 q
-    return $ Forall x' (Cond (RBinary Eq (Var x') a) .=>. q')
-wlp (If b s1 s2) q = do
-  s1' <- wlp s1 q
-  s2' <- wlp s2 q
+preP :: Stmt -> FOL -> Formular FOL
+preP (Seq s1 s2) q = preP s2 q >>= preP s1
+preP Skip q = return q
+preP (Assign x a) q = do
+  x' <- genVar x a
+  return $ Forall x' ( Cond (RBinary Eq (Var x') a) .=>. q)
+preP (If b s1 s2) q = do
+  s1' <- preP s1 q
+  s2' <- preP s2 q
   let b' = Cond b
-  return $ (b' .=>. s1') ./\. (anegate b' .=>. s2')
-wlp s@(Asst a) q =
-  findVars s [] >> return (a ./\. q)
-wlp Fail _q = false
-wlp (While b [] _var _s) q = lift . lift . Left $ "while with condition "
-                             <> prettyB b <> " has no invariant!"
-wlp (While b inv var s) q = do
-  let invs = foldr1 (./\.) inv
-  st <- get
-  (fa, var') <- maybe (return (id, Cond $ BoolConst True)) resolveVar var
-  w <- wlp s (invs ./\. var')
-  fas <- findVars s []
-  let inner = fa ((Cond b ./\. invs ./\. var' .=>. w)
-                          ./\. (anegate (Cond b) ./\. invs .=>. q))
-  env <- ask
-  let env' = foldr (\(x,y) a -> M.insert x y a) env fas
-  inner' <- local (const env') $ resolveQ1 inner
-  let fas' = foldr (Forall . snd) inner' fas
-  return $ invs ./\. fas'
-  where
-    resolveVar :: Variant -> WP (FOL -> FOL, FOL)
-    resolveVar var = do
-      x <- genVar "variant"
-      return (Forall x,
-               Cond (Negate (RBinary Greater (IntConst 0) var)) ./\.
-               Cond (RBinary Less (Var x) var))
+  return $ b' ./\. s1' .\/. ANegate b' ./\. s2'
+preP (Asst a) q = do
+  return $ a ./\. q
+preP Fail _q = false
+preP (While _b [] _var _s) q = false
+preP (While _b inv _var _s) q = return $ foldr1 (./\.) inv
 
-mrVar1 :: VName -> WP VName
-mrVar1 x =
+resolveQ :: FOL -> Formular FOL
+resolveQ (Cond b) = resolveBExpr b
+resolveQ (Forall x q) = popStack x >> Forall x <$> resolveQ q
+resolveQ (Exists x q) = popStack x >> Forall x <$> resolveQ q
+resolveQ (ANegate q) = ANegate <$> resolveQ q
+resolveQ (AConj a b) = liftM2 AConj (resolveQ a) (resolveQ b)
+resolveQ (ADisj a b) = liftM2 ADisj (resolveQ a) (resolveQ b)
+resolveQ (AImp a b) = liftM2 AImp (resolveQ a) (resolveQ b)
+
+popStack :: VName -> Formular ()
+popStack x =
+  when ("#" `isInfixOf` x) (do
+    s <- get
+    let x' = takeWhile (/='#') x
+    modify (M.adjust (\(a:as, c) -> (as,c)) x')
+    )
+resolveBExpr :: BExpr -> Formular FOL
+resolveBExpr b@(BoolConst _) = return $ Cond b
+resolveBExpr b@(Negate _) = return $ Cond b
+resolveBExpr (BBinary Conj a b) = on (liftM2 AConj) resolveBExpr a b
+resolveBExpr (BBinary Disj a b) = on (liftM2 ADisj) resolveBExpr a b
+resolveBExpr (RBinary op a b) = Cond <$> on (liftM2 (RBinary op)) resolveAExpr a b
+
+resolveAExpr :: AExpr -> Formular AExpr
+resolveAExpr (Var x) = Var <$> mrVar x
+resolveAExpr (Ghost x) = Var <$> mrVar x
+resolveAExpr i@(IntConst _) = return i
+resolveAExpr (Neg a) = Neg <$> resolveAExpr a
+resolveAExpr (ABinary op a b) = on (liftM2 (ABinary op)) resolveAExpr a b
+
+mrVar :: VName -> Formular VName
+mrVar x = do
   if "#" `isInfixOf` x then
     return x
   else do
-    s <- ask
+    s <- get
     case M.lookup x s of
-      Just x' -> return x'
-      Nothing -> return x
+      Just ([],c) -> error "COMPILER ERROR"
+      Just ((x',a):as,c) -> return x'
+      Nothing -> lift . Left $ "variable " <> x <> " not declared"
 
-findVars :: Stmt -> [(VName,VName)] -> WP [(VName,VName)]
-findVars (Seq s1 s2) st = findVars s1 st >>= findVars s2
-findVars (Assign x a) st = if x `elem` map fst st then
-                             return st
-                           else genVar x >>= \y -> return ((x,y):st)
-findVars (Asst a) st = findInAsst a st
-findVars (If _ s1 s2) st = findVars s1 st >>= findVars s2
-findVars (While _ _ _ s) st = findVars s st
-findVars _ st = return st
-
-findInAsst :: FOL -> [(VName,VName)] -> WP [(VName,VName)]
-findInAsst (Cond b) st = return st
-findInAsst (Forall x a) st = genVar x >>= \y -> findInAsst a ((x,y):st)
-findInAsst (Exists x a) st = genVar x >>= \y -> findInAsst a ((x,y):st)
-findInAsst (ANegate a) st = findInAsst a st
-findInAsst (AConj a b) st = findInAsst a st >>= findInAsst b
-findInAsst (ADisj a b) st = findInAsst a st >>= findInAsst b
-findInAsst (AImp a b) st = findInAsst a st >>= findInAsst b
-
-fToS :: FOL -> SymTable -> Sym SBool
+fToS :: FOL -> SymTable -> Predicate
 fToS (Cond b) st = bToS b st
 fToS (Forall x a) st = forAll [x] $ \(x'::SInteger) ->
   fToS a (M.insert x x' st)
@@ -169,7 +117,7 @@ fToS (AConj a b) st = on (liftM2 (.&&)) (`fToS` st) a b
 fToS (ADisj a b) st = on (liftM2 (.||)) (`fToS` st) a b
 fToS (AImp a b) st = on (liftM2 (.=>)) (`fToS` st) a b
 
-bToS :: BExpr -> SymTable -> Sym SBool
+bToS :: BExpr -> SymTable -> Predicate
 bToS (BoolConst b) st = return $ fromBool b
 bToS (Negate b) st = sNot <$> bToS b st
 bToS (BBinary op a b) st = on (liftM2 (f op)) (`bToS` st) a b
@@ -180,11 +128,11 @@ bToS (RBinary op a b) st = on (liftM2 (f op)) (`aToS` st) a b
         f Eq   = (.==)
         f Greater = (.>)
 
-aToS :: AExpr -> SymTable -> Sym SInteger
-aToS (Var x) st =
+aToS :: AExpr -> SymTable -> Symbolic SInteger
+aToS (Var x) st = do
   case M.lookup x st of
     Just a -> return a
-    Nothing -> throwError $ "Var " <> x <> " Not found in " <> show st
+    Nothing -> error $ "Var " <> x <> " Not found in " <> show st
 aToS (Ghost x) st = undefined
 aToS (IntConst i) st = return $ literal i
 aToS (Neg a) st = negate <$> aToS a st

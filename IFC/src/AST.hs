@@ -1,13 +1,15 @@
 module AST where
 
+type Header = ([VName], Maybe FOL)
+
 data BExpr = BoolConst Bool
   | Negate BExpr
   | BBinary BoolOp BExpr BExpr
   | RBinary ROp AExpr AExpr
-  deriving (Show)
+  deriving (Show, Eq)
 
 data BoolOp = Conj | Disj
-  deriving (Show)
+  deriving (Show, Eq)
 
 bnegate :: BExpr -> BExpr
 bnegate (Negate (Negate b)) = b
@@ -62,7 +64,7 @@ data Stmt = Seq Stmt Stmt
   | While BExpr [FOL] (Maybe Variant) Stmt
   | Skip
   | Fail
-  deriving (Show)
+  deriving (Show, Eq)
 
 type Variant = AExpr
 
@@ -73,7 +75,7 @@ data FOL = Cond BExpr
   | AConj FOL FOL
   | ADisj FOL FOL
   | AImp FOL FOL
-  deriving (Show)
+  deriving (Show, Eq)
 
 anegate :: FOL -> FOL
 anegate (ANegate (ANegate a)) = a
