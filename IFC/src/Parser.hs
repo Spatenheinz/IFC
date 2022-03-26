@@ -48,6 +48,7 @@ brackets = (between `on` symbol) "[" "]"
 cbrackets :: Parser a -> Parser a
 cbrackets = (between `on` symbol) "{" "}"
 
+signed :: Parser Integer
 signed = L.signed (return ()) integer
 
 integer :: (Num a) => Parser a
@@ -64,7 +65,7 @@ rword :: String -> Parser ()
 rword w = string w *> notFollowedBy alphaNumChar *> sc
 
 keywords :: [String]
-keywords = ["if", "then", "else", "while", "forall", "violate", "skip", "true", "false"]
+keywords = ["if", "else", "while", "forall", "exists", "violate", "skip", "true", "false"]
 
 identP :: Parser String
 identP = (lexeme . try) (ident >>= notRword) <?> "identifier"
@@ -101,7 +102,6 @@ preconds = do
   req <- cbrackets (option Nothing (Just <$> impP))
   symbol "<!=_=!>"
   modify (const (vs,req))
-
 
 seqP :: Parser Stmt
 seqP = do

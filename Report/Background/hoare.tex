@@ -65,7 +65,7 @@ Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluat
  $[while_p ]$ & 
 		$\frac{ \{\mathcal{B} \llbracket b \rrbracket \land P \} S \{ P \}}
           {\{P\} \texttt{ while } b \texttt{ do } S 
-           \{\neg \mathcal{B} \llbracket b \rrbracket \land Q\}}$ \\
+           \{\neg \mathcal{B} \llbracket b \rrbracket \land P\}}$ \\
 	& \\
  $[cons_p ]$ & 
 		$\frac{ \{P'\} S \{Q'\}}{\{P\} S \{Q\}} \quad 

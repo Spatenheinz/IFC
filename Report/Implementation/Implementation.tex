@@ -1,20 +1,21 @@
 \section{Implementation}\label{sec:implementation}
 IFC is yet to be more than just a toy-language, however in the design of the language and the actual compiler, we have tried to focus making the code modular and easy to extend.
-Currently the program consists of 4 parts.
+Currently the program consists of four parts. Each part will carry out a seperate task for the program. We have focused on the making the code modular, such that each part does not explicitly dependent on the other part. Though the main interface is setup to the following tasks:
 \begin{enumerate}
-  \item Parser
-  \item Evaluator
-  \item Verification Condition Generator
-  \item External SMT-solver API
+  \item \textbf{Parser:} Extract the Abstract Syntax Tree generated in the Parser
+  \item \textbf{Evaluator:} Run a program with an initial store
+  \item \textbf{Verification Condition Generator:} Extract the formula by Verification Condition Generator
+  \item \textbf{External SMT-solver API:} Run the formular through an external prover (Z3).
 \end{enumerate}
-Each part will carry out a task for the program. There is no explicit dependency between any of these parts. Though the main interface is setup to the following tasks:
-\begin{enumerate}
-  \item Extract the Abstract Syntax Tree generated in the Parser
-  \item Run a program with an initial store
-  \item Extract the formula by Verification Condition Generator
-  \item Run the formular through an external prover (Z3).
-\end{enumerate}
-\autoref{sec:guide} explains how each of these are used. In the following section we describe how each the 4 program parts are implemented.
+Although each part can work seperately, they are connected as seen in \autoref{fig:flow} in the application.
+
+\begin{figure}[h]
+  \includegraphics[width=\linewidth]{Implementation/IFCflow.png}
+  \caption{Application layout for IFC}
+  \label{fig:flow}
+\end{figure}
+
+\autoref{sec:guide} explains how to interact with the application. In the following section we describe how each the four program parts are implemented.
 
 \input{Implementation/parser.tex}
 
