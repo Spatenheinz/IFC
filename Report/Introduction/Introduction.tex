@@ -28,15 +28,18 @@
 %  Describe how Verification Condition Generators are used.
 %  Develop intuition for how Model Checkers work.
 
-% -------------------------------
+%  -------------------------------
+
+\textit{its cursive}
 
 % topic
-When writing code, you might be interested in verifying that your program does in fact do what you expect it to. 
+When writing code, it is important to verify that a program does in fact do as intended.
+Often this is done by extensive testing, but this might not be sufficient to assert correctness of said program.
 In 1969 C.A.R. Hoare puplished a paper on an axiomatic system for proving correctness of programs, which laid the base for Hoare logic, a system for reasoning about program logic\cite{Hoare}. Using this logic, and the rules of inference that it introduces, one can formally prove the correctness of a program.
 However, doing this by hand is time consuming, and can be expensive. 
 
 In 1975, Dijkstra introduced \textit{predicate transformer semantics}, which is a way to find a suiting verification condition for a program, based on assertions about said program\cite{Dijkstra}.
-This provides an approach for automatically generating conditions for which we can verify the correctness of certain programs.
+This provides an approach for automatically generating conditions which we can use to verify the correctness of certain programs.
 % noget med information flow control??
 
 % hvad er konteksten for problemet
@@ -44,9 +47,9 @@ This provides an approach for automatically generating conditions for which we c
 % hvad er der blevet gjort før? 
 % there are several programming languages allowing for verification condtition generation etc...
 % Z3 why3
-\textit{Why3} is an example of a platform in which such automatic program verification can be done. It requires the programmer to write assertions inside the program code of a \verb\WhyML\, and then utilises these assertions to compute a verification condition for the program.
+\textit{Why3} is an example of a platform in which such automatic program verification can be done. The internal language is \verb\WhyML\. \verb\Why3\ requires the programmer to write assertions inside the program code, and then utilises these assertions to compute a verification condition for the program.
 When the verification condition is generated, it can discharge this condition to a variety of SMT solvers, which can then determine whether this condition can be proved.
-Thus \textit{WhyML} is a programming language assertion interface, which allows automatic verification of programs by external SMT-solvers.
+Thus \textit{WhyML} is a programming language with an assertion interface, which allows automatic verification of programs by external SMT-solvers.
 
 % vores løsningsforslag
 \verb\WhyML\ is a language in the ML-family. In this project we present a small imperative language in the C-style family with built-in assertion language. This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}. % coupled with Z3?
