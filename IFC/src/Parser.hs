@@ -131,7 +131,7 @@ quantP = quant <|> impP
 impP :: Parser FOL
 impP = do
   a0 <- cdP
-  option a0 (symbol "=>" >> aimp a0 <$> impP)
+  option a0 (symbol "=>" >> aimp a0 <$> quantP)
 
 cdP :: Parser FOL
 cdP = negPreP >>= cdOptP

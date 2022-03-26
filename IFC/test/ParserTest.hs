@@ -74,6 +74,7 @@ lex = testGroup "Parsing" [
   testGroup "Ambiguity" [
       testParseOK "a + 4 * 3 - 1" "v := a + 4 * 3 - 1;"
        (Assign "v" (ABinary Sub (ABinary Add (Var "a") (ABinary Mul (IntConst 4) (IntConst 3))) (IntConst 1)))
+      -- ~~~ should be ~(~(~))
       ]
   , qc
   ]

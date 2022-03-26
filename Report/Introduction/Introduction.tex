@@ -30,53 +30,42 @@
 
 %  -------------------------------
 
-\textit{its cursive}
+In this project we present a small imperative language in the C-style family with built-in assertion language. This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}. Our VC generator as of now is discharging verification conditions fit for the SMT solver \textit{Z3}, allowing us to prove the partial or total correctness of the program.
+The main motivation for implementing this language is to set a basis which we can easily extend to include \verb\Partial Equivalence Relation\ (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{}. This can be used for making assertions about the security of code.
 
 % topic
-When writing code, it is important to verify that a program does in fact do as intended.
-Often this is done by extensive testing, but this might not be sufficient to assert correctness of said program.
+% When writing code, it is important to verify that a program does in fact do as intended.
+% Often this is done by extensive testing, but this might not be sufficient to assert correctness of said program.
+We take our starting point in the work of Floyd, Hoare and Dijkstra.
 In 1969 C.A.R. Hoare puplished a paper on an axiomatic system for proving correctness of programs, which laid the base for Hoare logic, a system for reasoning about program logic\cite{Hoare}. Using this logic, and the rules of inference that it introduces, one can formally prove the correctness of a program.
-However, doing this by hand is time consuming, and can be expensive. 
+Floyd did something similar in his paper from 1967, but by using flow-diagrams, rather than an axiomatic system\cite{Floyd1967}.
+% However, doing this by hand is time consuming, and can be expensive.
 
 In 1975, Dijkstra introduced \textit{predicate transformer semantics}, which is a way to find a suiting verification condition for a program, based on assertions about said program\cite{Dijkstra}.
 This provides an approach for automatically generating conditions which we can use to verify the correctness of certain programs.
-% noget med information flow control??
+% % noget med information flow control??
 
-% hvad er konteksten for problemet
+% % hvad er konteksten for problemet
 
-% hvad er der blevet gjort før? 
-% there are several programming languages allowing for verification condtition generation etc...
-% Z3 why3
-\textit{Why3} is an example of a platform in which such automatic program verification can be done. The internal language is \verb\WhyML\. \verb\Why3\ requires the programmer to write assertions inside the program code, and then utilises these assertions to compute a verification condition for the program.
-When the verification condition is generated, it can discharge this condition to a variety of SMT solvers, which can then determine whether this condition can be proved.
-Thus \textit{WhyML} is a programming language with an assertion interface, which allows automatic verification of programs by external SMT-solvers.
+% % hvad er der blevet gjort før?
+% % there are several programming languages allowing for verification condtition generation etc...
+% % Z3 why3
+\textit{Why3} is an example of a platform in which such automatic program verification can be done. The internal language is \verb\WhyML\. \verb\Why3\ requires the programmer to write assertions inside the program code, and then utilises these assertions to compute verification conditions for the program.
+When the verification condition is generated, it can discharge this condition to a variety of SMT solvers or proof assistants, which can then determine whether this condition can be proved.
+% Thus \textit{WhyML} is a programming language with an assertion interface, which allows automatic verification of programs by external SMT-solvers.
 
 % vores løsningsforslag
-\verb\WhyML\ is a language in the ML-family. In this project we present a small imperative language in the C-style family with built-in assertion language. This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}. % coupled with Z3?
 
 % hvad er vores mål med projektet
-The main motivation for implementing this new language is to set a basis on which we can easily extend the language to include \verb\Partial Equivalence Relation\ (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{}. This can be used for making assertions about the security of code.
 % IFC can help us assert that variables are safe...
 
 % scope and limitations to the solution
-This project implements a fairly simple language, with no arrays or procedures, that uses assertions to reason about correctnes of programs.
-We will present the syntax and semantics of our language, talk about how verification conditions can be generated based on assertions, and explain how this is implemented in our VC generator in Haskell. 
-The VC generator is as of now discharging verification conditions that can be fed to the SMT solver \textit{Z3}, and thus allows us to prove the partial or total correctness of the program, depending on the given assertions.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\begin{itemize}
+  \item In section ??, We present the syntax and semantics of our language
+  \item In section ??, we explain how VC generation works, and how it can be used for automatically proving certains properties about programs.
+\item In section ??, we present a interpreter which can dynamically evaluates a program based on the semantic specification.
+We do so by presenting how we transform the formal semantics into equivalent Haskell code.
+\item In section ??, we give an assessment of the implementation and discuss the results.
+Here we will also reflect on the limitations modern SMT-solvers.
+\item Lastly, section ?? presents some ideas for future work.
+\end{itemize}

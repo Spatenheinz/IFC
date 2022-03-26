@@ -4,11 +4,11 @@ For the parsing of a program we use the parser combinator library MegaParsec, wh
 We do so in two different ways.
 For arithmetic operators and boolean operators, we make use of the expression parser defined in \verb\Control.Monad.Combinators.Expr\.
 This makes handling operators, precedence and associativity easy, however for the parsing of first order logic in asssertions, this approach did not work. Instead we have to modify the grammar. as such:
-\begin{figure}
-\includegraphics{write up the grammar}
+\begin{figure}[h]
+\input{Implementation/parsergrammar}
 \end{figure}
 \\~\\
-We further introduces some syntactic sugar in the grammar such as ``if c \{s\};'' which will be desugared into ``if c {s} else \{skip\};''.
+We further introduces some syntactic sugar in the grammar such as ``if c \{s\};'' which will be desugared into ``if c \{s\} else \{skip\};''.
 For other parts of the grammar, which could have easily been syntactic sugar, such as implication and exist, we use the unsugared constructs. Although this introduces more code, the intent is to make the code easier to reason about in terms of the semantics. Furthermore it reads better in the output of the vc generator, and by knowledge of the predicate transformer semantics.
 This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, we settle for a slightly bigger AST, and as of now this does not add much overhead to the other parts of the program, although this might be rethought in the future.
 \\~\\
