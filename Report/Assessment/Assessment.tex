@@ -1,11 +1,11 @@
-\section{Results}
+\section{Assessment}
 In this section, we will present our assessment of how succesful we have been in implementing an interpreter and a verification condition generator for IFC. We argue so based on our different tests. Furthermore we present a list of most pressing extensions.
 
-\subsection{testing}
-\input{Results/tests}
+\subsection{Experiments}
+\input{Assessment/tests}
 %% Vi har fundet flere bugs gennem QC. så som undefined for ghosts. ikke checke for div by 0 in formula generation.
 
-\subsection*{Wrap up}
+\subsection{Evaluation}
 From the result presented in this Section, we have a fairly good solution, and our program actually works as intended on the example programs.
 In fact most of the problems that still persists in the code is related to the tests, which could be of better quality. Despite this the Quickcheck tests have been useful in finding subtle bugs.
 % *** Failed! Falsified (after 4 tests):
@@ -13,12 +13,8 @@ In fact most of the problems that still persists in the code is related to the t
 %         Use --quickcheck-replay=775220 to reproduce.
 %         Use -p '/Eval ~ VC-SAT/' to rerun this test only.
 
-\section{Discussion}
-
-\subsection{Future work}
-
-\subsubsection{Procedures and arrays}
-
-\subsubsection{Type system}
-
-\subsubsection{PER-logic for Information Flow Control}
+% Completeness
+% Correctness
+% Robustness
+% Efficiency
+% Maintainability
