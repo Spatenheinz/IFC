@@ -13,5 +13,68 @@
 % The goal was to implement an assertion language that can be extended with the PER logic
 
 
+% Project description
+% The overreaching goal of the project is to investigate and work towards a language that uses formal logic in the context of Information Flow to secure confidential data. In the process we will go through the following steps:
+%  Implement a simple while-language.
+%  Implement program logic for the language, based on Hoare triples make a verification condition generator (VCG) possibility for discharging VCG potentially coupled with SMT solver / model checker.
 
-\cite{Hoare85}
+%If time:
+%  Extend the logic to "IF assertion language" based on PER. 3.5 Try to prove correctness of the implemented parts of the "IF assertion language" and program logic.
+%  Extend the assertion language to include rules for Arrays and Procedures.
+
+%Learning outcome:
+%  Practical experience for proving semantic properties for a programming language.
+%  Knowledge of how Hoare logic and PER logic can be used for Information Flow Control.
+%  Describe how Verification Condition Generators are used.
+%  Develop intuition for how Model Checkers work.
+
+% -------------------------------
+
+% topic
+When writing code, you might be interested in verifying that your program does in fact do what you expect it to. 
+In 1969 C.A.R. Hoare puplished a paper on an axiomatic system for proving correctness of programs, which laid the base for Hoare logic, a system for reasoning about program logic. Using this logic, and the rules of inference that it introduces, one can formally prove the correctness of a program. 
+However, doing this by hand is time consuming, and can be expensive. 
+
+In 1975, Dijkstra introduced \textit{predicate transformer semantics}, which is a way to find a suiting verification condition for a program, based on assertions about the program.
+This provides an approach for automatically generating verificaton conditions.
+These conditions can then be used by automatic provers to verify program correctness - partial or total.
+% noget med information flow control??
+
+% hvad er konteksten for problemet
+
+% hvad er der blevet gjort før? 
+% there are several programming languages allowing for verification condtition generation etc...
+% Z3 why3
+\textit{Why3} is an example of such a platform for automatic program verification. It requires the programmer to write assertions inside the program code, and then utilises these assertions to compute a verification condition for the program.
+When the verification condition is generated, it can discharge this condition to a set of SMT solvers, which can then determine whether this condition can be proved.
+Thus \textit{Why3} is a programming language with a built-in verification condition generator, which can then be couoled with an SMT solver.
+
+% vores løsningsforslag
+In this project we present a small imperative language with built-in assertion language.
+This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}. % coupled with Z3?
+
+% hvad er vores mål med projektet
+The purpose of implementing this new language is to easily be able to extend into PER logic, which is a logic proposed to reason about \textit{Information Flow Control}.
+This can be used for making asertions about the security of code.
+% IFC can help us assert that variables are safe...
+
+% scope and limitations to the solution
+This project implements a fairly simple language, with no arrays or procedures. When writing programs using this language, the programmer must write assertions about the code, and we can then prove the partial or total correctness of the program, depending on the given assertions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
