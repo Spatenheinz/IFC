@@ -21,3 +21,13 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
+*.swp
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.toc
