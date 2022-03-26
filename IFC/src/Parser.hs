@@ -148,7 +148,7 @@ cdchoiceP = choice [ symbol "/\\" >> return aconj
                    ]
 
 negPreP :: Parser FOL
-negPreP = (symbol "~" >> anegate <$> negPreP) <|> topP
+negPreP = (symbol "~" >> anegate <$> topP) <|> topP
 
 topP :: Parser FOL
 topP = ask >>= \case
