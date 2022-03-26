@@ -7,7 +7,11 @@ all: $(MAINFILE).pdf
 
 $(MAINFILE).pdf: $(ALL)
 	$(CC) $(MAINFILE)
+	latexmk -CA
 
 .PHONY: clean
 clean:
 	latexmk -CA
+	rm main.bbl
+	rm main.run.xml
+	rm main.pdf
