@@ -11,4 +11,3 @@ while a > 1
      fib1 := tmp;
      a := a - 1;
 };
--- #{ res = 55};

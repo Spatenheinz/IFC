@@ -1,7 +1,29 @@
 To complement the example programs our test suite include a couple of property -based tests. Mostly these tests ensure that the evaluator follows the semantics.
-To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
-Firstly, want the number of possible variables to be limited, such that the evaluator will not fail too often, by using variables that have not yet been defined.
-Secondly, while-loops might not terminate, hence we want to define a small subset (skeletons) for while-loops which indeed will terminate. We define 3, versions as follows:
+To test certain properties of the implementation, we build a test suite consisting of property based tests.
+With these automatic tests we attempt to verify that
+\begin{itemize}
+	\item That the \textit{Parser} correctly parses larger program constructs.
+	\item That the \textit{Evaluator} correctly follows the semantics of the \textit{While} language. 
+	\item That the result of running a program through the \textit{VC generator} is equivalent to running it through the \textit{Evaluator}.
+\end{itemize}
+To do this, we build generators for generating suitable input for the tests, and next we find appropriate properties to test using input from the generators.
+
+\paragraph{Generating input.}
+TODO: skriv dette færdigt.
+% beskrivelse af hvordan vi genererer ASTs
+% laver nogle generators for forskellige constructs, og sætter dem sammen med frequency
+% while som eksempel
+% meaningfulness af det genererede input
+Using the QuickCheck interface, we define instances of \textit{Arbitrary} for the different AST types.
+When doing this, there are certain important considerations.
+%To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
+Firstly, to ensure that the size of the generated expressions do not explode, we use \textit{sized expressions} to control expansion, and to ensure that we get a good distribution of the various constructs we use \textit{frequency} to choose between them.
+Secondly, we want the number of possible variables to be limited, such that the \textit{Evaluator} will not fail too often, by using variables that have not yet been defined. This is done by limiting the options for variable names to be only single character string.
+Thirdly, while-loops might not terminate, hence we want to define a small subset, or a skeleton, for while-loops that we can be sure terminates. 
+
+To accomodate this third consideration, we build a skeleton for while-loops that should always terminate. This is done by defining three versions of while-loops as shown in \autoref{fig:genwhile}.
+TODO: put in correct code!!!
+\begin{figure}
 \begin{lstlisting}
 whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
   where v = whilenames
@@ -14,15 +36,60 @@ whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
         eq = liftM2 (RBinary Eq) v' arbitrary
         change = liftM2 Assign v arbitrary
 \end{lstlisting}
-We generate an arbitrary variable, which we ensure will never clash with any of the variables that are not possible to generate elsewhere. The constructs will then be one of the following:
+\caption{Generation of while-loops using a skeleton.}
+\label{fig:genwhile}
+\end{figure}
+
+TODO: koden virker ikke lige nu, vi kommer tilbage til det snart :))
+%We generate an arbitrary variable, which we ensure will never clash with any of the variables that are not possible to generate elsewhere. The constructs will then be one of the following:
+%\begin{itemize}
+%  \item Bolean condition is $v > a$, where $v$ is the variable and $a$ is an arbitrary arithmetic expression. Inside the while-loop, we will ensure to decrement $v$, eventually terminating the loop.
+%  \item Bolean condition is $v < a$. Inside the while-loop, we will ensure to increment $v$, eventually terminating the loop.
+%\item Bolean condition is $v = a$. Inside the while-loop, we will ensure to change $v$, eventually terminating the loop.
+%\end{itemize}
+
+% TODO: er det meaningful?
+
+\paragraph{QuickCheck properties.}
+Now that we have investigated how to generate input for the tests, we move on to finding meaningful properties to test. In this test suite we use property based testing for the following:
+% hvad bruger vi det til
+%  - parser test
+%  - semantics
+%  - equivalence
 \begin{itemize}
-  \item Bolean condition is $v > a$, where $v$ is the variable and $a$ is an arbitrary arithmetic expression. Inside the while-loop, we will ensure to decrement $v$, eventually terminating the loop.
-  \item Bolean condition is $v < a$. Inside the while-loop, we will ensure to increment $v$, eventually terminating the loop.
-\item Bolean condition is $v = a$. Inside the while-loop, we will ensure to change $v$, eventually terminating the loop.
+	\item \textbf{Parser tests.}
+	To complement the blackbox tests for the parser, we use automatic testing to generate ASTs and assert that these programs are parsed correctly. This is done by generating an AST, and then using a pretty printer to convert it into a program that can be given as input to the parser. It is then checked whether the result of parsing this program is equal to the original generated AST. This is supposed to assert that the parser can handle a lot of different combinations of constructs, potentially finding bugs that would not have been discovered through our systematic blackbox testing of simple constructs.
+	\item \textbf{Semantic equivalence.}
+  To test whether the evaluator corretly implements the semantics of the \textit{While} language, we have tested certain equivalence properties. From studying the semantic system for \textit{While}, we have designed equivalence properties according to the semantics. 
+	Examples of such equivalence properties are \texttt{if true then s1 else s2} $\sim$ \texttt{s1} and \texttt{while false do s} $\sim$ \texttt{skip}.
+  These are designed to cover all the cases of the small-step semantics, and the properties uses generators for generating suitable input variables and statements, i.e. the body of an $if$-statement is generated automatically, but the equivalence relation is defined manually.
+	\item \textbf{Evaluating a program vs solving with VC generator and Z3.}
+	When given an input program, it should always be true that if the \textit{VC generator} computes a provable verification condition, then the \textit{Evaluator} will evaluate all assertions in the program to \verb\true\. 
+	To test this, we generate random programs and assert that if the \textit{VC generator} can verify the program, then the \textit{Evaluator} will evaluate to \verb\true\. Here we use generators to generate input for the test. However, it has come to our attention that the generated programs are not very useful, but we will come back to this in the assessment in \autoref{sec:evaluation}.
+	It should also be noted that this is only true in one direction. We discuss why in \autoref{sec:examples}.
 \end{itemize}
 
-By this arbitrary value we can quickcheck the following properties, following directly from the big-step semantics:
+The above bulletpoints presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \autoref{sec:evaluation}.
+% TODO: presentation of (some important) properties as examples.
 
-\begin{figure}
-orker ikke lige.
-\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

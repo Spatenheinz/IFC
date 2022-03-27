@@ -1,20 +1,10 @@
 \section{Assessment}
-In this section, we will present our assessment of how succesful we have been in implementing an interpreter and a verification condition generator for IFC. We argue so based on our different tests. Furthermore we present a list of most pressing extensions.
+In this section, we make an assessment of our implemention of the interpreter and verification condition generator for \textit{While}. To assess the implementation, we have designed a test suite consisting of both automated tests, blackbox tests, and test programs.
+In \autoref{sec:experiments}, we present the experiments conducted as part of the testing strategy, and in \autoref{sec:evaluation} we assess the code based on the results of the tests, and perform an evaluation of the work as a whole.
 
-\subsection{Experiments}
-\input{Assessment/tests}
+\subsection{Experiments}\label{sec:experiments}
+\input{Assessment/experiments}
 %% Vi har fundet flere bugs gennem QC. så som undefined for ghosts. ikke checke for div by 0 in formula generation.
 
-\subsection{Evaluation}
-From the result presented in this Section, we have a fairly good solution, and our program actually works as intended on the example programs.
-In fact most of the problems that still persists in the code is related to the tests, which could be of better quality. Despite this the Quickcheck tests have been useful in finding subtle bugs.
-% *** Failed! Falsified (after 4 tests):
-%         Assign "c" (ABinary Mod (IntConst (-3)) (IntConst 0))
-%         Use --quickcheck-replay=775220 to reproduce.
-%         Use -p '/Eval ~ VC-SAT/' to rerun this test only.
-
-% Completeness
-% Correctness
-% Robustness
-% Efficiency
-% Maintainability
+\subsection{Evaluation}\label{sec:evaluation}
+\input{Assessment/evaluation}
