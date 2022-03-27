@@ -29,7 +29,7 @@ dependencies:
 
 ghc-options:
 - -Wall
-- -Werror
+# - -Werror
 - -Wdefault
 - -fwarn-tabs
 

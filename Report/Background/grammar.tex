@@ -19,16 +19,16 @@
 \alt <assertion> <assertionop> <assertion>
 \alt <bexpr>
 
-<assertionop> ::= '\verb|/\|' | '\verb|\/|' | '\verb|=>|'
+<assertionop> ::= '$\wedge$' | '$\vee$' | '$\Rightarrow$'
 
 <bexpr> ::= 'true' | 'false' | \alt '!'<bexpr>
 \alt <bexpr> <bop> <bexpr>
 \alt <bexpr> <rop> <bexpr>
 \alt '(' <bexpr> ')'
 
-<bop> ::= '\&\&' | '||' |
+<bop> ::= '\&\&' | '||'
 
-<rop> ::= '\verb|<|' | '\verb|<=|' | '\verb|=|' | '\verb|/=|' | '\verb|>|' | '\verb|>=|'
+<rop> ::= '\verb\<\' | '$\le$' | '=' | '$\neq$' | '\verb\>\' | '$\ge$'
 
 <aexpr> ::= <id>
 \alt <ghostid>
@@ -39,7 +39,7 @@
 
 <aop> ::= '$+$' | '$-$' | '$*$' | '$/$' | '\%'
 
-<ghostid> ::= \emoji{ghost} <string>
+<ghostid> ::= \emoji{ghost} <string> | \textdollar<string>
 
 <id> ::= <string>
 \end{grammar}
