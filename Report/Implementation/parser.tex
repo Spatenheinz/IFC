@@ -1,30 +1,27 @@
 \subsection{Parser}\label{sec:parser}
-The internal AST is defined pretty close to the grammar in \autoref{table:grammar} and can be seen in Appendix \ref{}.
+The internal AST is defined pretty close to the grammar in \autoref{table:grammar} and can be seen in Appendix \ref{}. Two matters are important to state about the parsing stage, ambiguity and ghost-variables.
+\subsubsection{Grammar ambiguity}
 For the parsing of a program we use the parser combinator library MegaParsec, which means we have to eliminate ambiguity in the grammar presented.
 We do so in two different ways.
 For arithmetic operators and boolean operators, we make use of the expression parser defined in \verb\Control.Monad.Combinators.Expr\.
-This makes handling operators, precedence and associativity easy.
-For parsing the first order logic in assertions, we found the expression-
+This makes handling operators, precedence and associativity easy. Furthermore, it allows for easy extension with new operators.
+For parsing the first order logic in assertions, we found the expression-parser unfit. One reason is that we want to allow for syntax ``forall x y z.'' to desugar to ``forall x. forall y. forall z''. Instead of using the expression-parser we manually introduce precedence, according to conventions, with negation most precedence, then conjuction and disjuction followed by quantifers and lastly implication. Furthermore the grammar has been left-factorized, as such.
 \begin{figure}[h]
 \input{Implementation/parsergrammar}
 \end{figure}
+We further introduces some syntactic sugar in the grammar such as ``if c \{s\};'' which will be desugared into ``if c \{s\} else \{skip\};''. However we dont need any special transformation other than using the  \verb\option\ parser-combinator.
+\\~\\
+For other parts of the grammar, which could have been syntactic sugar, such as implication and exist, we use the unsugared constructs. Although this introduces more code, the intent is to make the code easier to reason about in terms of the semantics. Furthermore it reads better in the output of the vc generator, and hence translate more directly into the predicate transformer semantics.
+This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the moment, we settle for a slightly bigger AST.
 
-\\~\\
-We further introduces some syntactic sugar in the grammar such as ``if c \{s\};'' which will be desugared into ``if c \{s\} else \{skip\};''.
-For other parts of the grammar, which could have easily been syntactic sugar, such as implication and exist, we use the unsugared constructs. Although this introduces more code, the intent is to make the code easier to reason about in terms of the semantics. Furthermore it reads better in the output of the vc generator, and by knowledge of the predicate transformer semantics.
-This at least has made the development process easier. Ideally this could be alleviated by a more comprehensible pretty-printer, but at the current moment, we settle for a slightly bigger AST, and as of now this does not add much overhead to the other parts of the program, although this might be rethought in the future.
-\\~\\
-Another point that is worth mentioning is how we handle illegal uses of ghost variables.
-An illegal use of a ghost variable is a semantical, that is a ghost variable can be declared and occur in the assertion language, but never appear elsewhere in the program logic.
-However, we have gone with an approach which will simply fail to parse if a ghost variable appears anywhere not allowed.
-We do so by adding a reader monadtransformer, to the parser type.
+\subsubsection{Ghost variables}
+As previously mentioned, it is semantically disallowed to use ghost-variables anywhere in the program-logic other than assertions. Although this is a semantical matter, we handle this in the parser. By simply fail to parse if a ghost variable appears anywhere not allowed, thus treating it as a syntactic issue.
+We do so by adding a reader monadtransformer, to the internal transformer type \verb\parsecT\ of \verb\Megaparsec\.
 
 \begin{lstlisting}{haskell}
 type Parser = ParsecT Void String (ReaderT Bool Identity)
 \end{lstlisting}
 
 The boolean value in this environment will tell if the next parser (by the use of \verb\local\) must allow for parsing ghost variables. Which will certainly only happen in assertions.
-We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator, however this restricts us from generating ghost variables in our Quickcheck generation of statements.
+% We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator, however this restricts us from generating ghost variables in our Quickcheck generation of statements.
 % Having a local environment denoting if something is legal or not showed to be very useful, when handling assertions in the evaluator. An explanation of this can be seen in \autoref{sec:evaluator}.
-
-TODO: ADD SOMETHING ABOUT FACTORIZATION

@@ -1,11 +1,11 @@
 \begin{grammar}
+<imp> ::= <quant> <imp'>
+
+<imp'> ::= '$\Rightarrow$' <quant> <imp'> | $\epsilon$
+
 <quant> ::= 'forall' <vname> '.' <quant>
 \alt 'exists' <vname> '.' <quant>
-\alt <imp>
-
-<imp> ::= <cd> <imp'>
-
-<imp'> ::= '$\Rightarrow$' <cd> <quant> | $\epsilon$
+\alt <cd>
 
 <cd> ::= <neg> <cd'>
 
@@ -13,5 +13,5 @@
 
 <neg> ::= '$\sim$' <factor> | <factor>
 
-<factor> ::=  <bexp> | '(' <quant> ')'
+<factor> ::=  <bexp> | '(' <imp> ')'
 \end{grammar}

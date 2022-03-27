@@ -2,7 +2,6 @@ vars: [r]
 requirements: {r > 0}
 <!=_=!>
 q := 1;
--- Variant does not work
 while r > 0 ?{r >= 0} !{r} {
   q := q * r;
   r := r - 1;

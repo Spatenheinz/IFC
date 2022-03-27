@@ -17,12 +17,11 @@ prettySt (GhostAss x a) = x <> " := " <> prettyA a <> ";\n"
 prettySt (Assign x a) = x <> " := " <> prettyA a <> ";\n"
 prettySt (If b s1 s2) = "if " <> prettyB b <> " {\n" <> prettySt s1 <> "} else {\n" <> prettySt s2 <> "};"
 prettySt (Asst f) = "#{" <> prettyF f 0 <> "};\n"
-prettySt (While b invs var s) = "while " <> prettyB b <> "?{" <> prettyF invs' 0 <> "} " <> var'
+prettySt (While b inv var s) = "while " <> prettyB b <> "?{" <> prettyF inv 0 <> "} " <> var'
   <> "{\n" <> prettySt s <> "};\n"
   where var' = case var of
                  Just a -> "!{" <> prettyA a <> "}"
                  Nothing -> ""
-        invs' = foldr (./\.) (Cond $ BoolConst True) invs
 prettySt Skip = "skip;"
 prettySt Fail = "violate;"
 

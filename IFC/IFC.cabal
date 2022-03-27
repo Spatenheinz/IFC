@@ -31,9 +31,10 @@ library
       OptParser
       Parser
       Pretty
+      ProveAPI
       Utils
-      WLP
       WLP2
+      WP
   other-modules:
       Paths_IFC
   hs-source-dirs:

@@ -5,7 +5,7 @@ res := 0;
 👻a := q;
 while (q > 0)
 ?{res = (👻a - q) * r /\ q >= 0}
--- !{q}
+!{q}
 {
       res := res + r;
       q := q - 1;

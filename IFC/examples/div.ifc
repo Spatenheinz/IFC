@@ -10,4 +10,4 @@ while r >= b
 r := r - b;
 q := q + 1;
 };
-#{exists v. q * b + v = a /\ 0 <= v /\ v < b};
+#{q * b + r = a /\ 0 <= r /\ r < b};
