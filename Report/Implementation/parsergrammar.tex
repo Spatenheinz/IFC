@@ -1,0 +1,17 @@
+\begin{grammar}
+<quant> ::= 'forall' <vname> '.' <quant>
+\alt 'exists' <vname> '.' <quant>
+\alt <imp>
+
+<imp> ::= <cd> <imp'>
+
+<imp'> ::= '$\Rightarrow$' <cd> <quant> | $\epsilon$
+
+<cd> ::= <neg> <cd'>
+
+<cd'> ::= '$\wedge$' <neg> <cd'> | '$\vee$' <neg> <cd'> | $\epsilon$
+
+<neg> ::= '$\sim$' <factor> | <factor>
+
+<factor> ::=  <bexp> | '(' <quant> ')'
+\end{grammar}
