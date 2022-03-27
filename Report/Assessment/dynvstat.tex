@@ -1,3 +1,13 @@
+% What example programs have we written and why? (some examples)
+% What results do we get? (more in-depth than in the intro to the section)
+% Provable => true in evaluation, but not necessarily the other way around
+
+% TODO: where to talk about the results of these example programs in depth?
+
+% TODO: think about the difference between a program with insufficient assertions resulting in a falsifiable verification condition, and a wrongly generated verification condition that is (mistakenly) falsifiable.
+
+% TODO: comment on the necessity of variants. We did not find programs that actually need a variant.
+
 Another important property on the relation between the dynamic execution of a program via the evaluator and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold. It is important to note that the implication does not hold in the other direction. The reason for this is that we might not have provided strong enough assertions to satisfy the generated formula, whilst the dynamic execution, might not need it to be correct.
 
 If we take a closer look at the multiplication example previously.
