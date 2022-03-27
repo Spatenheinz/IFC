@@ -3,10 +3,12 @@ The internal AST is defined pretty close to the grammar in \autoref{table:gramma
 For the parsing of a program we use the parser combinator library MegaParsec, which means we have to eliminate ambiguity in the grammar presented.
 We do so in two different ways.
 For arithmetic operators and boolean operators, we make use of the expression parser defined in \verb\Control.Monad.Combinators.Expr\.
-This makes handling operators, precedence and associativity easy, however for the parsing of first order logic in asssertions, this approach did not work. Instead we have to modify the grammar. as such:
+This makes handling operators, precedence and associativity easy.
+For parsing the first order logic in assertions, we found the expression-
 \begin{figure}[h]
 \input{Implementation/parsergrammar}
 \end{figure}
+
 \\~\\
 We further introduces some syntactic sugar in the grammar such as ``if c \{s\};'' which will be desugared into ``if c \{s\} else \{skip\};''.
 For other parts of the grammar, which could have easily been syntactic sugar, such as implication and exist, we use the unsugared constructs. Although this introduces more code, the intent is to make the code easier to reason about in terms of the semantics. Furthermore it reads better in the output of the vc generator, and by knowledge of the predicate transformer semantics.
