@@ -20,14 +20,17 @@ put in also violate
 	WLP(\texttt{skip}, Q) &= Q \\
 	WLP(x:=e,Q) &= \forall y, y = e \Rightarrow Q[x \leftarrow y] \\
 	WLP(s_1;s_2, Q) &= WLP(s_1, WLP(s_2, Q)) \\
-	WLP(\texttt{if } e \texttt{ then } s_1 \texttt{ else } s_2, Q) &= (e \Rightarrow WLP(s_1, Q)) \land (\neg e \Rightarrow WLP(s_2, Q)) \\
+	WLP(\texttt{if } e \texttt{ then } s_1 \texttt{ else } s_2, Q) &= (e \Rightarrow WLP(s_1, Q)) \\
+		&\quad \land (\neg e \Rightarrow WLP(s_2, Q)) \\
 	WLP(\texttt{while } e \texttt{ invariant } I \texttt{ do } s, Q) &= 
 		I \land \\
     &\quad \forall x_1, ..., x_k, \\
-    &\quad (((e \land I) \Rightarrow WLP(s, I)) \land (( \neg e \land I) \Rightarrow Q))
+    &\quad (((e \land I) \Rightarrow WLP(s, I)) \\
+    &\quad \quad \land (( \neg e \land I) \Rightarrow Q))
        [w_i \leftarrow x_i] \\
-	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
-  &\quad \text{statement } s \text{ and } x_1, ..., x_k \text{ are fresh logical variables.} \\
+	&\quad \text{where } w_1, ..., w_k \text{ is the set of} \\
+  &\quad \text{assigned variables in} \text{statement } s \text{ and } \\
+	&\quad x_1, ..., x_k \text{ are fresh logical variables.} \\
   WLP(\{P\}, Q) &= P \land Q \quad \text{where P is an assertion}
 \end{align*}
 
@@ -71,8 +74,9 @@ The structure for computing the weakest preconditions for the constructs for tot
     &\quad \forall x_1, ..., x_k, \xi, \\
     &\quad \quad (((e \land I \land \xi = v) \Rightarrow WP(s, I \land v \prec \xi)) \\
     &\quad \quad \quad \land ((\neg e \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
-	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned variables in} \\
-  &\quad \text{statement } s \text{ and } x_1, ..., x_k, \xi \text{ are fresh logical variables.}
+	&\quad \text{where } w_1, ..., w_k \text{ is the set of assigned} \\
+	&\quad \text{variables in statement } s \text{ and } x_1, ..., x_k, \xi \\
+	&\quad \text{are fresh logical variables.}
 \end{align*}
 \end{equation}
 
