@@ -64,9 +64,14 @@ Now that we have investigated how to generate input for the tests, we move on to
 	Examples of such equivalence properties are \texttt{if true then s1 else s2} $\sim$ \texttt{s1} and \texttt{while false do s} $\sim$ \texttt{skip}.
   These are designed to cover all the cases of the small-step semantics, and the properties uses generators for generating suitable input variables and statements, i.e. the body of an $if$-statement is generated automatically, but the equivalence relation is defined manually.
 	\item \textbf{Evaluating a program vs solving with VC generator and Z3.}
-	When given an input program, it should always be true that if the \textit{VC generator} computes a provable verification condition, then the \textit{Evaluator} will evaluate all assertions in the program to \verb\true\. 
-	To test this, we generate random programs and assert that if the \textit{VC generator} can verify the program, then the \textit{Evaluator} will evaluate to \verb\true\. Here we use generators to generate input for the test. However, it has come to our attention that the generated programs are not very useful, but we will come back to this in the assessment in \autoref{sec:evaluation}.
+	When given an input program, it should always be true that if the \textit{VC generator} computes a provable verification condition, then the \textit{Evaluator} will evaluate all assertions in the program to \textit{true}.
+	To test this, we generate random programs and assert that if the \textit{VC generator} can verify the program, then the \textit{Evaluator} will evaluate to \textit{true}. 
+	Here we use generators to generate input for the test. 
+	However, testing this automatically is quite a complex situation, since we need to be able to have a strong enough loop-invariant to prove the correctness of the program. 
+	It has come to our attention that the generated programs are not very useful, and currently we have not been succesful in implementing such a property-test. We will come back to this in the assessment in \autoref{sec:evaluation}.
 	It should also be noted that this is only true in one direction. We discuss why in \autoref{sec:examples}.
+%	We test that whenever we can prove the correctness of an IFC program, the result will be correct. 
+	%Ideally we would also want to be able to generate programs and test this using QuickCheck. 
 \end{itemize}
 
 The above bulletpoints presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \autoref{sec:evaluation}.
