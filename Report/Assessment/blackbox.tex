@@ -1,2 +1,9 @@
-% blackbox tetsing of parser
-NOTE: Here we will present the strategy of our blackbox parser tests.
+% blackbox testing of parser
+% Here we will present the strategy of our blackbox parser tests.
+To assert that our implementation correctly parses input programs, we have designed a blackbox test suite for systematically testing each construct of the grammar.
+The strategy is to test parsing of smaller constructs such as variable names and expressions, and then combine them into larger constructs such as statements.
+Taking a very systematical approach we jope to cover all aspects of the grammar.
+
+Furthermore, we use blackbox tests to assert that the \textit{Parser} handles ambuguities, associativity and precedence correctly.
+
+Finally, we have designed both positive and negative nests for the \textit{Parser}, to assert that it behaves as intended when given both good and bad input.
