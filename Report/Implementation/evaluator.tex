@@ -39,11 +39,11 @@ eval (Asst f) = evalFOL f >>= \case
   True  -> return ()
   False -> _e
 eval w@(While c invs _var s) =
-  evalBExpr c >>= \c' -> evalFOL invs >>= \f' ->
-  case (c', f') of
-    (True, True) -> eval s >> eval w
-    (_, True) -> return ()
-    _ -> _e
+  evalFOL invs >>= \case
+    False -> _e
+    True -> evalBExpr c >>= \case
+      True -> eval s >> eval w
+      False -> return ()
 eval Skip = return ()
 eval Fail = _e
 \end{lstlisting}
@@ -52,9 +52,11 @@ eval Fail = _e
 \end{figure}
 
 
-The most complex argument for equivalence between the code and the semantics is the ``while'' construct. \cref{fig:evalS} line 11-16, shows how we evaluate it. We first evaluate the loop condition and the invariant. Starting from the bottom up, we have a wildcard pattern, which will always be matched when the invariant evaluates to something false.
-We handle this case as abnormal termination, similarly to how we would do for a standard assertion.
-If the variant holds, but the loop-condition does not, we do nothing, as presented by the operational semantics. Lastly if both the invariant and the loop-condition both holds true, we will evaluate the body and then, we evaluate the while loop again. The other statements are simple and treat them similarly to ``while'', in accordance with the semantics.
+The most complex argument for equivalence between the code and the semantics is the ``while'' construct. \cref{fig:evalS}, line 11-16, shows how we evaluate it.
+We first evaluate the invariant, to directly follow the semantical rules. Hence, when the invariant does not hold, we handle this case as abnormal termination, as per rule \textit{while-i-false}, similarly to how we would do for a standard assertion.
+If the variant holds, but the loop-condition does not, we do nothing, as per rule \textit{while-false}.
+Lastly if both the invariant and the loop-condition both holds true, we will evaluate the body and then, we evaluate the while loop again.
+The other statements are simple and we treat them similarly to ``while'', directly in accordance with the semantics.
 \\~\\
 One important note about the interpreter is that we have no good way of checking assertions which includes quantifiers. The reasons is that we wanted (possibly erronously) to support arbitrary precision integers.
 This entails that we currently has no feasible way to check such assertions.
