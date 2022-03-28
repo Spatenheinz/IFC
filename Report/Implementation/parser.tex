@@ -1,5 +1,5 @@
 \subsection{Parser}\label{sec:parser}
-The internal AST is defined pretty close to the grammar in \autoref{table:grammar} and can be seen in Appendix \ref{}. Two matters are important to state about the parsing stage, ambiguity and ghost-variables.
+The internal AST is defined pretty close to the grammar in \cref{table:grammar} and can be seen in Appendix \ref{}. Two matters are important to state about the parsing stage, ambiguity and ghost-variables.
 \subsubsection{Grammar ambiguity}
 For the parsing of a program we use the parser combinator library MegaParsec, which means we have to eliminate ambiguity in the grammar presented.
 We do so in two different ways.
@@ -24,4 +24,4 @@ type Parser = ParsecT Void String (ReaderT Bool Identity)
 
 The boolean value in this environment will tell if the next parser (by the use of \verb\local\) must allow for parsing ghost variables. Which will certainly only happen in assertions.
 % We find that eliminating illegal usecases for ghosts in the parser is far preferable than doing so in both the VC-generator and the evaluator, however this restricts us from generating ghost variables in our Quickcheck generation of statements.
-% Having a local environment denoting if something is legal or not showed to be very useful, when handling assertions in the evaluator. An explanation of this can be seen in \autoref{sec:evaluator}.
+% Having a local environment denoting if something is legal or not showed to be very useful, when handling assertions in the evaluator. An explanation of this can be seen in \cref{sec:evaluator}.

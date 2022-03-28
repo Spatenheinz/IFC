@@ -7,7 +7,7 @@ Finally we explain how we compare dynamic execution to static verification of th
 % What example programs have we written and why? (some examples)
 % TODO: comment on the necessity of variants. We did not find programs that actually need a variant.
 % Here we want to include a presentation of our strategy for writing test programs, and maybe present one or two of the most interesting ones.
-In \autoref{table:testprograms} we present an overview of the example programs written to test the implementation.
+In \cref{table:testprograms} we present an overview of the example programs written to test the implementation.
 % simple.ifc???
 The program \texttt{always\_wrong} tests the \texttt{violate} construct, and simply checks whether the program correctly fails.
 The \texttt{skip} program tests the \texttt{skip} command, by asserting that the store is unchanged after executing the command.
@@ -22,7 +22,7 @@ The following present some of them, what they test, and why they are interesting
   This is the example that we use throughout the report, because it is a showcase of a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant.
   Thus the program tests a simple combination of statements, and includes a while-loops that always terminates, and therefore the program should be provable.
   An interesting thing about the program is to investigate whether the program is provable with the given invariant, and whether a variant is needed to prove correctness.
-  The code for \texttt{mult.ifc} is shown in \autoref{figure:mult}.
+  The code for \texttt{mult.ifc} is shown in \cref{figure:mult}.
   
   \item{\texttt{generic\_sum.ifc}.}
   % something about generating while-loops?
@@ -53,7 +53,10 @@ It should be noted that we use generators for generating meaningful input to the
 The second type of test asserts that if programs can be proved correct, then they will evaluate correctly as well.
 This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the evaluator with random input.
 It is then asserted that if the program is provable, then the evaluator evaluates all assertions to \textit{true}.
-If the program is falsified, then the evaluator should fail when given the input values from the counter example.
+%If the program is falsified, then the evaluator should fail when given the input values from the counter example.
+If the program is falsified, then the test returns \textit{true} no matter what the result of the evaluator is.
+Ideally we would extract the counter example from the prover, and assert that the evaluator fails with the given input values. If this does not hold, the assertions are not sufficient to prove correctness of the given program. 
+However, right now the test implements the simple approach, and does not extract the counter example.
 This property is also addressed in the next paragraph, where we describe why this is only true in one direction.
 % TODO: har vi overhoved gjort det her??
 
@@ -65,7 +68,7 @@ As described above, an important property on the relation between the dynamic ex
 However, the implication does not hold in the other direction. The reason for this is that we might not have provided strong enough assertions to satisfy the generated verification condition, whilst the dynamic execution just needs all assertions to evaluate to \textit{true}.
 If for example we have a program that uses \textit{true} as a loop invariant, this will hold in each iteration during the dynamic execution, but will probably not be enough to prove any postcondition statically.
 
-Lets take a closer look at the multiplication example program from \autoref{figure:mult}. 
+Lets take a closer look at the multiplication example program from \cref{figure:mult}. 
 % \lstinputlisting{Examplecode/mult.ifc}
 % \begin{lstlisting}
 % vars: [q,r]
@@ -79,10 +82,9 @@ Lets take a closer look at the multiplication example program from \autoref{figu
 % };
 % #{res = $a * r};
 % \end{lstlisting}
-
 We have previously argued that the code is correct and can correctly be proved by Z3, but if we relax some of the assertions in the program, this will no longer be the case.
 Consider exchanging the loop-invariant \verb|?{res = ($a - q) * r /\ q >= 0}| with the looser invariant \verb\?{res = ($a - q) * r}\.
-Now Z3 will no longer be able to prove the correctness of the program. The generated formula looks as follows:
+Now Z3 will no longer be able to prove the correctness of the program. The generated formula looks as shown in \cref{fig:modmult}.
 
 \begin{figure}
 \begin{lstlisting}[mathescape=true]
@@ -103,18 +105,18 @@ $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Righ
 
 It becomes quite apparant that the invariant is no longer strong enough to prove the condition, since the restriction on $q_{2}$ is too weak. 
 Z3 gives us a counter example where $q_2 = -3$, $res_2 = 6$, $\$a = 0$ and $r=2$.
-The two first conjuctions in line $4$ and line $5$-$9$ will be true.
+The two first conjuctions in line $4$ and line $5$-$9$ will evaluate to \textit{true}.
 %, given that $q_{2} = -3, res_{2} = 6, \$a = 0, r = 2 $.
 In the last term in line $10$, 
 %$$(q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Rightarrow res_{2} = \$a * r$$
-the RHS of the implication, will be true because
+the RHS of the implication will evaluate to \textit{true} as
 $$(-3 \leq 0 \land 6 = 3 * 2)$$
-but the LHS will not evaluate to \textit{true}, as 
+but the LHS will not evaluate to \textit{false}, as 
 $$6 \neq 0 * 2$$
 
 But we know that the program does in fact behave as intended, so is it correct that the prover falsifies the formula?
-Once again we can verify that our program acts correctly, by doing the same modification to the whyML program in \autoref{fig:whyml}. 
-Trying to prove the program correctness will as expected give a falsifiable counter example.
-By this, we have a good certainty that our implementation works correctly, and requires the necessary loop invariants.
+Once again we can verify that our program acts correctly, by doing the same modification to the whyML program in \cref{fig:whyml}. 
+Trying to prove the program correctness gives a falsifiable counter example, as expected.
+By this, we have confidence that our implementation works correctly, and requires the necessary loop invariants.
 % \\~\\
 
