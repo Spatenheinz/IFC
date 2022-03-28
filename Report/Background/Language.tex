@@ -25,8 +25,8 @@ TODO: update while to also include invariant.
 
 TODO: add rules for while-loops with invariants and variants?
 
-\autoref{table:grammar} shows the grammar of IFC. In essence an IFC program is a statement with syntax in the C-family. The language is small, as the focus in this project has been to correctly being able to generate verification conditions for said programs.
-In \autoref{table:semantic} we show the semantics of the different statements.
+\cref{table:grammar} shows the grammar of IFC. In essence an IFC program is a statement with syntax in the C-family. The language is small, as the focus in this project has been to correctly being able to generate verification conditions for said programs.
+In \cref{table:semantic} we show the semantics of the different statements.
 
 Arithmetic expressions (\verb\aexpr\) follow the standard rules of precedence and associativity:
 \begin{itemize}
@@ -52,8 +52,8 @@ Likewise boolean expressions (\verb\bexpr\) follow the standard precedence rules
 \end{figure}
 
 \paragraph{Multiplication as an example.}
-To show what the language is capable of, a small example program computing the multiplication of two integers $q$ and $r$ is presented in \autoref{figure:basicmult}. Line 2 shows the syntax of assignments, lines $3$-$6$ shows the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
-For now, we leave out the assertions, but we will come back to this in \autoref{sec:hoare}.
+To show what the language is capable of, a small example program computing the multiplication of two integers $q$ and $r$ is presented in \cref{figure:basicmult}. Line 2 shows the syntax of assignments, lines $3$-$6$ shows the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
+For now, we leave out the assertions, but we will come back to this in \cref{sec:hoare}.
 
 Now even though this small while language is very simple, it is still very interesting as base language for our project.
 By creating an assertion language that can prove the correctness for programs written in this simple language, we can show that it is possible to prove termination and correctness of while loops, which are definitely the tricky part of this language.

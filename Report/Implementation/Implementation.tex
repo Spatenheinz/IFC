@@ -7,7 +7,7 @@ Currently the program consists of four parts. Each part will carry out a seperat
   \item \textbf{Verification Condition Generator:} Extract the formula by Verification Condition Generator
   \item \textbf{External SMT-solver API:} Run the formular through an external prover (Z3).
 \end{enumerate}
-Although each part can work seperately, they are connected as seen in \autoref{fig:flow} in the application.
+Although each part can work seperately, they are connected as seen in \cref{fig:flow} in the application.
 
 \begin{figure}[h]
   \includegraphics[width=\linewidth]{Implementation/IFCflow.png}
@@ -15,7 +15,7 @@ Although each part can work seperately, they are connected as seen in \autoref{f
   \label{fig:flow}
 \end{figure}
 
-\autoref{sec:guide} explains how to interact with the application. In the following sections we describe how each the four program parts are implemented. \autoref{sec:interface}, describe an interface which allows for more general proofs about programs.
+\cref{sec:guide} explains how to interact with the application. In the following sections we describe how each the four program parts are implemented. \cref{sec:interface}, describe an interface which allows for more general proofs about programs.
 
 \input{Implementation/parser.tex}
 

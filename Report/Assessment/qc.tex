@@ -21,7 +21,7 @@ Firstly, to ensure that the size of the generated expressions do not explode, we
 Secondly, we want the number of possible variables to be limited, such that the \textit{Evaluator} will not fail too often, by using variables that have not yet been defined. This is done by limiting the options for variable names to be only single character string.
 Thirdly, while-loops might not terminate, hence we want to define a small subset, or a skeleton, for while-loops that we can be sure terminates. 
 
-To accomodate this third consideration, we build a skeleton for while-loops that should always terminate. This is done by defining three versions of while-loops as shown in \autoref{fig:genwhile}.
+To accomodate this third consideration, we build a skeleton for while-loops that should always terminate. This is done by defining three versions of while-loops as shown in \cref{fig:genwhile}.
 TODO: put in correct code!!!
 \begin{figure}
 \begin{lstlisting}
@@ -68,13 +68,13 @@ Now that we have investigated how to generate input for the tests, we move on to
 	To test this, we generate random programs and assert that if the \textit{VC generator} can verify the program, then the \textit{Evaluator} will evaluate to \textit{true}. 
 	Here we use generators to generate input for the test. 
 	However, testing this automatically is quite a complex situation, since we need to be able to have a strong enough loop-invariant to prove the correctness of the program. 
-	It has come to our attention that the generated programs are not very useful, and currently we have not been succesful in implementing such a property-test. We will come back to this in the assessment in \autoref{sec:evaluation}.
-	It should also be noted that this is only true in one direction. We discuss why in \autoref{sec:examples}.
+	It has come to our attention that the generated programs are not very useful, and currently we have not been succesful in implementing such a property-test. We will come back to this in the assessment in \cref{sec:evaluation}.
+	It should also be noted that this is only true in one direction. We discuss why in \cref{sec:examples}.
 %	We test that whenever we can prove the correctness of an IFC program, the result will be correct. 
 	%Ideally we would also want to be able to generate programs and test this using QuickCheck. 
 \end{itemize}
 
-The above bulletpoints presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \autoref{sec:evaluation}.
+The above bulletpoints presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \cref{sec:evaluation}.
 % TODO: presentation of (some important) properties as examples.
 
 

@@ -20,7 +20,7 @@ Sometimes we might need to keep the original value of a variable that is changed
 For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
 
 \paragraph{Multiplication example.}
-As an example of this, \autoref{figure:mult} shows how our example program \texttt{mult.ifc} looks when adding some assertions.
+As an example of this, \cref{figure:mult} shows how our example program \texttt{mult.ifc} looks when adding some assertions.
 \begin{figure}
 \lstinputlisting{Examplecode/mult.ifc}
 \caption{Example program \texttt{mult.ifc}}
@@ -37,7 +37,7 @@ We also have an invariant and a variant in the \textit{while}-loop in line 6, bu
 
 \subsubsection{Axiomatic system for partial correctness}
 % axiomatic system for partial correctness
-The Hoare logic specifies am inference system for the partial correctness assertions, that show the axiomatic semantics for the different constructs of the language. The axiomatic system is shown in \autoref{table:axiomatic}.
+The Hoare logic specifies am inference system for the partial correctness assertions, that show the axiomatic semantics for the different constructs of the language. The axiomatic system is shown in \cref{table:axiomatic}.
 
 This axiomatic system shows how assertions are evaluated in the Hoare logic. For example, for an assignment we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if P holds in this state, then after assigning $x$ to $a$, P must still hold.
 For the \textit{skip} command we see that the assertion must hold both before and after, as \textit{skip} does nothing.
@@ -80,7 +80,7 @@ Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluat
 
 \subsubsection{Total correctness}\label{sec:total-correctness}
 Right now, the Hoare logic can help us prove partial correctness, but does not guarantee termination of loops. We would like to be able to prove total correctness, meaning we want to prove termination. To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
-The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \autoref{figure:mult}).
+The loop variant is an expression that decreases with each iteration of a loop, for example in the \textit{while}-loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see code listing \cref{figure:mult}).
 To express the logic of using a variant for \textit{while}-loops, we use the following modified syntax.
 $$
   \frac{

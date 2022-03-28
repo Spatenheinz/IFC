@@ -9,7 +9,7 @@ type WP a = StateT Counter (ReaderT Env (Either String)) a
 
 The Counter state is used to give unique names to variables. The purpose of the reader environment is to resolve variable substitution in the formula generated from the weakest preconditions.
 \\~\\
-As described in \autoref{sec:vcg}, we use the quantified rule for assignment, when encountering assignments, to easily handle multiple occurences of the same variable. When developing the code for the VC generator our initial approach tried to minimize the number of times we had to resolve condition $Q$, but our approach to this showed failed. The working solution on the other hand is naive.
+As described in \cref{sec:vcg}, we use the quantified rule for assignment, when encountering assignments, to easily handle multiple occurences of the same variable. When developing the code for the VC generator our initial approach tried to minimize the number of times we had to resolve condition $Q$, but our approach to this showed failed. The working solution on the other hand is naive.
 
 \subsubsection{Failed attempt}\footnote{should this even be included?}
 As mentioned we tried to minimize the number of times we had to traverse condition $Q$. The initial approach tried to resolve $Q$ only after the entire formula were build. This would allows for a sentence with all names resolved in only two passes, one over the imperative language AST and one over the structure of the formula. The approach was intended to build up a map as such, where \verb\VName\ is an identifier:
@@ -52,7 +52,7 @@ Ghost variables on the other hand are easy to resolve as they need not be substi
 The current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. Although easily fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\, we find that since the formula is intended to be fed to the next stage in the compiler it is uneccesary to do so.
 
 \subsubsection{While - invariants and variants}
-The \texttt{while} statement has the most complicated Weakest Precondition. The code for computing wp for a \texttt{while}-loop is presented in \autoref{fig:wpwhile}.
+The \texttt{while} statement has the most complicated Weakest Precondition. The code for computing wp for a \texttt{while}-loop is presented in \cref{fig:wpwhile}.
 \begin{figure}[h]
 \begin{lstlisting}
 wp (While b inv var s) q = do

@@ -1,5 +1,5 @@
 \subsection{Evaluator} \label{sec:evaluator}
-The evaluator follows directly from the semantics presented in \autoref{sec:Language}.
+The evaluator follows directly from the semantics presented in \cref{sec:Language}.
 That is the intial store provided to the evalutor will be modified over the course of the program according to the semantics.
 We define the \verb\Eval\ type as follows such:
 
@@ -10,7 +10,7 @@ type Eval a = RWST () () STEnv (Either String) a
 
 At the moment there is no use for neither \verb\reader\ nor \verb\writer\, however when the language in the future is extended to have procedures the reader monad will be a natural choice for the scoping rules of said procedures.
 Likewise it is highly likely that the language would supports some sort of IO in the future, and atleast being able to print would be nice.
-The store described in \autoref{sec:Language} is kept in the State \verb\STEnv\.
+The store described in \cref{sec:Language} is kept in the State \verb\STEnv\.
 The Store is simply a map from VName to Integers. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and hereby entails mutability.
 Duely note that ghost variables will also reside in this environment but will not be mutable or even callable as previously explained.
 We make use of the error monad to resolve any runtime-errors that would arise, that is if a violation is done, a ghost is assigned, a variable is used before it is defined or if undefined behaviour arises such as division by 0. Semantically, the first error that occurs will be the return value of the computation.
@@ -52,7 +52,7 @@ eval Fail = _e
 \end{figure}
 
 
-The most complex argument for equivalence between the code and the semantics is the ``while'' construct. \autoref{fig:evalS} line 11-16, shows how we evaluate it. We first evaluate the loop condition and the invariant. Starting from the bottom up, we have a wildcard pattern, which will always be matched when the invariant evaluates to something false.
+The most complex argument for equivalence between the code and the semantics is the ``while'' construct. \cref{fig:evalS} line 11-16, shows how we evaluate it. We first evaluate the loop condition and the invariant. Starting from the bottom up, we have a wildcard pattern, which will always be matched when the invariant evaluates to something false.
 We handle this case as abnormal termination, similarly to how we would do for a standard assertion.
 If the variant holds, but the loop-condition does not, we do nothing, as presented by the operational semantics. Lastly if both the invariant and the loop-condition both holds true, we will evaluate the body and then, we evaluate the while loop again. The other statements are simple and treat them similarly to ``while'', in accordance with the semantics.
 \\~\\
@@ -60,5 +60,5 @@ One important note about the interpreter is that we have no good way of checking
 This entails that we currently has no feasible way to check such assertions.
 A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover.
 Though the interpreter would then also require external dependencies, and not be a standalone program any longer.
-All in all, this is unideal, and currently the approach is to ``ignore'' such assertions by considering them true. In \autoref{sec:typesystem} we describe a potential extension to IFC, which could help alleviate this problem.
+All in all, this is unideal, and currently the approach is to ``ignore'' such assertions by considering them true. In \cref{sec:typesystem} we describe a potential extension to IFC, which could help alleviate this problem.
 Non-qunatified assertions, will still be evauluated as per the operational semantics.
