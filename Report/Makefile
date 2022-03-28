@@ -10,6 +10,6 @@ $(MAINFILE).pdf: $(ALL)
 
 .PHONY: clean
 clean:
-	latexmk -CA
+	latexmk -c
 	rm main.bbl
 	rm main.run.xml
