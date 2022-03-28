@@ -50,9 +50,11 @@ Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluat
 \begin{tabular}{|c c|} 
  \hline
 	& \\
- $[ass_p ]$ & $\{ P[x \mapsto \mathcal{A} \llbracket a \rrbracket ] \} \; x := a \; \{ P \}$ \\ 
+ $[violate_p ]$ & $\{ false \} \texttt{violate} \{ Q \}$ \\ 
 	& \\
- $[skip_p ]$ & $\{ P \} skip \{ P \}$ \\ 
+ $[skip_p ]$ & $\{ P \} \texttt{skip} \{ P \}$ \\ 
+	& \\
+ $[ass_p ]$ & $\{ P[x \mapsto \mathcal{A} \llbracket a \rrbracket ] \} \; x := a \; \{ P \}$ \\ 
 	& \\
  $[seq_p ]$ & 
 		$\frac{\{ P \} S_1 \{Q \} \quad \{ Q\} S_2 \{ R \}}{\{ P \} S_1;S_2 \{ R \}}$ \\ 
@@ -76,6 +78,8 @@ Here P denotes the loop invariant, and $b$ is the loop condition. If $b$ evaluat
 \caption{Axiomatic system for partial correctness.}
 \label{table:axiomatic}
 \end{table}
+
+TODO: state semantic equivalence between this notation, and the notation that we use in our language.
 
 
 \subsubsection{Total correctness}\label{sec:total-correctness}
