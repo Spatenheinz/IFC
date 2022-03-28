@@ -57,7 +57,7 @@ For these variables, we must also exchange all the occurrences in the currently 
 %Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant.
 
 Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
-Here we have to use the modified Hoare logic for \textit{while}-loops presented in \ref{sec:total-correctness}.
+Here we have to use the modified Hoare logic for \textit{while}-loops presented in \cref{sec:total-correctness}.
 % This makes it possible to prove termination, and is the difference between partial and total correctness.
 
 The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.

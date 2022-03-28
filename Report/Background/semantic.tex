@@ -1,49 +1,60 @@
-\begin{tabular}{|c c c|}
+\begin{tabular}{|c c|}
  \hline
-  & & \\
- $skip$ & : & $
+  & \\
+ $violate$ & $
+		\frac{}{\langle \texttt{violate}, \sigma \rangle \downarrow \lightning}$ \\
+  & \\
+ $skip$ & $
 		\frac{}{\langle \texttt{skip}, \sigma \rangle \downarrow \sigma}$ \\
-  & & \\
- $assign$ & : & $\frac{
+  & \\
+ $assign$ & $\frac{
 		\langle a, \sigma \rangle \downarrow n
 	}{
 		\langle X:= a, \sigma \rangle \downarrow \sigma [X \mapsto n]
 	} $\\
-  & & \\
- $seq$ & : & $\frac{
+  & \\
+ $sequence$ & $\frac{
 		\langle s_0, \sigma \rangle \downarrow \sigma '' \quad
     \langle s_1, \sigma '' \rangle \downarrow \sigma'
 	}{
 		\langle s_0;s_1, \sigma \rangle \downarrow \sigma '
 	} $\\
-  & & \\
- $if$-$true$ & : & $\frac{
+  & \\
+ $if$-$true$ & $\frac{
 		\langle b, \sigma \rangle \downarrow \texttt{true} \quad
     \langle s_0, \sigma \rangle \downarrow \sigma'
 	}{
 		\langle \texttt{if } b \texttt{ then } s_0 \texttt{ else } s_1 \rangle \downarrow \sigma '
 	} $\\
-  & & \\
- $if$-$false$ & : & $\frac{
+  & \\
+ $if$-$false$ & $\frac{
 		\langle b, \sigma \rangle \downarrow \texttt{false} \quad
     \langle s_1, \sigma \rangle \downarrow \sigma'
 	}{
 		\langle \texttt{if } b \texttt{ then } s_0 \texttt{ else } s_1 \rangle \downarrow \sigma '
 	} $\\
-  & & \\
- $while$-$false$ & : & $\frac{
-		\langle b, \sigma \rangle \downarrow \texttt{false}
+  & \\
+ $while$-$false$ & $\frac{
+		\langle b, \sigma \rangle \downarrow \texttt{false} \quad
+    \langle i, \sigma \rangle \downarrow \texttt{true}
 	}{
-		\langle \texttt{while } b \texttt{ do } s_0 \rangle \downarrow \sigma
+		\langle \texttt{while } b \texttt{ invariant } i \texttt{ do } s_0 \rangle \downarrow \sigma
 	} $\\
-  & & \\
- $while$-$true$ & : & $\frac{
+  & \\
+ $while$-$true$ & $\frac{
 		\langle b, \sigma \rangle \downarrow \texttt{true} \quad
+		\langle i, \sigma \rangle \downarrow \texttt{true} \quad
 		\langle s_0, \sigma \rangle \downarrow \sigma '' \quad
-		\langle \texttt{while } b \texttt{ do } s_0, \sigma '' \rangle \downarrow \sigma '
+		\langle \texttt{while } b \texttt{ invariant } i \texttt{ do } s_0, \sigma'' \rangle \downarrow \sigma'
 	}{
-		\langle \texttt{while } b \texttt{ do } s_0 \rangle \downarrow \sigma '
+		\langle \texttt{while } b \texttt{ invariant } i \texttt{ do } s_0 \rangle \downarrow \sigma'
 	}$ \\
-  & & \\
+  & \\
+ $while$-$i$-$false$ & $\frac{
+		\langle i, \sigma \rangle \downarrow \texttt{false}
+	}{
+		\langle \texttt{while } b \texttt{ invariant } i \texttt{ do } s_0 \rangle \downarrow \lightning
+	}$ \\
+  & \\
  \hline
 \end{tabular}
