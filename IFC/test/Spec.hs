@@ -1,4 +1,4 @@
-import WLP
+import WP
 import AST
 import Data.SBV (ThmResult)
 import Pretty

@@ -10,4 +10,4 @@ while (q > 0)
       res := res + r;
       q := q - 1;
 };
-#{res = 👻a * r};
+#{res = 👻a * r };
