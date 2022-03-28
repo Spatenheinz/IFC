@@ -1,0 +1,6 @@
+vars: []
+requirements: {}
+<!=_=!>
+while (10 / 0 < 20) ?{ false } {
+skip;
+};
