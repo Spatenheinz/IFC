@@ -40,11 +40,9 @@ eval (Asst f) = evalFOL f >>= \case
   True  -> return ();
   False -> err $ "Assertion " <> prettyF f 0 <> " Failed"
 eval w@(While c invs _var s) =
-  evalBExpr c >>= \c' -> evalFOL invs >>= \f' ->
-  case (c', f') of
-    (True, True) -> eval s >> eval w
-    (_, True) -> return ()
-    _ -> err . (msg <>) . show =<< get
+  evalFOL invs >>= \case
+    False -> err . (msg <>) . show =<< get
+    True -> evalBExpr c >>= \case True -> eval s >> eval w; False -> return ()
     where msg = "invariant " <> prettyF invs 0 <> " does not hold, with store "
 eval Skip = return ()
 eval Fail = err "A violation has happened"
