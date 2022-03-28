@@ -1,4 +1,7 @@
-\usepackage{fontspec}
+\usepackage[utf8]{inputenc}
+% \usepackage[T1]{fontenc}
+% \usepackage{lmodern}
+
 \usepackage{latexsym}
 \usepackage{amssymb,amsmath}
 \usepackage{svg}
@@ -32,7 +35,6 @@
 % this alters "before" spacing (the second length argument) to 0
 \titlespacing*{\chapter}{0pt}{-60pt}{10pt}
 \raggedbottom
-
 \makeatletter
 \providecommand\phantomsection{}% for hyperref
 
@@ -74,21 +76,21 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
+    backgroundcolor=\color{backcolour},
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{codepurple},
     basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
     tabsize=2
 }
 

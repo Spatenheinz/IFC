@@ -1,8 +1,7 @@
 \subsection{proof-assistant API}
 The proof-assistant API uses the SMT Based Verification library (SBV), which tries to simplify symbolic programming in Haskell. The library is quite generic and extensive compared to what we use it for.
-Again this can be good in the future, but is also a big dependency.
 We mostly make use of the higher level functions and dont mess with any of the internals, however the default type of SBV does not quite fit our needs.
-Instead we use the provided transformer, such that we can embed the Except monad. We want to do so, as when iterating over the formular, we might encounter a variables not yet defined, fail gracefully.
+Instead we use the provided transformer \texttt{SymbolicT}, such that we can embed the \texttt{Except} monad. We want to do so, as when iterating over the formular, we might encounter a variables not yet defined and here fail gracefully, instead of throwing an error.
 The code which generates a \verb\Predicate ~ Sym SBool\ is simple, since the formula generated in the previous stage, will be already first order logic formula, which straight forwardly can be converted into SBV's types. For the entire highlevel logic we resolve it as simple as this:
 \begin{lstlisting}
 type Sym a = SymbolicT (ExceptT String IO) a
@@ -20,15 +19,13 @@ fToS (ADisj a b) st = onlM2 (.||) (`fToS` st) a b
 fToS (AImp a b) st = onlM2 (.=>) (`fToS` st) a b
 \end{lstlisting}
 
-And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Ideally we would add a ReaderT to the transformerstack to get rid of the explicit state, however we have not been able to resolve the type for this.
-Notice how this simply will generate a single collective predicate, instead of the often more used DSL like use of monadically generating quantified variables and constraints.
-The generated predicate will then try to be proved by the SBV function \verb\prove\.
-If the program can correctly be proved by the external SMT solver, the output will be \verb\Q.E.D.\
+And equally easy it is to resolve \verb\bexpr\ and \verb\aexpr\. Ideally we would add a ReaderT to the transformer-stack to get rid of the explicit state.
+We have not been able to resolve the type for this, because of the following type constraint \texttt{forAll :: MProvable m a => [String] -> a -> SymbolicT m SBool}, and \texttt{m} must be an \texttt{ExtractIO}, of which Reader and State cannot be implemented\cite{}.
+The predicate constructed by traversing the formula from the last stage will then be used as argument for the SBV function \verb\prove\, which will try to prove the predicate using Z3.
+If the program can correctly be proved by the external SMT solver, the output will be \texttt{Q.E.D.}
 , whereas if the formula cannot be proved, a falsifiable instance of the variables will be presented.
 For instance the output of the following program will obviously always be falsified.
 \begin{lstlisting}
 violate;
 \end{lstlisting}
 whereas the multiplication program in \autoref{figure:mult} is proveable.
-\\~\\
-In the current state, there is only possibility of using Z3 as prover, however allowing for the use of any of the other SBV-supported SMT-solvers should quick to implement, whereas non-supported solvers will require quite a lot more work.

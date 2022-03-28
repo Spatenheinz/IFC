@@ -5,8 +5,6 @@ module Eval where
 import Control.Monad.RWS
 import Data.Functor
 import qualified Data.Map.Strict as M
-import Data.Function (on)
-import System.IO (putStrLn)
 import AST
 import Pretty
 import Utils
@@ -29,35 +27,32 @@ runEval xs ast =
     Left e -> Left e
     Right (stenv, _) -> return stenv
 
+update :: VName -> AExpr -> Eval ()
+update vname a = modify . updateEnv vname =<< evalAExpr a
+
 eval :: Stmt -> Eval ()
 eval (Seq s1 s2) = eval s1 >> eval s2
-eval (GhostAss vname a) = do
-  st <- get
-  case M.lookup vname st of
-    Just a -> lift . Left $ "Ghost " <> vname <> " defined multiple times"
-    Nothing -> modify . updateEnv vname =<< evalAExpr a
-eval (Assign vname a) = modify . updateEnv vname =<< evalAExpr a
-eval (If c s1 s2) = do
-  c' <- evalBExpr c
-  if c' then eval s1 else eval s2
+eval (GhostAss vname a) = get >>= maybe (update vname a) (const e) . M.lookup vname
+  where e = err $ "Ghost " <> vname <> " defined multiple times"
+eval (Assign vname a) = update vname a
+eval (If c s1 s2) = evalBExpr c >>= \c' -> if c' then eval s1 else eval s2
 eval (Asst f) = evalFOL f >>= \case
-  True -> return ()
-  False -> lift . Left $ "Assertion " <> prettyF f 0 <> " Failed"
-eval w@(While c invs var s) = do
-  c' <- evalBExpr c
-  invs' <- evalFOL (foldr1 (./\.) invs)
-  if c' && invs' then eval s >> eval w
-  else if invs' then return ()
-  else do
-      st <- get
-      lift. Left $ "invariant " <> prettyF (foldr1 (./\.) invs) 0 <> " does not hold, with store " <> show st
+  True  -> return ();
+  False -> err $ "Assertion " <> prettyF f 0 <> " Failed"
+eval w@(While c invs _var s) =
+  evalBExpr c >>= \c' -> evalFOL invs >>= \f' ->
+  case (c', f') of
+    (True, True) -> eval s >> eval w
+    (_, True) -> return ()
+    _ -> err . (msg <>) . show =<< get
+    where msg = "invariant " <> prettyF invs 0 <> " does not hold, with store "
 eval Skip = return ()
-eval Fail = lift $ Left "A violation has happened"
+eval Fail = err "A violation has happened"
 
 evalFOL :: FOL -> Eval Bool
 evalFOL (Cond b) = evalBExpr b
-evalFOL (Forall _ _) =  return True --lift $ Left "Forall are currently unsupported"
-evalFOL (Exists _ _) = return True --lift $ Left "Exists are current unsupported"
+evalFOL (Forall _ _) =  return True
+evalFOL (Exists _ _) = return True
 evalFOL (ANegate a) = not <$> evalFOL a
 evalFOL (AConj a b) = onlM2 (&&) evalFOL a b
 evalFOL (ADisj a b) = onlM2 (||) evalFOL a b
@@ -69,15 +64,14 @@ updateEnv = M.insert
 evalAExpr :: AExpr -> Eval Integer
 evalAExpr (IntConst i) = return i
 evalAExpr (Var vname) = get >>= (\case
-  Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
+  Nothing -> err $ "Variable " <> vname <> " not found"
   Just a -> return a) . M.lookup vname
 evalAExpr (Ghost vname) = get >>= (\case
-    Nothing -> lift $ Left $ "Variable " <> vname <> " not found"
+    Nothing -> err $ "Variable " <> vname <> " not found"
     Just a -> return a) . M.lookup vname
 evalAExpr (Neg a) = evalAExpr a <&> negate
-evalAExpr (ABinary op a1 a2) = onlM2 (evalAOp op) evalAExpr a1 a2 >>= \case
-    Left e -> lift $ Left e
-    Right r -> return r
+evalAExpr (ABinary op a1 a2) =
+  onlM2 (evalAOp op) evalAExpr a1 a2 >>= \case Left e -> err e; Right r -> return r
 
 evalAOp :: ArithOp -> Integer -> Integer -> Err Integer
 evalAOp Div _ 0  = Left "Division by 0"
@@ -104,3 +98,6 @@ evalROp :: ROp -> Integer -> Integer -> Bool
 evalROp Less a b = a < b
 evalROp Eq a b = a == b
 evalROp Greater a b = a > b
+
+err :: String -> Eval a
+err = lift . Left

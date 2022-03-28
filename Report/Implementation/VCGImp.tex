@@ -1,5 +1,5 @@
 \subsection{Verification Condition Generator}
-The verification condition generator, uses the weakest precondition calculus to construct the condition, or weakest liberal precondition (if while has no specified variant). Again we want to be able to chain the actions and include a state and reader environment in the construction of the verification condition.
+The verification condition generator, uses the weakest precondition calculus to construct the condition, or weakest liberal precondition (if while has no specified variant). Like the approach in the evaluator we want to be able to chain the actions and include a state and reader environment in the construction of the verification condition.
 
 \begin{lstlisting}
 type Counter = M.Map VName Count
@@ -7,12 +7,12 @@ type Env = M.Map VName VName
 type WP a = StateT Counter (ReaderT Env (Either String)) a
 \end{lstlisting}
 
-The Counter state is used to give unique names to variables. Whereas we want the reader environment to resolve variable substitution in the formula generated from the weakest preconditions.
+The Counter state is used to give unique names to variables. The purpose of the reader environment is to resolve variable substitution in the formula generated from the weakest preconditions.
 \\~\\
-As described in \autoref{sec:vcg}, we use the quantified rule for assignment, when encountering assignments. In the development process we considered two different approaches to resolve this.
+As described in \autoref{sec:vcg}, we use the quantified rule for assignment, when encountering assignments, to easily handle multiple occurences of the same variable. When developing the code for the VC generator our initial approach tried to minimize the number of times we had to resolve condition $Q$, but our approach to this showed failed. The working solution on the other hand is naive.
 
-\subsubsection{First approach}
-The initial approach tried to resolve $Q$ only after the entire formula were build. This would allows for WLP to be resolve in only two passes, one over the imperative language AST and one over Assertion Language AST in the formula. The approach was intended to build up a map as such, where \verb\VName\ is an identifier (String):
+\subsubsection{Failed attempt}\footnote{should this even be included?}
+As mentioned we tried to minimize the number of times we had to traverse condition $Q$. The initial approach tried to resolve $Q$ only after the entire formula were build. This would allows for a sentence with all names resolved in only two passes, one over the imperative language AST and one over the structure of the formula. The approach was intended to build up a map as such, where \verb\VName\ is an identifier:
 
 \begin{lstlisting}
 type Env1 = M.Map VName [VName]
@@ -24,9 +24,20 @@ Whenever encountering a variable we would add a unique identifier to its value-l
 missing
 \end{lstlisting}
 
-The result of running WP will then give a partially resolved formula and the final state. When resolving ... Jeg tænker lige.
+The result of running WP would then give a partially resolved formula, meaning that all the bound variables introduced in the quantifiers of the assignment rule will be correctly resolved. All other variables, would have their original name, and hence at this point be free.
 
-\subsubsection{Second approach}
+The second traversal will the be on this partly resolved formula. Whenever encountering a variable $x$, we would then look it up in the Map, and then replace $x$ with the head of the list, since this must have been the last introduced bound variable. When encountering a quantifier (except for the first for each free variable), we would then ``pop'' the head of the appropriate list, as any later occurence of $x$ would be substituted with this newly found variable. The problem with this approach is how the AST for First Order Logic formula is constructed. Consider the following example:
+\begin{lstlisting}
+r := 5
+r := r + 10
+\end{lstlisting}
+which after popping $r_{1}$ of the list would then look like
+\begin{lstlisting}[mathescape=true]
+$\forall r_{1}\; . \; r_{1} = 5 => \forall r_{2} \; . \; r_{2} = r + 10 => true$
+\end{lstlisting}
+This means that we can no longer substitute in $r_{1}$ when encountering the next $r$ in $r_{2} = r + 10$. On the other hand if we dont ``pop'' as soon as $r_{2}$ is encountered we have no information on when to do so, as it is not necessary the case that there appears an $r$ in the equality before the implication. When this problem arose we turned to the naive solution.
+
+\subsubsection{Successful attempt}
 The second and current approach is to resolve $Q$ whenever we encounters an assignment. We generate the forall as such:
 \begin{lstlisting}
 wp (Assign x a) q = do
@@ -34,38 +45,30 @@ wp (Assign x a) q = do
     q' <- local (M.insert x x') $ resolveQ1 q
     return $ Forall x' (Cond (RBinary Eq (Var x') a) .=>. q')
 \end{lstlisting}
-We make a new variable (by generating a unique identifier, based on the State), then we proceed to resolve $q$ with the new environment, such that every occurence of variable $x$ will be substituted by the newly generatd varaible $x'$. The \verb\Aexpr\ which $x$ evaluates to should not be resolved yet, as this will potentially depend on variables not yet encounted.
+We make a new variable (by generating a unique identifier, based on the State), then we proceed to resolve $q$ with the new environment, such that every occurence of variable $x$ will be substituted by the newly generated variable $x'$.
+The \verb\Aexpr\ which $x$ evaluates to should not be resolved yet, as this will potentially depend on variables not yet encounted.
+Ghost variables on the other hand are easy to resolve as they need not be substituted, because of immutability.
 \\~\\
-This approach is quite inefficient since it will go over the entire formula every time an assignment is made. Hence why we considered the other approach initially.
-\\~\\
-Because of their uniqueness ghost variables on the other hand is straight forward to resolve as we need no substitution.
-\\~\\
-Furthermore the current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. Although easily fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\, we find that since the formula is intended to be fed to the next stage in the compiler it is uneccesary to do so.
+The current version does not enforce the formula to be closed, although it will be necessary in the generation of symbolic variables. Although easily fixed by a simple new iteration over the AST of the formula, and checking if any non-ghost variable does not contain a \verb\#\, we find that since the formula is intended to be fed to the next stage in the compiler it is uneccesary to do so.
 
 \subsubsection{While - invariants and variants}
-The \verb\while\ construct is the most complicated of the constructs. As previously mentioned, for partial correctness, we need atleast an invariant, and for full correctness also a variant. Hereby we enfore the user to provide as a minimum the invariant. The code for while is thus also quite complex compared to the rest:
+The \texttt{while} statement has the most complicated Weakest Precondition. The code for computing wp for a \texttt{while}-loop is presented in \autoref{fig:wpwhile}.
+\begin{figure}[h]
 \begin{lstlisting}
-wp (While _b [] _var _s) _q = -- ERROR
 wp (While b inv var s) q = do
-  let invs = foldr1 (./\.) inv   -- Foldr all invariants
   st <- get
-  -- Give back condition for unbounded integer variant
-  (fa, var', veq) <- maybe (return
-                            (id,
+  (fa, var', veq) <- maybe (return (id,
                             Cond $ BoolConst True,
                             Cond $ BoolConst True)) resolveVar var
-  -- wp(s, I /\ invariant condition)
-  w <- wp s (invs ./\. var')
-  -- check which variables we wanna forall over
+  w <- wp s (inv ./\. var')
   fas <- findVars s []
-  let inner = fa (((Cond b ./\. invs ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. invs) .=>. q))
-  --- Fix the bound variables and resolve them
+  let inner = fa (((Cond b ./\. inv ./\. veq) .=>. w)
+                          ./\. ((anegate (Cond b) ./\. inv) .=>. q))
   env <- ask
   let env' = foldr (\\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ1 inner
   let fas' = foldr (Forall . snd) inner' fas
-  return $ invs ./\. fas'
+  return $ inv ./\. fas'
   where
     resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
     resolveVar var = do
@@ -76,8 +79,10 @@ wp (While b inv var s) q = do
              , Cond (RBinary Eq (Var x) var)
              )
 \end{lstlisting}
-If no invariant is provided an error is reported.
-As mentioned in \autoref{sec:Language} we allow for syntactically providing multiple invariants, which should then all hold under conjuction.
+\caption{Weakest precondition for \texttt{while}}
+\label{fig:wpwhile}
+\end{figure}
+
 We have tried to make the code generic in terms existence of the variant to eliminate code duplication.
 line 6-9, will generate the conditions needed for the variant.
 In case no variant is defined we use that predicate-logic and conjuction forms a monoid with $\top$ as identity element, such that, we generate no new $\forall$-quantification, and have subformular $b \Rightarrow WP(s,b)$.

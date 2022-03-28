@@ -114,24 +114,24 @@ stmtP = asstP <|> assignP <|> ifP <|> whileP <|> skipP <|> violateP <|> ghostAss
 asstP :: Parser Stmt
 asstP = do
   void $ symbol "#"
-  Asst <$> cbrackets (local (const True) quantP)
+  Asst <$> cbrackets (local (const True) impP)
+
+impP :: Parser FOL
+impP = do
+  a0 <- quantP
+  option a0 (symbol "=>" >> aimp a0 <$> impP)
 
 quantP :: Parser FOL
-quantP = quant <|> impP
+quantP = quant <|> cdP
   where quant = (on eitherP (\x -> between x (symbol ".") (some identP)) `on` rword)
                   "forall" "exists" >>= \case
                       Left [fa] -> basef fa
                       Left fas -> fold_ (fmap . Forall) basef fas
                       Right [ex] -> basee ex
-                      Right exs ->  fold_ (\x a -> Exists x <$> a) basee exs
+                      Right exs ->  fold_ (fmap. Exists) basee exs
         basef x = Forall x <$> quantP
         basee x = Exists x <$> quantP
         fold_ f b xs = foldr f (b $ last xs) (init xs)
-
-impP :: Parser FOL
-impP = do
-  a0 <- cdP
-  option a0 (symbol "=>" >> aimp a0 <$> quantP)
 
 cdP :: Parser FOL
 cdP = negPreP >>= cdOptP
@@ -151,9 +151,7 @@ negPreP :: Parser FOL
 negPreP = (symbol "~" >> anegate <$> topP) <|> topP
 
 topP :: Parser FOL
-topP = ask >>= \case
-  True -> try (Cond <$> bTermP) <|> parens quantP
-  False -> try (Cond <$> bTermP) <|> parens impP
+topP = try (Cond <$> bTermP) <|> parens impP
 
 assignP :: Parser Stmt
 assignP = do
@@ -174,9 +172,10 @@ whileP :: Parser Stmt
 whileP = do
   rword "while"
   c <- bExprP
-  invs <- sepBy (symbol "?" >> local (const True) (cbrackets quantP)) (symbol ";")
+  invs <- sepBy1 (symbol "?" >> local (const True) (cbrackets impP)) (symbol ";")
+  let inv = foldr1 (./\.) invs
   var <- option Nothing (symbol "!" >> Just <$> cbrackets aExprP)
-  While c invs var <$> cbrackets seqP
+  While c inv var <$> cbrackets seqP
 
 skipP :: Parser Stmt
 skipP = Skip <$ rword "skip"

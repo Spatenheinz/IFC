@@ -15,7 +15,7 @@ Although each part can work seperately, they are connected as seen in \autoref{f
   \label{fig:flow}
 \end{figure}
 
-\autoref{sec:guide} explains how to interact with the application. In the following section we describe how each the four program parts are implemented.
+\autoref{sec:guide} explains how to interact with the application. In the following sections we describe how each the four program parts are implemented. \autoref{sec:interface}, describe an interface which allows for more general proofs about programs.
 
 \input{Implementation/parser.tex}
 
@@ -25,38 +25,4 @@ Although each part can work seperately, they are connected as seen in \autoref{f
 
 \input{Implementation/api.tex}
 
-\subsection{Interface for proofs}
-As may have been apparant from the example programs presented earlier in this report, we requires each IFC program to have a header that looks as follows:
-\begin{lstlisting}
-vars: [ <variables> ]
-requirements: { <preconditions> }
-<!=_=!>
-\end{lstlisting}
-where <variables> describes the variables, which is initially in the ``store'' and <preconditions> is an assertion, which specifies a condition that should hold before the program starts.
-The header does not provide new for the evaluator, (although we prepend the requirement to the program as an assertion), but it enables us to make more generic proofs about said programs.
-In the current state, there is no procedures in IFC, which makes it difficult to reason about the input of variables, when trying to prove the weakest precondition, hence why we define said header.
-The inspiration comes from how the whyML language defines procedures. A whyML program equivalent to the mult.IFC program looks as follows:
-\begin{lstlisting}
-module Mult
-
-  use int.Int
-  use ref.Refint
-
-  let mult (&q : ref int) (r: int) : int
-    requires { q >= 0 && r >= 0 }
-    =
-    let ref res = 0 in
-    let ghost a = q in
-    while q > 0 do
-      invariant { res = (a - q) * r && q >= 0}
-      variant { q }
-      decr q;
-      res += r
-    done;
-    assert { res = a * r };
-    res
-end
-\end{lstlisting}
-It is possible for why3 to generate a vector of input variables and then a precondition for each the \verb\requires\, such that $\forall x_{1}...,x_{n}. \; requires => WP(body, ensures)$.
-That is whenever the requires holds, then the weakest precondition of the body should hold, where ensures states the postcondition.
-Notice that our setup is very similar to this, but since we dont have any return values, we dont really need the ensures, since this might as well be part of the actual program.\footnote{is this clear if you dont know whyML?}
+\input{Implementation/interface.tex}

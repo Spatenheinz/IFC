@@ -68,7 +68,7 @@ while n = do
   con' <- con
   variant' <- variant
   body <- stexpr n
-  return $ Seq bef' (While con' [Cond (BoolConst True)] Nothing (Seq body variant'))
+  return $ Seq bef' (While con' (Cond (BoolConst True)) Nothing (Seq body variant'))
 assert = Asst <$> arbitrary
 
 instance Arbitrary FOL where

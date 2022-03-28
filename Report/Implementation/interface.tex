@@ -1,0 +1,40 @@
+\subsection{Interface for proofs}\label{sec:interface}
+As may have been apparant from the example programs presented earlier in this report, we requires each IFC program to have a header that looks as follows:
+\begin{lstlisting}
+vars: [ <variables> ]
+requirements: { <preconditions> }
+<!=_=!>
+\end{lstlisting}
+where <variables> describes the variables, which is initially in the ``store'' and <preconditions> is an assertion, which specifies a condition that should hold before the program starts.
+The header does not provide anything new to the evaluator, (although we prepend the requirement to the program as an assertion), but it enables us to make more generic proofs about said programs.
+In the current state, there is no procedures in IFC, which makes it difficult to reason about the input of variables, when trying to prove the weakest precondition, hence why we define said header.
+The inspiration comes from how the whyML language defines procedures.
+\autoref{fig:why3} is a whyML program equivalent to the mult.ifc program.
+\begin{figure}[h]
+\begin{lstlisting}
+module Mult
+
+  use int.Int
+  use ref.Refint
+
+  let mult (&q : ref int) (r: int) : int
+    requires { q >= 0 && r >= 0 }
+    =
+    let ref res = 0 in
+    let ghost a = q in
+    while q > 0 do
+      invariant { res = (a - q) * r && q >= 0}
+      variant { q }
+      decr q;
+      res += r
+    done;
+    assert { res = a * r };
+    res
+end
+\end{lstlisting}
+\caption{Why3 program equivalent to mult.ifc}
+\label{fig:why3}
+\end{figure}
+It is possible for why3 to generate a vector of input variables and then a precondition for each the \verb\requires\, such that $\forall x_{1},...,x_{n}. \; requires => WP(body, ensures)$.
+That is whenever the requires holds, then the weakest precondition of the body should hold, where ensures states the postcondition. Notice that \autoref{fig:why3} does not use an ``ensures''. We define it this way as it more closely resemples our language.
+And since we dont have any return values, we dont really need the ensures, since this might as well be part of the actual program.\footnote{is this clear if you dont know whyML?}
