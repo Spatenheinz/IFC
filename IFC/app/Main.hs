@@ -33,6 +33,14 @@ prover p st = case proveWLP p st of
                  Left e -> error e
                  Right p'' -> return p''
 
+prover2 p st = case proveWLP p st of
+             Left e -> error e
+             Right f -> do
+               p' <- runExceptT $ prove f
+               case p' of
+                 Left e -> error e
+                 Right p'' -> print $ getModelDictionary $ p''
+
 main :: IO ()
 main = do args <- getArgs
           case args of
@@ -41,6 +49,11 @@ main = do args <- getArgs
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
                 Right (p,st) -> prover p st >>= print
+            ["-q2", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
+                Right (p,st) -> prover2 p st
             ["-f", file] -> do
               s <- readFile file
               case parseString s of
