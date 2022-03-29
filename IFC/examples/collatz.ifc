@@ -1,18 +1,15 @@
 vars: [n]
 requirements: {n > 0}
 <!=_=!>
-max_iter := 10000000;
 k := 420;
-while (n /= 1 || max_iter /= 0)
-?{n > 0 /\ max_iter >= 0}
-!{max_iter}
+while (n /= 1)
+?{ n > 0}
 {
       if (n % 2 = 0) {
          n := n / 2;
       } else {
          n := 3 * n + 1;
       };
-      max_iter := max_iter - 1;
 };
 if n = 1 {
 k := 42;

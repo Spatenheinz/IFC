@@ -1,0 +1,10 @@
+vars: [n]
+requirements: {n > 0}
+<!=_=!>
+while (true)
+?{true}
+!{n}
+{
+  n := n - 1;
+};
+#{false};
