@@ -1,6 +1,26 @@
 vars: []
 requirements: {}
 <!=_=!>
-#{forall x. x > 0 => forall y. y = 1};
-#{forall x. forall y. x + y > 0 /\ 1 = 1 \/ 2 = 2};
--- #{ 5 < 10 && 7 < 11};
+-- while (true) ?{true} {
+-- skip;
+-- b := 1;
+c := 1;
+a := 10 % c;
+#{a % 1 = 0};
+if (a % 1 = 0) {
+skip;
+};
+b := 42;
+while (2 % 1 = 0) ?{2%1 = 0} {
+b := 10;
+};
+-- d := 0;
+-- #{ a % b % c % d = 2};
+-- #{a = 0};
+-- -- b := 10 / 0;
+-- -- #{b = 0};
+-- -- };
+-- -- #{false};
+-- -- #{forall x. x > 0 => forall y. y = 1};
+-- #{forall x. forall y. x + y > 0 /\ 1 = 1 \/ 2 = 2 /\ a = 1};
+-- -- #{ 5 < 10 && 7 < 11};

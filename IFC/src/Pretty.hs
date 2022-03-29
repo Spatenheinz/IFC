@@ -48,7 +48,7 @@ prettyB (RBinary op a b) = prettyA a <> prettyROp op <> prettyA b
 
 prettyA :: AExpr -> String
 prettyA (Var x) = x
-prettyA (Ghost (x:xs)) = '👻':xs
+prettyA (Ghost (_:xs)) = '👻':xs
 prettyA (IntConst i) = show i
 prettyA (Neg a) = "(-" <> prettyA a <> ")"
 prettyA (ABinary op a b) = "(" <> prettyA a <> prettyAOp op <> prettyA b <> ")"

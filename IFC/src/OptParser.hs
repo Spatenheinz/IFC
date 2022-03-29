@@ -20,10 +20,10 @@ inputP = sepBy (parens pairP) (symbol ",")
   where pairP = identP >>= \v -> symbol "," >> signed >>= \i -> return (v,i)
 
 identP :: Parser String
-identP = (lexeme . try) ident
+identP = (lexeme . try) ident <?> "identifier"
   where
-    ident = liftA2 (:) identH $ many (identH <|> digitChar)
-    identH = letterChar
+    ident = liftA2 (:) identH $ many (letterChar <|> digitChar <|> char '_')
+    identH = lowerChar <|> char '_'
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme space

@@ -9,12 +9,11 @@ module WP where
 import qualified Data.Map as M
 import Control.Monad.State.Strict
 import AST
--- import GHC.TypeLits (Symbol)
 import Control.Monad.Reader
 import Data.Maybe
 import Data.List (isInfixOf)
 import Utils
-
+import Debug.Trace
 
 type Count = Int
 type Counter = M.Map VName Count
@@ -36,19 +35,29 @@ runWLP s (vs, pre) = do
 wlp :: Stmt -> FOL -> WP FOL
 wlp (Seq s1 s2) q = wlp s2 q >>= wlp s1
 wlp Skip q = return q
-wlp (GhostAss x a) q =
-  genGhost x >> resolveQ (Forall x (Cond (RBinary Eq (Ghost x) a) .=>. q))
+wlp (GhostAss x a) q = do
+    cs <- fixAExpr a
+    genGhost x
+    q' <- resolveQ (Forall x (Cond (RBinary Eq (Ghost x) a) .=>. q))
+    let cs' = reqs q' cs
+    return cs'
 wlp (Assign x a) q = do
+    cs <- fixAExpr a
     x' <- genVar x
     q' <- local (M.insert x x') $ resolveQ q
-    return $ Forall x' (Cond (RBinary Eq (Var x') a) .=>. q')
+    let cs' = reqs (Cond (RBinary Eq (Var x') a) .=>. q') cs
+    return $ Forall x' cs'
 wlp (If b s1 s2) q = do
   s1' <- wlp s1 q
   s2' <- wlp s2 q
+  cs <- fixBExpr b
   let b' = Cond b
-  return $ (b' .=>. s1') ./\. (anegate b' .=>. s2')
-wlp s@(Asst a) q =
-  findVars s [] >> return (a ./\. q)
+  let cs' = reqs ((b' .=>. s1') ./\. (anegate b' .=>. s2')) cs
+  return $ cs'
+wlp s@(Asst a) q = do
+  a' <- fixFOL a
+  let cs' = reqs (a ./\. q) a'
+  findVars s [] >> return cs'
 wlp Fail _q = false
 wlp (While b inv var s) q = do
   -- Give back condition for unbounded integer variant
@@ -56,24 +65,30 @@ wlp (While b inv var s) q = do
                                     Cond $ BoolConst True,
                                     Cond $ BoolConst True)) resolveVar var
   -- wlp(s, I /\ invariant condition)
-  w <- wlp s (inv ./\. var')
+  invs <- fixFOL inv
+  let inv' = reqs inv invs
+  bs <- fixBExpr b
+  let bs' = reqs (Cond b) bs
+  w <- wlp s (inv' ./\. var')
   -- check which variables we wanna forall over
   fas <- findVars s []
-  let inner = fa (((Cond b ./\. inv ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. inv) .=>. q))
+  let inner = fa (((bs' ./\. inv' ./\. veq) .=>. w)
+                          ./\. ((anegate bs' ./\. inv') .=>. q))
   --- Fix the bound variables and resolve them
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ inner
   let fas' = foldr (Forall . snd) inner' fas
-  return $ inv ./\. fas'
+  return $ inv' ./\. fas'
   where
     resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
     resolveVar v = do
       x <- genVar "variant"
-      return (Forall x,
+      cs <- fixAExpr v
+      let cs' = reqs (
                Cond (Negate (RBinary Greater (IntConst 0) (Var x))) ./\.
-               Cond (RBinary Less v (Var x))
+               Cond (RBinary Less v (Var x))) cs
+      return (Forall x, cs'
              , Cond (RBinary Eq (Var x) v)
              )
 
@@ -111,9 +126,47 @@ resolveBExpr (BBinary Conj a b) = onlM2 aconj resolveBExpr a b
 resolveBExpr (BBinary Disj a b) = onlM2 adisj resolveBExpr a b
 resolveBExpr (RBinary op a b) = Cond <$> onlM2 (RBinary op) resolveAExpr a b
 
+fixFOL :: FOL -> WP [(FOL, FOL -> FOL -> FOL)]
+fixFOL (Cond b) = fixBExpr b
+fixFOL (Forall _ q) = fixFOL q
+fixFOL (Exists _ q) = fixFOL q
+fixFOL (ANegate q) = fixFOL q
+fixFOL (AConj a b) = onlM2 (<>) fixFOL a b
+fixFOL (ADisj a b) = onlM2 (<>) fixFOL a b
+fixFOL (AImp a b) = onlM2 (<>) fixFOL a b
+
+fixBExpr :: BExpr -> WP [(FOL, FOL -> FOL -> FOL)]
+fixBExpr (BoolConst _) = return []
+fixBExpr (Negate b) = fixBExpr b
+fixBExpr (BBinary _ a b) = onlM2 (<>) fixBExpr a b
+fixBExpr (RBinary _ a b) = onlM2 (<>) fixAExpr a b
+
+fixAExpr :: AExpr -> WP [(FOL, FOL -> FOL -> FOL)]
+fixAExpr (Var _) = return []
+fixAExpr (Ghost _) = return []
+fixAExpr (IntConst _) = return []
+fixAExpr (Neg a) = fixAExpr a
+fixAExpr (ABinary Div a b) = do
+  a' <- fixAExpr a
+  return $ a' <> [ (Cond (RBinary Eq b (IntConst 0)) .=>. Cond (BoolConst False), (./\.))
+           , (Cond $ Negate (RBinary Eq b (IntConst 0)), (.=>.))
+           ]
+fixAExpr (ABinary Mod a b) = do
+  a' <- fixAExpr a
+  return $ a' <> [ (Cond (RBinary Eq b (IntConst 0)) .=>. Cond (BoolConst False), (./\.))
+           , (Cond $ Negate (RBinary Eq b (IntConst 0)), (.=>.))
+           ]
+fixAExpr (ABinary _ a b) = do
+  a' <- fixAExpr a
+  b' <- fixAExpr b
+  return $ a' <> b'
+
+reqs :: Foldable t1 => t2 -> t1 (t3, t3 -> t2 -> t2) -> t2
+reqs = foldr (\(x,o) acc -> x `o` acc)
+
 resolveAExpr :: AExpr -> WP AExpr
 resolveAExpr (Var x) = Var <$> mrVar1 x
-resolveAExpr a@(Ghost _) = return a
+resolveAExpr (Ghost x) = Ghost <$> mrVar1 x
 resolveAExpr i@(IntConst _) = return i
 resolveAExpr (Neg a) = Neg <$> resolveAExpr a
 resolveAExpr (ABinary Div a b) = do
@@ -122,7 +175,7 @@ resolveAExpr (ABinary Div a b) = do
   else lift . lift . Left $ "Division by 0"
 resolveAExpr (ABinary Mod a b) = do
   b' <- resolveAExpr b
-  if b' /= IntConst 0 then flip (abinary Div) b' <$> resolveAExpr a
+  if b' /= IntConst 0 then flip (abinary Mod) b' <$> resolveAExpr a
   else lift . lift . Left $ "Modulo by 0"
 resolveAExpr (ABinary op a b) = onlM2 (abinary op) resolveAExpr a b
 

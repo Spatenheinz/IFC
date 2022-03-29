@@ -1,7 +1,6 @@
 module Utils where
 
 import Data.Function(on)
-import Control.Monad (liftM2)
 import Control.Monad.RWS
 
 onlM2 :: Monad m => (b -> b -> c) -> (a -> m b) -> a -> a -> m c

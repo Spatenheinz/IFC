@@ -21,14 +21,25 @@ Through our testing strategy, we have found that our code is correct.
 
 \subsubsection{Robustness}
 % Can our code fail
-
-We have found bugs, such as the weird thing where modulo 0 is not an error in Z3.
+Overall we find that our testing has been valuable in insuring robustness of the code.
+One interesting case, which we found by using the quickcheck instances, was that we had not made any run-time error check like division by 0 in the generation of the verification condition.
+Quite to our surprise, such undefined behaviour is not handled in \textit{Z3}. Consider:
+\begin{lstlisting}
+a := 10 % 0;
+#{a = 10};
+b := 10 / 0;
+#{b = 0};
+\end{lstlisting}
+The verification condition for this can be proved by \textit{Z3}.
+The reason for this is that in the backend for \textit{Z3}, \textit{SMT-Lib} interpretes all functions to be total, and hence treats division by 0 and modulo by 0 as such. However this breaks the assumption, that for a program to be proveable under total correctness it will also evalutate properly. This ``bug'' is still present in the code, in cases where we cannot fold the RHS into an Integer constant. This is not ideal, but we have yet to find.
+\\~\\
+In terms
 
 \subsubsection{Maintainability}
 As mentioned this project sould serve as a base, thus we have valued maintainability and extensibility highly. We have done so through the following abstractions. Firstly we are using monad-transformers to enforce seperation of concern. For the evalutor, we have even defined the \textit{Eval} type in terms of \textit{RWST} even though we only uses the \textit{State}-transformer and underlying Either monad. We do so since we highly anticipate that the other monadic effects will be useful in the future, such as being able to print (using writer).
 Furthermore, the multistage approach, for generating verification conditions should also allow for easier extending possible SMT-backends.
 In the current solution we only support \textit{Z3}, but allowing for the other SBV supported solvers, should be trivial.
-But because we generate the verification condition (which barebones are a simple ADT) in a seperate state it should not be too cumbersome to allow for other backends.
+But because we generate the verification condition in a seperate state it should not be too cumbersome to allow for other backends.
 \\~\\
 In terms of extending the language with new constructs we consider the following cases.
 \begin{itemize}
