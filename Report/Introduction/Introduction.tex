@@ -1,32 +1,11 @@
 \section{Introduction}
 
-% learning objectives
-
+%%%% learning objectives %%%%
 % We can explain how VC generation works, and how it can be used for automatically proving certains properties about programs
-
 % Can take a semantic, in form of inference rules, and translate it into concise and correct Haskell code
-
 % Can write modular Haskell code that uses monad transformer stack to enable good seperation of concerns
-
 % Attempted to support our claim of the correctness of our program by using automated testing
-
 % The goal was to implement an assertion language that can be extended with the PER logic
-
-
-% Project description
-% The overreaching goal of the project is to investigate and work towards a language that uses formal logic in the context of Information Flow to secure confidential data. In the process we will go through the following steps:
-%  Implement a simple while-language.
-%  Implement program logic for the language, based on Hoare triples make a verification condition generator (VCG) possibility for discharging VCG potentially coupled with SMT solver / model checker.
-
-%If time:
-%  Extend the logic to "IF assertion language" based on PER. 3.5 Try to prove correctness of the implemented parts of the "IF assertion language" and program logic.
-%  Extend the assertion language to include rules for Arrays and Procedures.
-
-%Learning outcome:
-%  Practical experience for proving semantic properties for a programming language.
-%  Knowledge of how Hoare logic and PER logic can be used for Information Flow Control.
-%  Describe how Verification Condition Generators are used.
-%  Develop intuition for how Model Checkers work.
 
 %  -------------------------------
 
@@ -37,7 +16,7 @@ Our VC generator discharges verification conditions fit for the SMT solver \text
 The main motivation for implementing this language is to make a base which we can easily extend to include \textit{Partial Equivalence Relation} (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{}. This can be used for making assertions about the security of code.
 
 \textit{Predicate Transformer Semantics}, which is used for verification condition generation, was introduced by Dijkstra in 1975\cite{Dijkstra}.
-These conditions are based on the axiomatic system presented by C.A.R Hoare in 1969, \cite{Hoare}. Using this system, and the rules of inference that it introduces, one can formally prove the correctness of a program.
+These conditions are based on the work of Robert W. Floyd, who presented a form of program verification using logical assertions in his paper from 1967\cite{Floyd1967}. Floyds work led to the axiomatic system presented by C.A.R Hoare in 1969, \cite{Hoare}, also known as Floyd-Hoare logic. Using this system, and the rules of inference that it introduces, one can formally prove the correctness of a program.
 Combined, this provides an approach for automatically generating conditions which can verify the correctness of certain programs.
 % topic
 % When writing code, it is important to verify that a program does in fact do as intended.
@@ -77,7 +56,7 @@ In the implementation we transform the formal semantics of the language into equ
 \item In \cref{sec:assessment}, we present our strategy for evaluting the code quality and give an assessment of the implementation.
  Here, a combination of blackbox tests, automatic tests, and test programs, is used to assess the quality.
 % Here we will also reflect on the limitations modern SMT-solvers.
-\item Lastly, \cref{sec:conclusion} presents some ideas for future work, presents a discussion of the work, and concludes on the project.
+\item Lastly, \cref{sec:conclusion} presents some ideas for future work, gives a discussion of the work, and concludes on the project.
 \end{itemize}
 
 Throughout the project our main focus has been on getting a good understanding of how verification conditions work, and how to convert this into Haskell code. It has also been on building an implementation that is robust and easily extended and maintained.
