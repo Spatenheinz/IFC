@@ -1,11 +1,8 @@
-%- snak om Weakest precondition, i en figur?
-% the loosest precondition. Q is wp if {P}S{R} if and only if P=>Q. The least requirement for guaranteeing that R holds after S.
-% There is only one wp. If Q and Q' are both wp, then {Q'}S{R} iff Q'=> Q and {Q}S{R} iff Q=>Q', so Q=Q', thus the wp is unique. (wiki)
-%			wp vs sp? : {P}S{R} iff slp P c => R, meaning is is the strongest postcondition, ie if Q is sp then {P}S{R} if and only if Q => R. (2.pdf)
-
 % verification conditions
-
-In the previous section we presented Hoare Triples and how they can be used to ``assign meaning to programs''. However, it might not always be possible that the Precondition is known. In such a case, we can use Weakest Precondition Calculus (denoted $WP$), which essentially states:
+In the previous section we presented Hoare Triples and how they can be used to assign meaning to programs. 
+However, it might not always be the case that the precondition is known. 
+In such a case, we can use Weakest Precondition Calculus (denoted $WP$), to generate a suitable precondition.
+It essentially states:
 $$
  \{WP(S,Q)\}S\{Q\}
 $$
@@ -13,10 +10,11 @@ That is, we can use a well-defined calculus to find the weakest (least restricti
 By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that is called \textit{verification condition generation}.
 
 \subsubsection{Weakest Liberal Precondition}
-Below the structure for computing the weakest liberal precondition for the different constructs is shown.
+Below the structure for computing the weakest liberal precondition for the different constructs of \textit{While} is shown.
 
-put in also violate
+\begin{figure}
 \begin{align*}
+	WLP(\texttt{violate}, Q) &= false \\
 	WLP(\texttt{skip}, Q) &= Q \\
 	WLP(x:=e,Q) &= \forall y, y = e \Rightarrow Q[x \leftarrow y] \\
 	WLP(s_1;s_2, Q) &= WLP(s_1, WLP(s_2, Q)) \\
@@ -29,39 +27,53 @@ put in also violate
     &\quad \quad \land (( \neg e \land I) \Rightarrow Q))
        [w_i \leftarrow x_i] \\
 	&\quad \text{where } w_1, ..., w_k \text{ is the set of} \\
-  &\quad \text{assigned variables in} \text{statement } s \text{ and } \\
+  &\quad \text{assigned variables in statement } s \text{ and } \\
 	&\quad x_1, ..., x_k \text{ are fresh logical variables.} \\
   WLP(\{P\}, Q) &= P \land Q \quad \text{where P is an assertion}
 \end{align*}
+\caption{Rules for computing weakest liberal precondition of a statement in \textit{While}.}
+\label{fig:wlp}
+\end{figure}
 
-% TODO: write something about the above?
-The rules are somewhat self-explanatory, but we would like to go through some rules which have been important for our work.
+The rules are somewhat self-explanatory, but we would like to go through a selection of the rules which are most important for this project.
 
 \paragraph{Assignments.}
 The rule for computing weakest liberal precondition for assignments says that for all variables $y$ where $y = e$, we should exchange $x$ in $Q$ with $y$. That is, we exchange all occurrences of $x$ with the value that we assign to $x$.
-
-SAy something about forall.
+We use a quantifier for $y$ to avoid exponential growth, by letting $y=e$, and substitute $x$ with $y$ in $Q$.
+For instance, if $e=1+2+...+100.000$, then by letting $y$ hold the value of $e$ we avoid substituting in this very long expression, and this makes the formular significantly more simple.
 
 \paragraph{Sequence.}
-For finding the \textit{wlp} of a sequence of statements $s_1;s_2$, we need to first find the \textit{wlp} $Q'$ of $s_2$ with $Q$, and then compute the \textit{wlp} of $s_1$ with $Q'$. This shows how we compute the weakest liberal precondition using a bottom-up approach.
+For finding the \textit{wlp} of a sequence of statements $s_1;s_2$, we need to first find the \textit{wlp} $Q'$ of $s_2$ with $Q$, and then compute the \textit{wlp} of $s_1$ with $Q'$. 
+This shows how we compute the weakest liberal precondition using a bottom-up approach.
 
 \paragraph{While-loops.}
-To compute the \textit{wlp} of a while loop we have to eensure that the loop invariant holds before, inside, and after the loop. That is why the first condition is simply that the invariant $I$ must evaluate to $true$.
-Next we need to assert that no matter what values the variables inside the loop have, the invariant and loop condition will hold whenever we go into the loop, and the invariant and negated loop condition will hold when the loop terminates.
+To compute the \textit{wlp} of a while loop we have to ensure that the loop invariant holds before, inside, and after the loop. 
+That is why the first condition is simply that the invariant $I$ must evaluate to $true$ before the loop.
+Next we need to assert that no matter what values the variables inside the loop have, the invariant and loop condition will hold whenever we go into the loop.
+Lastly the invariant and the negated loop condition must hold when the loop terminates.
 For these variables, we must also exchange all the occurrences in the currently accumulated weakest liberal precondition $Q$.
 
+\paragraph{Additions to the standard rules.}
+Most of the rules are the standard rules for computing the weakest liberal precondition. We have added two rules: 1) the rule for \texttt{violate}, which will always just give \textit{false}, and 2) the rule for assertions, which simply adds the assertion P to the accumulated condition Q, s.t. the new wlp is $P \land Q$.
+
+\paragraph{Resolving undefined behaviour.}
+As mentioned in the previous subsection, division and modulo by zero is undefined behaviour.
+It is resolved by adding a condition whenever encountering a division of modulo operator, verifying that the operation is legal.
+For example, if we have an assignment $x = a \% b$, we will need the following precondition
+\begin{align*}
+	\forall y . ( (&b = 0 \Rightarrow false) \\
+                 &\land (b \neq 0 \Rightarrow y = a \% b \Rightarrow Q[x \leftarrow y]))
+\end{align*} 
+which only resolves the assignment if $b$ is not zero, and otherwise will always fail. Resolving division is similar.
+This modification is not explicitly written in the rules, but follows from the semantics of our \textit{While} language.
+
 \subsubsection{Weakest Precondition}
-% hvad med for total correctness?
-% to prove termination of while loop we need variant
-% wlp vs wp: partial correctness by ignoring termination. (1) invariant must hold at the start of the loop, (2) the invariant and the loop condition is enough to find the weakest precondition necessary to re-establish the loop invariant, (3) if and when the loop terminates using the invariant and the fact that the loop condition is false is enough to establish the required postcondition (wiki)
-%Most programs written in our small while-language will trivially terminate, only when using the \textit{while} construct are we concerned with termination. To prove termination of such a loop, one needs one or more loop invariants and possibly a variant.
+The weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that while loops have a loop variant. 
+Here we have to use the modified Hoare logic for while loops presented in \cref{sec:total-correctness}.
 
-Now the weakest liberal precondition does not prove termination. If we want to prove termination in addition to the partial correctness obtained from \textit{wlp}, we need a \textit{weakest precondition} which is much like \textit{wlp}, but require that \textit{while}-loops have a loop variant. 
-Here we have to use the modified Hoare logic for \textit{while}-loops presented in \cref{sec:total-correctness}.
-% This makes it possible to prove termination, and is the difference between partial and total correctness.
+The structure for computing the weakest preconditions for the constructs of the language is much like the one for computing weakest liberal precondition, except for the structure of while loops, which is presented in \cref{fig:wp}.
 
-The structure for computing the weakest preconditions for the constructs for total correctness is much like the one for computing weakest liberal precondition, except for the structure of \textit{while}-loops, which can be seen below.
-\begin{equation}\label{eq:wpwhile}
+\begin{figure}[h!]
 \begin{align*}
 	WP\left(
      \begin{array}{c}
@@ -78,34 +90,23 @@ The structure for computing the weakest preconditions for the constructs for tot
 	&\quad \text{variables in statement } s \text{ and } x_1, ..., x_k, \xi \\
 	&\quad \text{are fresh logical variables.}
 \end{align*}
-\end{equation}
+\caption{The rule for computing the weakest precondition for while loops.}
+\label{fig:wp}
+\end{figure}
 
-% What are the differences? explain!
-We see that the difference between the computation of \textit{wp} and \textit{wlp} is the presence of the \textit{variant}. When given a variant expression $v$ for the loop, we add the assertion that this expression decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.
+The difference between the computation of \textit{wp} and \textit{wlp} for while loops is the presence of the \textit{variant}. 
+When given a variant $v$ for the loop, we assert that $v$ decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.
 
-%- gennemgå det i eksemplet
-% hvert fald for noget af eksemplet ?
 For our example program \texttt{mult.ifc}, we can compute the weakest precondition, as we have both a variant and an invariant in the while loop.
-By applying the \textit{wp} rules on the example, we get the weakest precondition seen in \cref{figure:wpmult}.
+By applying the \textit{wp} rules on the example we get the weakest precondition seen in \cref{figure:wpmult}.
 
-\begin{figure}[h]
+\begin{figure}[h!]
 \input{Background/multVC}
 \caption{Weakest precondition of \texttt{mult.ifc}}
 \label{figure:wpmult}
 \end{figure}
 
-The interesting thing is how the \textit{while}-loop is resolved. First the \textit{invariant} is checked in line $4$, according to the first part of the \textit{wp} rule. 
-Next the rule requires a forall statement over all the variables altered in the loop bode, and that is what happens in line $5$ of the formula.
-Inside this forall we now check that the loop invariant and condition holds when entering each iteration (lines $6$-$9$), and that the invariant and the negated loop condition holds when the loop terminates(line $10$).
-The variant is used in line $6$, where the logical variable $\xi$ is set to hold the value of the variant, and in line $9$, where it is checked that the variant has decreased by comparing to the logical variable holding the value that the variant had at the beginning of the loop.
-
-
-% Sound og Complete?
-%   - Soundness:
-%				If {P}S{Q} can be derived, then {{P}}S{{Q}} holds
-%				Any derivable triple is valid
-%   - Completeness:
-%       If {{P}}S{{Q}} holds, then {P}S{Q} can be derived
-%				If the language is expressive enough, any valid triple {P}s{Q} can be derived
-
-
+The interesting thing is how the while loop is resolved. First the \textit{invariant} is checked in line $4$, according to the first part of the \textit{wp} rule. 
+Next the rule requires a forall statement over all the variables altered in the loop body, which happens in line $5$.
+Inside this forall we check that the loop invariant and condition holds when entering each iteration (lines $6$-$9$), and that the invariant and the negated loop condition holds when the loop terminates (line $10$).
+The variant is used in line $6$, where the logical variable $\xi$ is set to hold the value of the variant, and in line $9$, where it is checked that the variant has decreased by comparing to the initial value of $v$ stored in $\xi$.

@@ -1,10 +1,15 @@
 \begin{grammar}
-<statement> ::= <statement> ';' <statement>
-\alt <ghostid> ':=' <aexpr>
-\alt <id> ':=' <aexpr>
-\alt 'if' <bexpr> '\{' <statement> '\}'
-\alt 'if' <bexpr> '\{' <statement> '\}' 'else' '\{' <statement> '\}'
-\alt 'while' <bexpr> <invariant> <variant> '\{' <statement> '\}'
+%<program> ::= <header> '<!=\_=!>' <statement>
+%
+%<header> ::= 'vars:' '[' <identifier> ']' 'requirements:' '\{' <assertion> '\}'
+
+<statements> ::= <statement> ';' <statements> | $\epsilon$
+
+<statement> ::= <ghostid> ':=' <aexpr>
+\alt <identifier> ':=' <aexpr>
+\alt 'if' <bexpr> '\{' <statements> '\}'
+\alt 'if' <bexpr> '\{' <statements> '\}' 'else' '\{' <statements> '\}'
+\alt 'while' <bexpr> <invariant> <variant> '\{' <statements> '\}'
 \alt '\#\{' <assertion> '\}'
 \alt 'skip' | 'violate'
 
@@ -13,8 +18,8 @@
 
 <variant> ::= '!\{' <aexpr> '\}' | $\epsilon$
 
-<assertion> ::= 'forall' <id> '.' <assertion>
-\alt 'exists' <id> '.' <assertion>
+<assertion> ::= '$\forall$' <identifier> '.' <assertion>
+\alt '$\exists$' <identifier> '.' <assertion>
 \alt '$\sim$' <assertion>
 \alt <assertion> <assertionop> <assertion>
 \alt <bexpr>
@@ -30,7 +35,7 @@
 
 <rop> ::= '\verb\<\' | '$\le$' | '=' | '$\neq$' | '\verb\>\' | '$\ge$'
 
-<aexpr> ::= <id>
+<aexpr> ::= <identifier>
 \alt <ghostid>
 \alt <integer>
 \alt '-'<axpr>
@@ -39,7 +44,5 @@
 
 <aop> ::= '$+$' | '$-$' | '$*$' | '$/$' | '\%'
 
-<ghostid> ::= \emoji{ghost} <string> | \textdollar<string>
-
-<id> ::= <string>
+<ghostid> ::= \emoji{ghost} <identifier> | \textdollar<identifier>
 \end{grammar}
