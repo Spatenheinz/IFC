@@ -57,6 +57,7 @@ Thus the evaluation of commands goes from a store to a (potentially new) store o
 We have left out the semantics for arithmetic and boolean expressions, as these follow the standard semantics.
 However, it should be noted that we do not allow \texit{division} and \textit{modulo} by zero.
 Thus, if one of these occur, the program will terminate with an abnormal store.
+Furthermore, ghost variables can only occur in assertion, and not as a part of the program logic. We will com back t that in \cref{sec:hoare}.
 
 \begin{table}[h!]
 \centering
