@@ -1,25 +1,28 @@
 \section{Implementation}\label{sec:implementation}
-IFC is yet to be more than just a toy-language, however in the design of the language and the actual compiler, we have tried to focus making the code modular and easy to extend.
-Currently the program consists of four parts. Each part will carry out a seperate task for the program. We have focused on the making the code modular, such that each part does not explicitly dependent on the other part. Though the main interface is setup to the following tasks:
+This section presents our implementation of an application for verification of programs, which we will refer to as \textit{IFC}.
+%IFC is yet to be more than just a toy-language, however in the design of the language and the actual compiler, we have tried to focus making the code modular and easy to extend.
+The application consists of four parts, and each part carry out a seperate task for the program. 
+This is done to make the code modular, such that each part does not explicitly dependent on any other parts. 
+The four parts of the application performs the following tasks:
 \begin{enumerate}
-  \item \textbf{Parser:} Extract the Abstract Syntax Tree generated in the Parser
-  \item \textbf{Evaluator:} Run a program with an initial store
-  \item \textbf{Verification Condition Generator:} Extract the formula by Verification Condition Generator
-  \item \textbf{External SMT-solver API:} Run the formular through an external prover (Z3).
+  \item \textbf{Parser:} Transforms an input program, written in \textit{While}, to an Abstract Syntax Tree
+  \item \textbf{Interpreter:} Interprets a program, expressed by an AST, given an initial store
+  \item \textbf{Verification Condition Generator:} Computes the Verification Condition formula of a program, expressed by an AST, using predicate transformer semantics
+  \item \textbf{External SMT-solver API:} Run a verification condition formular through an external prover (Z3), to assert program correctness
 \end{enumerate}
-Although each part can work seperately, they are connected as seen in \cref{fig:flow} in the application.
+Although each part can work seperately, they are connected in the application, as seen in \cref{fig:flow}.
 
 \begin{figure}[h]
-  \includegraphics[width=\linewidth]{Implementation/IFCflow.png}
+  \includegraphics[width=\linewidth]{Implementation/IFCapp.png}
   \caption{Application layout for IFC}
   \label{fig:flow}
 \end{figure}
 
-\cref{sec:guide} explains how to interact with the application. In the following sections we describe how each the four program parts are implemented. \cref{sec:interface}, describe an interface which allows for more general proofs about programs.
+\cref{sec:guide} explains how to interact with the application. In the \cref{sec:parser} to \cref{sec:api} we describe key points of the implementation, and \cref{sec:interface} describes an interface which allows for more general proofs about programs.
 
 \input{Implementation/parser.tex}
 
-\input{Implementation/evaluator.tex}
+\input{Implementation/interpreter.tex}
 
 \input{Implementation/VCGImp.tex}
 

@@ -1,15 +1,20 @@
 \subsection{Interface for proofs}\label{sec:interface}
-As may have been apparant from the example programs presented earlier in this report, we requires each IFC program to have a header that looks as follows:
+As described briefly in \cref{sec:Language} we require that programs have a program header.
+This can also be seen from the example program presented earlier in this report.
+The header must look as follows:
 \begin{lstlisting}
 vars: [ <variables> ]
 requirements: { <preconditions> }
 <!=_=!>
 \end{lstlisting}
-where <variables> describes the variables, which is initially in the ``store'' and <preconditions> is an assertion, which specifies a condition that should hold before the program starts.
-The header does not provide anything new to the evaluator, (although we prepend the requirement to the program as an assertion), but it enables us to make more generic proofs about said programs.
-In the current state, there is no procedures in IFC, which makes it difficult to reason about the input of variables, when trying to prove the weakest precondition, hence why we define said header.
-The inspiration comes from how the whyML language defines procedures.
-\cref{fig:why3} is a whyML program equivalent to the mult.ifc program.
+where \<variables\> describes the variables initially in the store, and \<preconditions\> is zero or more assertions, which specifies properties that must hold before program start.
+The header does not affect the interpretation of a program as such, besides prepending the requirements as assertions that must hold in the beginning of the program, but it enables us to make more generic proofs about said program.
+
+In the current implementation, there are no procedures in \textit{While}, which makes it difficult to reason about the input of variables.
+Therefore we need the header to be able to generate and prove the weakest precondition for a program.
+The inspiration comes from how the \textit{whyML} language defines procedures.
+\cref{fig:why3} is a whyML program equivalent to the \texttt{mult.ifc} program.
+
 \begin{figure}[h]
 \begin{lstlisting}
 module Mult
@@ -35,6 +40,10 @@ end
 \caption{Why3 program equivalent to mult.ifc}
 \label{fig:why3}
 \end{figure}
-It is possible for why3 to generate a vector of input variables and then a precondition for each the \verb\requires\, such that $\forall x_{1},...,x_{n}. \; requires => WP(body, ensures)$.
-That is whenever the requires holds, then the weakest precondition of the body should hold, where ensures states the postcondition. Notice that \cref{fig:why3} does not use an ``ensures''. We define it this way as it more closely resemples our language.
-And since we dont have any return values, we dont really need the ensures, since this might as well be part of the actual program.\footnote{is this clear if you dont know whyML?}
+
+It is possible for why3 to generate a vector of input variables and then a precondition for each the conditions in \texttt{requires}, such that 
+$$\forall x_{1},...,x_{n}. \; requires => WP(body, ensures)$$
+That is, whenever the \textit{requires} holds, then the weakest precondition of the body should hold, where \textit{ensures} states the postcondition. 
+Notice that \cref{fig:why3} does not state any \textit{ensures}, this more closely resembles our language.
+And since we dont have any return values, we dont really need \textit{ensures}, since this might as well be an assertion in the actual program.
+%\footnote{is this clear if you dont know whyML?}

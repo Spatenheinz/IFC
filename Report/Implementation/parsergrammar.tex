@@ -3,13 +3,13 @@
 
 <imp'> ::= '$\Rightarrow$' <quant> <imp'> | $\epsilon$
 
-<quant> ::= 'forall' <vname> '.' <quant>
-\alt 'exists' <vname> '.' <quant>
-\alt <cd>
+<quant> ::= '$\forall$' <vname> '.' <quant>
+\alt '$\exists$' <vname> '.' <quant>
+\alt <or>
 
-<cd> ::= <neg> <cd'>
+<or> ::= <and> '$\vee$' <or> | <and>
 
-<cd'> ::= '$\wedge$' <neg> <cd'> | '$\vee$' <neg> <cd'> | $\epsilon$
+<and> ::= <neg> '$\wedge$' <and> | <neg>
 
 <neg> ::= '$\sim$' <factor> | <factor>
 
