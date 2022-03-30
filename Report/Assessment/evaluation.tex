@@ -1,6 +1,8 @@
 % something about evaluation
 % What results do we get? (more in-depth than in the intro to the section)
-In this section we give a collective assessment
+In this section we give a collective assessment of the project.
+We find that the two most important aspects of our application are correctness and maintainability. A non-correct implementation is useless and high maintainability allows for easy extension/modification to build a more robust and complete solution.
+Overall we find that we satisfy these criteria to an acceptable degree.
 
 
 %From the result presented in this Section, we have a fairly good solution, and our program actually works as intended on the example programs.
@@ -13,22 +15,48 @@ In this section we give a collective assessment
 %%% Hvad vil vi assesse? %%%
 \subsubsection{Correctness}
 % does our implementation work as expected
-Through our testing strategy, we have found that our code is correct.
-
+Overall we find that our implementation coincide with the specifications described and the goals we wanted to achieve with this project.
+Although the implementation deviate from the formal semantics in a few places, such as for abnormal termination. We do so purely for convenience.
+And we find that based on our tests, experiments and so forth, presented in the previous section, that a well working solution.
+Especially that, we can distinguish programs under partial correctness with programs under total correctness. And that the evaluator and static verification gives equivalent results, is a good indication that we have been successful in our implementation.
+With this said, we are not fully satisfied with the test-suite, and with more time the property based tests would have been stronger (and never time out), and we would have more unit-tests for the basic concepts of the different modules.
+Furthermore, we need to address the quantifiers in the evaluator.
+It is inferior that these are not handled appropriately.
+As stated, this stems from a combination of two events.
+Firstly, that we went with unbounded integers for the standard arithmetic type, which makes it impossible to go through all possible values, and that we have treated the internal workings of SMT-solvers mostly as a blackbox and thus have not investigated deeply possible techniques for handling qunatifiers. Although it would be very nice to use one of the strategies from an SMT-solver, this is quite a substantial topic, not focused on in this project.
 
 \subsubsection{Completeness}
 % Do we support all the things we set out to?
+We find that we have accomplished our goals for this project except for the parts mentioned in the correctness section.
+Furthermore it would have been good both for the implementation as well as our general understanding of provability of correctness to have delved more into the internals of SMT-solvers.
+As of now, our understanding is still basic.
 
 \subsubsection{Robustness}
 % Can our code fail
-
-We have found bugs, such as the weird thing where modulo 0 is not an error in Z3.
+Overall we find that our testing has been valuable in insuring robustness of the code. As mentioned we have found perculiarities, in the abnormalilites, which has now been removed. By this we assures that we can never prove anything which would result in abnormal termination in the evaluator. In this philospohy we gracefully handle run-time errors and such gracefully. On the other hand we use \textit{error} when we find that something is an implementation error. Thus we make a clear destinction to the user, if they have made a mistake or there is something wrong with our implementation.
+% One interesting case, which we found by using the quickcheck instances, was that we had not made any run-time error check like division by 0 in the generation of the verification condition.
+% Quite to our surprise, such undefined behaviour is not handled in \textit{Z3}. Consider:
+% \begin{lstlisting}
+% a := 10 % 0;
+% #{a = 10};
+% b := 10 / 0;
+% #{b = 0};
+% \end{lstlisting}
+% The (non-modified) verification condition for this can be proved by \textit{Z3}.
+% The reason for this is that in the backend for \textit{Z3}, \textit{SMT-Lib} interpretes all functions to be total, and hence treats division by 0 and modulo by 0 as such. However this breaks the assumption, that for a program to be proveable under total correctness it will also evalutate properly. This ``bug'' is still present in the code, in cases where we cannot fold the RHS into an Integer constant. This is not ideal, but we have yet to find.
+% \\~\\
+% In terms
 
 \subsubsection{Maintainability}
-As mentioned this project sould serve as a base, thus we have valued maintainability and extensibility highly. We have done so through the following abstractions. Firstly we are using monad-transformers to enforce seperation of concern. For the evalutor, we have even defined the \textit{Eval} type in terms of \textit{RWST} even though we only uses the \textit{State}-transformer and underlying Either monad. We do so since we highly anticipate that the other monadic effects will be useful in the future, such as being able to print (using writer).
+As mentioned this project should serve as a base.
+Hence we have valued maintainability and extensibility highly.
+We have done so through the following abstractions.
+Firstly we are using monad-transformers to enforce seperation of concern.
+For the evalutor, we have even defined the \textit{Eval} type in terms of \textit{RWST} even though we only uses the \textit{State}-transformer and underlying Either monad.
+We do so as we highly anticipate that the other monadic effects will be useful in the future, such as being able to print (using writer).
 Furthermore, the multistage approach, for generating verification conditions should also allow for easier extending possible SMT-backends.
 In the current solution we only support \textit{Z3}, but allowing for the other SBV supported solvers, should be trivial.
-But because we generate the verification condition (which barebones are a simple ADT) in a seperate state it should not be too cumbersome to allow for other backends.
+But because we generate the verification condition in a seperate state it should not be too cumbersome to allow for other backends.
 \\~\\
 In terms of extending the language with new constructs we consider the following cases.
 \begin{itemize}
@@ -39,7 +67,7 @@ In terms of extending the language with new constructs we consider the following
   \item New types such as collections would require additions in all module but should not add too much extra complexity as to what new statements would.
   \item Adding a type-system would be a very useful addition, but will most likely be one of the biggest changes. As it would probably require additions to the constructors of the AST, or for an additional typed-AST and in this case the code for the already working parts would have to be modified.
 \end{itemize}
-All in all, we find that the code is maintainable and extendable, but some extensions will require some overhaul of the code.
+All in all, we find that the code is maintainable and extendable, but some extensions will require some overhaul of the code. As a supporting argument, the Modulo-incident, we were able to fix rather quickly, when we found an approach and it required fairly little additional code.
 % Can we easily extend
 
 %Expression problem??

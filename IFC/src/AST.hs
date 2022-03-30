@@ -53,7 +53,7 @@ abinary Mul _ (IntConst 0) = IntConst 0
 abinary Mul (IntConst 1) a = a
 abinary Mul a (IntConst 1) = a
 abinary Div a (IntConst 1) = a
-abinary Mod a (IntConst 1) = a
+abinary Mod _ (IntConst 1) = IntConst 0
 abinary o a1 a2 = ABinary o a1 a2
 
 data Stmt = Seq Stmt Stmt

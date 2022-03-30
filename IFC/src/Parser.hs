@@ -122,7 +122,7 @@ impP = do
   option a0 (symbol "=>" >> aimp a0 <$> impP)
 
 quantP :: Parser FOL
-quantP = quant <|> cdP
+quantP = quant <|> disP
   where quant = (on eitherP (\x -> between x (symbol ".") (some identP)) `on` rword)
                   "forall" "exists" >>= \case
                       Left [fa] -> basef fa
@@ -133,19 +133,29 @@ quantP = quant <|> cdP
         basee x = Exists x <$> quantP
         fold_ f b xs = foldr f (b $ last xs) (init xs)
 
-cdP :: Parser FOL
-cdP = negPreP >>= cdOptP
+disP :: Parser FOL
+disP = conjP >>= disOP
 
-cdOptP :: FOL -> Parser FOL
-cdOptP a0 = option a0 (do
-            op <- cdchoiceP
-            a1 <- cdP
+disOP :: FOL -> Parser FOL
+disOP a0 = option a0 (do
+            op <- dChoiceP
+            a1 <- disP
             return (a0 `op` a1))
 
-cdchoiceP :: Parser (FOL -> FOL -> FOL)
-cdchoiceP = choice [ symbol "/\\" >> return aconj
-                   , symbol "\\/" >> return adisj
-                   ]
+dChoiceP :: Parser (FOL -> FOL -> FOL)
+dChoiceP = choice [ symbol "\\/" >> return adisj ]
+
+conjP :: Parser FOL
+conjP = negPreP >>= conjOP
+
+conjOP :: FOL -> Parser FOL
+conjOP a0 = option a0 (do
+            op <- cChoiceP
+            a1 <- conjP
+            return (a0 `op` a1))
+
+cChoiceP :: Parser (FOL -> FOL -> FOL)
+cChoiceP = choice [ symbol "/\\" >> return aconj]
 
 negPreP :: Parser FOL
 negPreP = (symbol "~" >> anegate <$> topP) <|> topP
@@ -204,8 +214,9 @@ bExprP = makeExprParser bTermP operators
   where operators =
                 [ [ Prefix (bnegate <$ rword "!")
                 ]
-                , [ InfixL (bconj <$ symbol "&&")
-                  , InfixL (bdisj <$ symbol "||")
+                , [ InfixR (bconj <$ symbol "&&")
+                  ]
+                , [ InfixR (bdisj <$ symbol "||")
                   ]
                 ]
 

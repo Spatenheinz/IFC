@@ -63,7 +63,7 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
-                Right (p,st) -> putStrLn $ prettyProgram p st
+                Right (p,st) -> print p --putStrLn $ prettyProgram p st
             [file, argslist] -> do
               s <- readFile file
               case parseString s of
