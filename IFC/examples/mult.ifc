@@ -1,5 +1,5 @@
 vars: [q,r]
-requirements: {q >= 0 /\ r >= 0}
+requirements: {q >= 0}
 <!=_=!>
 res := 0;
 👻a := q;
