@@ -1,20 +1,21 @@
 % We have conducted a smaller variety of tests. The tests includes both some testing of properties thorugh QuickCheck along with some examples program.
 
-As described above, we have conducted a variety of tests to assess the implementation, consisting of both automatic tests and blackbox tests.
+As metioned, we have conducted a variety of tests to assess the implementation, consisting of both automatic tests and blackbox tests.
 To thouroughly test our implementation, the tests follow this testing strategy:
 \begin{itemize}
 	\item The \textit{Parser} is tested using a blackbox approach, which should cover all aspects of the grammar presented in \cref{table:grammar}.
   Furthermore, we have a QuickCheck test suite for property based tests, which can generate ASTs. This is used to test the \textit{Parser} by generating an AST, and then comparing the result of parsing the pretty printed AST with the actual AST.
-	\item We have a test suite using property based testing to test the semantics of the \textit{While} language, which compares the result of running the \textit{Evaluator} on two semantically equivalent generated program constructs.
+	\item We have a test suite using property based testing to test the semantics of the \textit{While} language, which compares the result of running the \textit{Interpreter} on two semantically equivalent generated program constructs.
 	\item We have attempted to use property based testing to compare evaluation of generated programs with the result of using our VC-generator coupled with \textit{Z3} on the same program.
   \item Finally, we have used QuickCheck to generate random input for our example programs, which we use to run the programs and compare with the result of running the same computation in Haskell. This is to assert that the example programs does indeed do as we expect them to, teling us whether they should be provable or not.
-	\item TODO: some tests about VC and SAT solving the example programs
+	\item We have tested that a correct dynamic evaluation also results in a provable verification condition.
+  \item To support the automated tests, we have done some analysis of some programs and compared them to equivalent \textit{Why3} programs.
 \end{itemize}
 
 % The examples can be found in the \verb\examples\ folder. Of these some works correctly and some intentionally dont. In the table below, each program can be seen along with a short description on how and why they are included.
-Besides the tests suites, we have based our assessment on example programs, which can be found in the \verb\examples\ folder. 
-Of these some works correctly and some intentionally dont. In \cref{table:testprograms}, each program can be seen along with a short description of what they do, and what the results of running them through the \textit{Evaluator} and \textit{VC generator} is.
-The leftmost column lists the name of the example programs, the midter column describes the functionality of the program, and the roghtmost column states how both the \textit{Evaluator} and \textit{VC generator} behaves with the program as input.
+A substantial part of tests suites and the experimentation is based on example programs, which can be found in the \verb\examples\ folder.
+Of these some works correctly and some intentionally dont. \cref{table:testprograms}, presents the program (leftmost column), a short description of what they do (middle column), and the results of running them through the \textit{Interpreter} and \textit{VC generator} (rightmost column).
+% The leftmost column lists the name of the example programs, the middle column describes the functionality of the program, and the roghtmost column states how both the \textit{Interpreter} and \textit{VC generator} behaves with the program as input.
 We will analyse the table more thoroughly in \cref{sec:examples}.
 
 \begin{table}[h!]
@@ -23,7 +24,7 @@ We will analyse the table more thoroughly in \cref{sec:examples}.
 \label{table:testprograms}
 \end{table}
 
-In the next subsections we will present in-depth the different parts of our testing strategy. 
+In \crefrange{sec:blackbox}{sec:examples} we present testing strategy more thoughly.
 First we present the strategy of our blackbox \textit{Parser} tests. 
 Next we present our approach to generating automatic tests with property based testing. 
 Finally we go into details with the example programs, and how they are designed to test the functionality of the implementation.

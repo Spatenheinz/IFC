@@ -1,30 +1,29 @@
-Besides the QuickCheck and blackbox testing, we use example programs to check the quality of our implementation.
+Besides the QuickCheck and blackbox testing, we experimented with the example programs to check the quality of our implementation.
 In this subsection we present some of the example programs written for testing, and describe how and why they are interesting.
-Next we set forth the experiments that we conduct using the programs as input to both the \textit{Evaluator} and the \textit{VC generator}.
+Next we set forth the experiments that we conduct using the programs as input to both the \textit{Interpreter} and the \textit{VC generator}.
 Finally we explain how we compare dynamic execution to static verification of the programs.
 
 \paragraph{Example programs.}
 % What example programs have we written and why? (some examples)
 % TODO: comment on the necessity of variants. We did not find programs that actually need a variant.
 % Here we want to include a presentation of our strategy for writing test programs, and maybe present one or two of the most interesting ones.
-In \cref{table:testprograms} we present an overview of the example programs written to test the implementation.
+In \cref{table:testprograms} we present an overview of some of the example programs written to test the implementation.
 % simple.ifc???
 The program \texttt{always\_wrong} tests the \texttt{violate} construct, and simply checks whether the program correctly fails.
 The \texttt{skip} program tests the \texttt{skip} command, by asserting that the store is unchanged after executing the command.
 The programs \texttt{assign} and \texttt{max} are very simple too, and computes the result without use of while-loops, thus testing simple statement constructs.
 
-The rest of the example programs are more interesting, as the use while-loops, and thus requires stronger assertions to prove correctness and termination of the programs.
-The following present some of them, what they test, and why they are interesting.
+The more interesting examples uses while-loops, in which the invariant and variant is important. The following present some of them, what they test, and why they are interesting.
 
 \begin{itemize}
   \item {\texttt{mult.ifc}.} 
   % the running example. Shows both assignment, while-loop, assertions, and ghost variables, and also with input vars and requirements.
-  This is the example that we use throughout the report, because it is a showcase of a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant.
-  Thus the program tests a simple combination of statements, and includes a while-loops that always terminates, and therefore the program should be provable.
+  This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant.
+  Thus the program tests a simple combination of statements, and includes a while-loops that always terminates, and therefore the program should be provable under total correctness.
   An interesting thing about the program is to investigate whether the program is provable with the given invariant, and whether a variant is needed to prove correctness.
   The code for \texttt{mult.ifc} is shown in \cref{figure:mult}.
   
-  \item{\texttt{generic\_sum.ifc}.}
+  \item{\texttt{generic\_sum.ifc}.}\footnote{check dette eksempel igennem igen.}
   % something about generating while-loops?
   The idea behind this program is to make a generic while-loop summing up a list of values. 
   The program takes as input an offset, a step and a limit, and then sums up all the values of a list starting from the offset, stepping with the given value up to the limit.
@@ -34,38 +33,71 @@ The following present some of them, what they test, and why they are interesting
   
   \item{\texttt{collatz.ifc}.}
   % something about termination
-  The idea behind this program is to have a while-loop that does not necessarily terminate.
-  This can tell valuable things about attempting to prove non-terminating programs.
-  The program utilises assertions in a way that ensures that the postconditon only holds if the loop has terminated.
-  Therefore, a loop variant is necessary to determine whether the while-loop terminates or not.
+  This program calculates the collatz sequence of the input variable $n$. The while-loop will run until $n = 1$.
+        The idea behind this program is to have a while-loop which we cannot provide a variant. Alas this program terminates for all $n > 0$. We can see this by the following:
+
+\begin{minipage}[t]{0.4\textwidth}
+  \begin{lstlisting}
+while (n /= 1) ?{ n > 0}{
+      if (n % 2 = 0) {
+         n := n / 2;
+      } else {
+         n := 3 * n + 1;
+      };
+};
+if n = 1 { k := 42; };
+#{ k = 42};
+\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{0.4\textwidth}
+  \begin{lstlisting}
+while (n /= 1) ?{ n > 0}{
+      if (n % 2 = 0) {
+         n := n / 2;
+      } else {
+         n := 3 * n + 1;
+      };
+};
+#{false};
+
+\end{lstlisting}
+\end{minipage}
+  Interestingly enough, the program on the left can be proved, whilst the program on the right cannot. This tells us that the loop must terminate, even without a variant. As the program on the right would be partially correct given that the loop does not terminate, since any postcondition $Q$ is valid if the command does not terminate.\footnote{or have i misunderstood something}
+  % This can tell valuable things about attempting to prove non-terminating programs.
+  % The program utilises assertions in a way that ensures that the postconditon only holds if the loop has terminated.
+  % Therefore, a loop variant is necessary to determine whether the while-loop terminates or not.
   % TODO: this program is not quite done.
 \end{itemize}
 
 \paragraph{Experiments with example programs.}
 % TODO: think about the difference between a program with insufficient assertions resulting in a falsifiable verification condition, and a wrongly generated verification condition that is (mistakenly) falsifiable.
-We have mainly used the example programs for conducting two types of tests: 1) testing that the evaluator can correctly evaluate a program, and 2) testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the evaluator.
+We have automated tests for testing that the \textit{Interpreter} can correctly evaluate a program,
+and by property, we test that the programs that are provable using the VC generator will also evaluate to \textit{true} in the \textit{Interpreter}.
 
 % testing the evaluator by running program with evaluator and comparing result to haskell result
-The first type of test, testing the evaluation of programs, were conducted by generating random input for the example programs, and then asserting that the result was in fact what we expect. For examle, when evaluating the \texttt{mult.ifc} program with two random values, the result should be equal to the result of multiplying the two values in Haskell.
+The first type of test, testing the evaluation of programs, is done by generating random input for the example programs, and then asserting that the result was in fact what we expect.
+For examle, when evaluating the \texttt{mult.ifc} program with two random values, the result should be equal to the result of multiplying the two values in Haskell.
 It should be noted that we use generators for generating meaningful input to the programs, to be able to test with all kinds of valid input.
 
 % comparing running programs through evaluator and vc generator
-The second type of test asserts that if programs can be proved correct, then they will evaluate correctly as well.
-This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the evaluator with random input.
-It is then asserted that if the program is provable, then the evaluator evaluates all assertions to \textit{true}.
+The second type of test asserts that provably correct programs will evaluate correctly as well.
+This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the \textit{Interpreter} with random input.
+Given that the program is provable the \textit{Interpreter} evaluates all assertions to \textit{true}. Note that if we only show partially correctness, the \textit{Interpreter} might run forever, so we only test for terminating instances.
 %If the program is falsified, then the evaluator should fail when given the input values from the counter example.
-If the program is falsified, then the test returns \textit{true} no matter what the result of the evaluator is.
-Ideally we would extract the counter example from the prover, and assert that the evaluator fails with the given input values. If this does not hold, the assertions are not sufficient to prove correctness of the given program. 
-However, right now the test implements the simple approach, and does not extract the counter example.
-This property is also addressed in the next paragraph, where we describe why this is only true in one direction.
+If the program is falsified, then the test will run the program with the falsifiable instance and assert that the \textit{Interpreter} will terminate abnormally.
+% Ideally we would extract the counter example from the prover, and assert that the evaluator fails with the given input values. If this does not hold, the assertions are not sufficient to prove correctness of the given program.
+% However, right now the test implements the simple approach, and does not extract the counter example.
+% This property is also addressed in the next paragraph, where we describe why this is only true in one direction.
 % TODO: har vi overhoved gjort det her??
 
-\paragraph{Provable with VC generation ensures successful evaluation.}
+\paragraph{Provable by VC generation ensures successful evaluation.}
 % Provable => true in evaluation, but not necessarily the other way around
 % Here we want to address how the fact that a program is provable with c generation and SMT solving means that the program will also evaluate corretly, but that it is not necessarily the case the other way around.
 
-As described above, an important property on the relation between the dynamic execution of a program through the evaluator, and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold. 
-However, the implication does not hold in the other direction. The reason for this is that we might not have provided strong enough assertions to satisfy the generated verification condition, whilst the dynamic execution just needs all assertions to evaluate to \textit{true}.
+As described, we value consistency highly. And it should always hold true that if we can prove total correctness of a program the dynamically evaluation should give the expected result. Once again it is important to note this will only hold for total correctness and not necessarily for partial correctness.
+% As described above, an important property on the relation between the dynamic execution of a program through the evaluator, and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold.
+Oppositely, correct dynamic evaluation does not imply provable correctness.
+The reason for this is that we might not have provided strong enough assertions to satisfy the generated verification condition, whilst the dynamic execution just needs all assertions to evaluate to \textit{true}. This might be even more apparent, because of quantifiers not working correctly in the \textit{interpreter}.
 If for example we have a program that uses \textit{true} as a loop invariant, this will hold in each iteration during the dynamic execution, but will probably not be enough to prove any postcondition statically.
 
 Lets take a closer look at the multiplication example program from \cref{figure:mult}. 
@@ -96,7 +128,7 @@ $\quad \quad \quad \; \land \forall q_{2}, res_{2}, \xi_{1}.$
 $\quad \quad \quad \quad (q_{2} > 0 \land res_{2} = (\$a - q_{2}) * r \land \xi_{1} = q_{2}) \Rightarrow$
 $\quad \quad \quad \quad \quad \forall res_{1}. \; res_{1} = res_{2} + r \Rightarrow$
 $\quad \quad \quad \quad \quad \quad \forall q_{1}. \, q_{1} = q_{2} - 1 \Rightarrow$
-$\quad \quad \quad \quad \quad \quad \quad (res_{1} = (\$a - q_{1}) * r \land 0 <= \xi_{1} \land q_{1} < \xi_{1})$
+$\quad \quad \quad \quad \quad \quad \quad (res_{1} = (\$a - q_{1}) * r \land 0 \le \xi_{1} \land q_{1} < \xi_{1})$
 $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Rightarrow res_{2} = \$a * r)$
 \end{lstlisting}
 \caption{Generated verification condition for the modified \texttt{mult} program.}
@@ -104,18 +136,17 @@ $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Righ
 \end{figure}
 
 It becomes quite apparant that the invariant is no longer strong enough to prove the condition, since the restriction on $q_{2}$ is too weak. 
-Z3 gives us a counter example where $q_2 = -3$, $res_2 = 6$, $\$a = 0$ and $r=2$.
+Z3 gives us a falsifiable example where $q_2 = -3$, $res_2 = 6$, $\$a = 0$ and $r=2$.
 The two first conjuctions in line $4$ and line $5$-$9$ will evaluate to \textit{true}.
 %, given that $q_{2} = -3, res_{2} = 6, \$a = 0, r = 2 $.
 In the last term in line $10$, 
 %$$(q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Rightarrow res_{2} = \$a * r$$
-the RHS of the implication will evaluate to \textit{true} as
-$$(-3 \leq 0 \land 6 = 3 * 2)$$
-but the LHS will not evaluate to \textit{false}, as 
-$$6 \neq 0 * 2$$
+the LHS of the implication will evaluate to \textit{true} as
+$(-3 \leq 0 \land 6 = 3 * 2)$
+but the RHS will evaluate to \textit{false}, since
+$6 \neq 0 * 2$
 
-But we know that the program does in fact behave as intended, so is it correct that the prover falsifies the formula?
-Once again we can verify that our program acts correctly, by doing the same modification to the whyML program in \cref{fig:why3}. 
+But we know that the program does in fact behave as intended, so is it correct that the prover falsifies the formula? We can verify that our program acts correctly, by doing the same modification to the whyML program in \cref{fig:why3}.
 Trying to prove the program correctness gives a falsifiable counter example, as expected.
 By this, we have confidence that our implementation works correctly, and requires the necessary loop invariants.
 % \\~\\

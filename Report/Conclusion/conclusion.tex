@@ -1,12 +1,24 @@
 \section{Discussion and conclusion}\label{sec:conclusion}
-We have in this report presented the background for our project, which includes both the formal specification of the language, the axiomatic systems for Floyd-Hoare logic and the predicate transformer semantics which we use to generate verification conditions for a program. We have presented our implementation and our design choices for the program
+We have in this report presented the background for our project, which includes both the formal specification of the language, the axiomatic systems for Floyd-Hoare logic and the predicate transformer semantics which we use to generate verification conditions for a program.
+We have presented our implementation and essential design choices of the program.
+Lastly we have argued why we find that our specific implementation meet all the goals presented in the introduction.
+\\~\\
+Nævn disse?
+\\~\\
+We have argued that or program is correctly able to statically prove correctness of certain programs and dynamically evaluate same program with a correct result. We have done so informally by tests and by a set of example programs, which shows examples of both partial correctness along with total correctness of certain programs.
+We have further looked at how existing solutions such as \textit{Why3} does verification conditions, by comparing \textit{While}-programs, to \textit{WhyML}.
+In the current state the language is still sparse and quite restrictive. For the language to be used for more than just toying around, we propose three extensions which we find essential to the language in \cref{sec:future}.
 
 \subsection{Future work}\label{sec:future}
+We describe three extensions that would make the programming language more useful. The first extension will be additional constructs for the language which would give more expressive power to programs. The next would allow for more usability in terms of different program types. Lastly we describe the extension which we find the most interesting, since the main idea of this project was to allow for reason about Information Flow of programs.
 
 \subsubsection{Procedures and arrays}
+We propose that the language is extended to included procedures and arrays. This would make it possible to make more interesting examples programs, firstly it would allow for better assertions. Imagine a procedure which has the result of the maximum value of two integers. Then we could use this in assertions about variables in another procedure. Most definitely this would provide a better experience using the language. In a similar manner we can make a lot more interesting programs if we have arrays (or atleast some sort of generic-collection), which we can operate on.
 
 \subsubsection{Type system}
+A typesystem would equally be a good extension for better usability. It would allow us for having different types store in variables (and if coupled with the other extension, arrays), which could reduce a lot of repeated code. Furthermore additional types could eliminate a lot of ``boilerplate'' assertions. An instance of this, would be a type \textit{Nat} over the natural numbers, which would eliminate the need for checks such as $x \ge 0$. Furthermore such types would allow us to fix our faulty implementation of quantifiers in the evaluator. In such a case, we could allow only certain types to be quantified. And although bruteforcing all values of a bound integer would still be extremely poor performace wise it would be a solution to our problem. Although bruteforcing should probably not be used.
 
 \subsubsection{PER-logic for Information Flow Control}
+As mentioned time and time again, this project initially arose to make an implementation of the \textit{Partial Equivalence Relation} logic for information flow control\cite{}. The idea behind this is to prove properties of information flow, similarly to how we have been able to prove properties about simple \textit{While}-constructs. From our assessment we find that the project is ready, or atleast close to ready to include this program logic. Furthermore, its remains unbeknownst to use whether we can generate verification conditions for the logic.
 
 \subsection{Conclusion}
