@@ -2,8 +2,8 @@
 % Here we will present the strategy of our blackbox parser tests.
 To assert that our implementation correctly parses input programs, we have designed a blackbox test suite for systematically testing each construct of the grammar.
 The strategy is to test parsing of smaller constructs such as variable names and expressions, and then combine them into larger constructs such as statements.
-Taking a very systematical approach we hope to cover all aspects of the grammar.
+Taking a very systematic approach we hope to cover all aspects of the grammar.
 
 Furthermore, we use blackbox tests to assert that the \textit{Parser} handles ambiguities, associativity and precedence correctly.
 
-Finally, we have designed both positive and negative nests for the \textit{Parser}, to assert that it behaves as intended when given both good and bad input.\footnote{The test-setup is heavily inspired by OnlineTA test by Andrzej Filinski}
+Finally, we have designed both positive and negative tests for the \textit{Parser}, to assert that it behaves as intended when given both good and bad input.\footnote{The test-setup is heavily inspired by OnlineTA test by Andrzej Filinski from the course Advanced Programming.}

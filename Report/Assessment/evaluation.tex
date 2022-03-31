@@ -16,14 +16,19 @@ Overall we find that we satisfy these criteria to an acceptable degree.
 \subsubsection{Correctness}
 % does our implementation work as expected
 Overall we find that our implementation coincide with the specifications described and the goals we wanted to achieve with this project.
-Although the implementation deviate from the formal semantics in a few places, such as for abnormal termination. We do so purely for convenience.
-And we find that based on our tests, experiments and so forth, presented in the previous section, that a well working solution.
-Especially that, we can distinguish programs under partial correctness with programs under total correctness. And that the evaluator and static verification gives equivalent results, is a good indication that we have been successful in our implementation.
+The implementation deviates from the formal semantics in a few places, such as for abnormal termination, but this is done purely for convenience.
+
+We find this based on our tests, experiments and so forth, presented in the previous section.
+All blackbox tests and QuickCheck tests pass, except for some time-outs that sometimes occur in the automatic tests. We suspect this has to do with the way we generate program constructs, and this could definitely be improved, also in regard of ensuring more meaningful generated input and minimising the amount of garbage that is generated.
+TODO: Test programs???
+
+The fact that we can distinguish programs under partial correctness from programs under total correctness, and that the interpreter and static verification gives equivalent results, is a good indication that we have been successful in our implementation.
 With this said, we are not fully satisfied with the test-suite, and with more time the property based tests would have been stronger (and never time out), and we would have more unit-tests for the basic concepts of the different modules.
-Furthermore, we need to address the quantifiers in the evaluator.
+Furthermore, we need to address the quantifiers in the interpreter.
 It is inferior that these are not handled appropriately.
 As stated, this stems from a combination of two events.
-Firstly, that we went with unbounded integers for the standard arithmetic type, which makes it impossible to go through all possible values, and that we have treated the internal workings of SMT-solvers mostly as a blackbox and thus have not investigated deeply possible techniques for handling qunatifiers. Although it would be very nice to use one of the strategies from an SMT-solver, this is quite a substantial topic, not focused on in this project.
+Firstly, that we went with unbounded integers for the standard arithmetic type, which makes it impossible to go through all possible values, and secondly that we have treated the internal workings of SMT-solvers mostly as a blackbox and thus have not thouroughly investigated possible techniques for handling quantifiers. 
+Although it would be a good idea to use one of the strategies from an SMT-solver, this is quite a substantial topic that we did not focus on in this project.
 
 \subsubsection{Completeness}
 % Do we support all the things we set out to?
@@ -33,7 +38,12 @@ As of now, our understanding is still basic.
 
 \subsubsection{Robustness}
 % Can our code fail
-Overall we find that our testing has been valuable in insuring robustness of the code. As mentioned we have found perculiarities, in the abnormalilites, which has now been removed. By this we assures that we can never prove anything which would result in abnormal termination in the evaluator. In this philospohy we gracefully handle run-time errors and such gracefully. On the other hand we use \textit{error} when we find that something is an implementation error. Thus we make a clear destinction to the user, if they have made a mistake or there is something wrong with our implementation.
+Overall we find that our testing has been valuable in insuring robustness of the code. As mentioned we have found peculiarities in the abnormalilites, which is now resolved. 
+This assures that we can never prove anything which would result in abnormal termination in the interpreter. 
+In this philospohy we gracefully handle run-time errors and such. 
+At the same time we use \textit{error} when we find that something is an implementation error. 
+Thus we make a clear destinction between user errors and implementation errors.
+
 % One interesting case, which we found by using the quickcheck instances, was that we had not made any run-time error check like division by 0 in the generation of the verification condition.
 % Quite to our surprise, such undefined behaviour is not handled in \textit{Z3}. Consider:
 % \begin{lstlisting}
@@ -48,40 +58,29 @@ Overall we find that our testing has been valuable in insuring robustness of the
 % In terms
 
 \subsubsection{Maintainability}
-As mentioned this project should serve as a base.
+As mentioned, this project is supposed to serve as a base, with the intention of extending it.
 Hence we have valued maintainability and extensibility highly.
 We have done so through the following abstractions.
 Firstly we are using monad-transformers to enforce seperation of concern.
-For the evalutor, we have even defined the \textit{Eval} type in terms of \textit{RWST} even though we only uses the \textit{State}-transformer and underlying Either monad.
-We do so as we highly anticipate that the other monadic effects will be useful in the future, such as being able to print (using writer).
-Furthermore, the multistage approach, for generating verification conditions should also allow for easier extending possible SMT-backends.
-In the current solution we only support \textit{Z3}, but allowing for the other SBV supported solvers, should be trivial.
-But because we generate the verification condition in a seperate state it should not be too cumbersome to allow for other backends.
+For the interpreter, we have defined the \textit{Eval} type in terms of \textit{RWST}, even though we currently only uses the \textit{State}-transformer and underlying \textit{Either} monad.
+We do so as we highly anticipate that the other monadic effects will be useful in the future, for example the \textit{Write} monad could come in handy for printing.
+Furthermore, the multistage approach for generating verification conditions should allow for easy extension to other SMT-backends.
+In the current solution we only support \textit{Z3}, but allowing other SBV supported solvers should be trivial.
+Because we generate the verification condition in a seperate state, it should not be too cumbersome to extend the implementation.
 \\~\\
 In terms of extending the language with new constructs we consider the following cases.
 \begin{itemize}
-  \item If the construct can syntacticaly be reduce to one of the statements already defined, then only the parser would need to change.
-  \item New statements, will require implementation in the parser, evaluator and the verification condition generator, but will most likely, not have to modify anything in the SBV API.
-  Since the (toplevel) first order logic is already fully defined.
-  Although this should never have to modify the already defined constructs.
-  \item New types such as collections would require additions in all module but should not add too much extra complexity as to what new statements would.
-  \item Adding a type-system would be a very useful addition, but will most likely be one of the biggest changes. As it would probably require additions to the constructors of the AST, or for an additional typed-AST and in this case the code for the already working parts would have to be modified.
+  \item If the construct can syntactically be reduced to one of the statements already defined, then only the parser would need change.
+  \item New statements will require changes in the parser, interpreter and the verification condition generator, but will most likely not have to modify anything in the SBV API, since the (toplevel) first order logic is already fully defined.
+  Adding statements should never have to modify the already defined constructs.
+  \item New types, such as collections, would require additions in all modules, but should not add too much extra complexity compared to what new statements would.
+  \item Adding a type-system would be a very useful addition, but will most likely be one of the biggest changes, as it would probably require additions to the constructors of the AST, or for an additional typed-AST, and in this case the code for the already working parts would have to be modified.
 \end{itemize}
-All in all, we find that the code is maintainable and extendable, but some extensions will require some overhaul of the code. As a supporting argument, the Modulo-incident, we were able to fix rather quickly, when we found an approach and it required fairly little additional code.
+All in all, we find that the code is maintainable and extendable, but some extensions will require some overhaul of the code. 
+As a supporting argument, when we found an error in the way we handled division and modulo, we were able to fix it rather smoothly, and it required fairly little additional code.
 % Can we easily extend
 
 %Expression problem??
 
 % unbounded integers pose a problem
 % forall and exists in assertions
-
-% NOTE: nogle gange timer while out meh
-
-% parser
-
-% evaluator
-
-% vc generator
-
-% putting them together
-% TODO: where to talk about the results of these example programs in depth?
