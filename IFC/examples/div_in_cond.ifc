@@ -2,6 +2,7 @@
 vars: []
 requirements: {}
 <!=_=!>
-while (10 / 0 < 20) ?{ false } {
-skip;
+n := 10;
+while (10 / 0 < 20) ?{ true } !{n} {
+n := n - 1;
 };
