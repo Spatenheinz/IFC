@@ -6,13 +6,14 @@ To assert that a program works as intended, we want to be able to prove it forma
 % assertions
 %  partial correctness is not termination
 %  invariants and variants help prove the termination of a program
-TODO: I dont think i agree on the terminology used here.
-For expressing properties of a program, we use \textit{assertions}, which are a way of claiming something about a program state at a specific point in the program.
-Assertions consist of a \textit{precondition} P and a \textit{postcondition} Q, and is written as a triple
+For expressing properties of a program, we use \textit{assertions}, which are a first order logic formula, which should hold at a specific time in a program.
+By combining these into a triple with a \textit{precondition} P and a \textit{postcondition} Q and a statement S we get:
 $$ \{ P \} S \{ Q \} $$
 
 This triple states that \textit{if} the precondition P holds in the initial state, and \textit{if} S terminates when executed from that state, \textit{then} Q will hold in the state in which S halts.
-Thus the assertion does not say anything about whether S terminates, only that if it terminates, we know Q to hold afterward. Moreover, if S does not terminate, then any Q will hold. These triples are called Hoare triples.
+Thus the triple does not say anything about whether S terminates, only that if it terminates, we know Q to hold afterward. Moreover, if S does not terminate, then any Q will hold. These triples are called Hoare triples.
+
+% SOUNDNESS AND COMPLETENESS??
 
 \paragraph{Logical variables vs program variables.}
 % logical variables vs program variables
@@ -84,7 +85,7 @@ If $b$ evaluates to $true$ and P holds in the initial environment, and executing
 	& \\
  \hline
 \end{tabular}
-\caption{Axiomatic system for partial correctness of \textit{While}.}
+\caption{Axiomatic system for partial correctness of \textit{While}.\cite{nielson}}
 \label{table:axiomatic}
 \end{table}
 
@@ -114,3 +115,9 @@ Where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\p
 $$x \prec y \quad = \quad x < y \land 0 \leq y $$
 
 With both invariants and variants, it is possible to prove total correctness of programs containing while loops, as we can now say something about termination of loops.
+
+\subsubsection{Soundness and Completeness}
+For obvious reasons it is important that the axiomatic system is sound. This means that any property that can be proved by the inference system will be valid according to the semantics.
+We do not prove the soundness of the axiomatic system but simply refer to \cite{nielson}.
+Hoare logic is however only shown to be relatively complete\cite{}, which means that the it is only as complete as the logical system of the assertions.
+Hence we might have a program which is correct according to the semantics, but that we cannot prove to be correct.
