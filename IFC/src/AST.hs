@@ -30,6 +30,10 @@ bdisj b1 b2 = case (b1,b2) of
                 (_, BoolConst False) -> b1
                 (_,_) -> BBinary Disj b1 b2
 
+eq :: AExpr -> AExpr -> BExpr
+eq a b | a == b = RBinary Eq a b
+eq a b = RBinary Eq a b
+
 data ROp = Less | Eq | Greater
   deriving (Show, Read, Eq)
 
@@ -79,12 +83,22 @@ data FOL = Cond BExpr
 
 anegate :: FOL -> FOL
 anegate (ANegate (ANegate a)) = a
-anegate (Cond (BoolConst True)) = Cond (BoolConst False)
-anegate (Cond (BoolConst False)) = Cond (BoolConst True)
+anegate (Cond (BoolConst True)) = ffalse
+anegate (Cond (BoolConst False)) = ftrue
 anegate a = ANegate a
+
+
+-- would be nice if this could be a pattern
+ffalse :: FOL
+ffalse = Cond $ BoolConst False
+
+ftrue :: FOL
+ftrue = Cond $ BoolConst True
 
 aconj :: FOL -> FOL -> FOL
 aconj f1 f2 = case (f1, f2) of
+  (Cond (BoolConst False), _) -> ffalse
+  (_, Cond (BoolConst False)) -> ffalse
   (_, Cond (BoolConst True)) -> f1
   (Cond (BoolConst True), _) -> f2
   _ -> AConj f1 f2
@@ -96,9 +110,13 @@ adisj f1 f2 = case (f1, f2) of
   _ -> ADisj f1 f2
 
 aimp :: FOL -> FOL -> FOL
+aimp (Cond (Negate (RBinary Eq (IntConst a) (IntConst b))))  f | a /= b = f
+aimp (Cond (RBinary Eq (IntConst a) (IntConst b)))  _ | a /= b = ftrue
 aimp f1 f2 = case (f1, f2) of
   (Cond (BoolConst True), _) -> f2
-  (Cond (BoolConst False), _) -> Cond (BoolConst True)
+  (Cond (BoolConst False), _) -> ftrue
+  (Cond (RBinary Eq (IntConst 0) (IntConst 0)), Cond (BoolConst False)) -> ffalse
+  (Cond (Negate (RBinary Eq (IntConst 0) (IntConst 0))), _) -> f2
   _ -> AImp f1 f2
 
 type VName = String
@@ -112,6 +130,3 @@ infixr 2 .\/.
 (.=>.) :: FOL -> FOL -> FOL
 (.=>.) = aimp
 infixr 1 .=>.
-
--- To be able to substitute values in WLP we need an AST
--- as building it simply by SBV we get an SBool

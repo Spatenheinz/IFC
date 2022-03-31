@@ -17,6 +17,7 @@ import System.IO.Unsafe
 import Data.SBV.Internals
 import Data.Maybe
 
+dynstat :: TestTree
 dynstat = testGroup "Test between static and dynamic" [
         -- testGroup "QC" [
         --     testProperty "Eval ~ VC-SAT" $ \(s :: Stmt) ->
@@ -76,11 +77,25 @@ dynstat = testGroup "Test between static and dynamic" [
                 imply (proofResult "skip") "skip" [("a", i1)] ("a", i1),
             testProperty "sum" $ \(i1 :: Positive Integer) ->
                 let i1' = getPositive i1
-                in imply (proofResult "sum") "sum" [("n", i1')] ("sum", sum [0..i1'])
-           ]
+                in imply (proofResult "sum") "sum" [("n", i1')] ("sum", sum [0..i1']),
+            testProperty "isqrt" $ \(i1 :: Positive Integer) ->
+                let i1' = getPositive i1
+                in imply (proofResult "isqrt") "isqrt" [("x", i1')] ("res", isqrt i1'),
+             localOption (mkTimeout 4000000) $ testProperty "isqrt fast" $ \(i1 :: Positive Integer) ->
+                let i1' = getPositive i1
+                in imply (proofResult "isqrt_fast") "isqrt_fast" [("x", i1')] ("res", isqrt i1'),
+            testProperty "isqrt sub" $ \(i1 :: Positive Integer) ->
+                let i1' = getPositive i1
+                in imply (proofResult "isqrt_sub") "isqrt_sub" [("x", i1')] ("res", isqrt i1')
+            ]
         ]
 
+isqrt :: Integer -> Integer
+isqrt = fromIntegral . floor . sqrt . fromInteger
+
+fibs :: [Integer]
 fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+fact :: [Integer]
 fact = 1 : zipWith (*) fact [1..]
 
 imply :: (Bool, M.Map String CV) -> String -> [(VName, Integer)] -> (VName, Integer) -> Property

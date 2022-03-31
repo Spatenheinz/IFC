@@ -9,10 +9,8 @@ import qualified Text.Megaparsec.Char.Lexer     as L
 
 import           AST
 import           Control.Applicative            (liftA2)
-import           Control.Monad                  (void)
 import           Data.Function                  (on)
 import           Data.Void
-import Data.Foldable
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Monad.Identity
@@ -96,11 +94,11 @@ programP = preconds >> option Skip seqP
 
 preconds :: Parser ()
 preconds = do
-  symbol "vars:"
+  void $ symbol "vars:"
   vs <- brackets (sepBy identP (symbol ","))
-  symbol "requirements:"
+  void $ symbol "requirements:"
   req <- cbrackets (option Nothing (Just <$> impP))
-  symbol "<!=_=!>"
+  void $ symbol "<!=_=!>"
   modify (const (vs,req))
 
 seqP :: Parser Stmt

@@ -1,0 +1,27 @@
+module Simple
+
+  use int.Int
+  use ref.Refint
+  use mach.int.Int
+
+  function sqr (x:int) : int = x * x
+
+  predicate isqrt_spec (x res:int) =
+    res >= 0 /\ sqr res <= x < sqr (res + 1)
+
+  let isqrt (x:int) : int
+    requires { x >= 0 }
+    ensures  { isqrt_spec x result }
+  = let ref b = 5 in
+    let ref a = b * x in
+    while a >= b do
+      invariant { x >= sqr (div b 10) }
+      invariant { a = 5 * (x - sqr (div b 10)) }
+      invariant { b = 5 + (div b 10) * 10 }
+      invariant { div b 10 >= 0 }
+      variant   { a }
+      a -= b;
+      b += 10
+    done;
+    div b 10
+end

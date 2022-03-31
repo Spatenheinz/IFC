@@ -1,11 +1,10 @@
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 module CodeBlocks where
 
 import           Test.Tasty.QuickCheck
 import AST
 import Control.Monad
 import QCInstances
-import Data.Function (on)
-import Test.QuickCheck.Gen (variant)
 import Utils
 
 whilenames = elements $ map (("__" ++) . (:[])) ['a'..'e']

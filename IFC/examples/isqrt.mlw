@@ -1,0 +1,24 @@
+module Simple
+
+  use int.Int
+  use ref.Refint
+
+  function sqr (x:int) : int = x * x
+
+  predicate isqrt_spec (x res:int) =
+    res >= 0 /\ sqr res <= x < sqr (res + 1)
+
+  let isqrt (x:int) : int
+    requires { x >= 0 }
+    ensures  { isqrt_spec x result }
+  = let ref count = 0 in
+    let ref sum = 1 in
+    while sum <= x do
+      invariant { x >= sqr count }
+      invariant { sum = sqr (count+1) }
+      variant   { x - count }
+      count += 1;
+      sum += 2 * count + 1
+    done;
+    count
+end

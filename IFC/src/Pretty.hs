@@ -26,12 +26,12 @@ prettySt Skip = "skip;"
 prettySt Fail = "violate;"
 
 prettyF :: FOL -> Int -> String
-prettyF (Cond b) i = prettyB b
+prettyF (Cond b) _ = prettyB b
 prettyF (Forall x a) i = "forall " <> x <> ".\n" <> replicate i ' ' <> prettyF a (i + 4)
 prettyF (Exists x a) i = "exists " <> x <> ".\n" <> replicate i ' ' <> prettyF a (i + 4)
-prettyF (ANegate (Cond (RBinary Less a b))) i = "(" <> prettyA a <> " >= " <> prettyA b <> ")"
-prettyF (ANegate (Cond (RBinary Greater a b))) i = "(" <> prettyA a <> " <= " <> prettyA b <> ")"
-prettyF (ANegate (Cond (RBinary Eq a b))) i = "(" <> prettyA a <> " /= " <> prettyA b <> ")"
+prettyF (ANegate (Cond (RBinary Less a b))) _ = "(" <> prettyA a <> " >= " <> prettyA b <> ")"
+prettyF (ANegate (Cond (RBinary Greater a b))) _ = "(" <> prettyA a <> " <= " <> prettyA b <> ")"
+prettyF (ANegate (Cond (RBinary Eq a b))) _ = "(" <> prettyA a <> " /= " <> prettyA b <> ")"
 prettyF (ANegate a) i = "~" <> "(" <> prettyF a i <> ")"
 prettyF (AConj a b) i = "(" <> prettyF a i <> " /\\ " <> prettyF b i <> ")"
 prettyF (ADisj a b) i = "(" <> prettyF a i <> " \\/ " <> prettyF b i <> ")"
@@ -49,6 +49,7 @@ prettyB (RBinary op a b) = prettyA a <> prettyROp op <> prettyA b
 prettyA :: AExpr -> String
 prettyA (Var x) = x
 prettyA (Ghost (_:xs)) = '👻':xs
+prettyA (Ghost (_)) = error "cannot happen"
 prettyA (IntConst i) = show i
 prettyA (Neg a) = "(-" <> prettyA a <> ")"
 prettyA (ABinary op a b) = "(" <> prettyA a <> prettyAOp op <> prettyA b <> ")"

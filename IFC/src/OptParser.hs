@@ -37,6 +37,7 @@ parens = (between `on` symbol) "(" ")"
 brackets :: Parser a -> Parser a
 brackets = (between `on` symbol) "[" "]"
 
+signed :: Parser Integer
 signed = L.signed (return ()) integer
 
 integer :: (Num a) => Parser a
