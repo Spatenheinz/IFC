@@ -1,7 +1,7 @@
 \section{Background}\label{sec:Background}
-In this section we present the simple \textit{While} language that we work with throughout the project.
-Next we explain about Hoare logic and verification condition generation, and how this provides a basis for proving correctness of code.
-Finally, we describe how this can be coupled with SMT solvers, to allow automatic proving of programs.
+In this section, we present the grammar and semantics of the \textit{While} language used throughout the project.
+Next, we explain Floyd-Hoare logic and verification condition generation through semantic predicate transformers and how this provides a basis for formal verification.
+Finally, we describe how this can be coupled with SMT solvers to allow automatic proving of programs.
 
 \subsection{Language}\label{sec:Language}
 \input{Background/Language}
@@ -17,6 +17,6 @@ Finally, we describe how this can be coupled with SMT solvers, to allow automati
 %- Sound og Complete?
 \input{Background/vc}
 
-\subsection{SAT-solvers}
+\subsection{Verifying conditions with automated solvers}
 % IDK noget klogt.
 \input{Background/sat}

@@ -1,27 +1,30 @@
 % Beskriv hvad hoare logik er, og hvorfor det er brugbart?
-Now we look at Hoare logic, and how we can use it to verify our program.
+Now we look at Hoare logic and how we can use it to verify our program.
 To assert that a program works as intended, we want to be able to prove it formally. To avoid the proofs being too detailed and comprehensive, one wants to look at the essential properties of the constructs of the program. We look at partial correctness of a program, meaning that we do not ensure that a program terminates, only that \textit{if} it terminates, certain properties will hold.
 
 \subsubsection{Assertions}
 % assertions
 %  partial correctness is not termination
 %  invariants and variants help prove the termination of a program
-For expressing these properties of a program we use \textit{assertions}, which are a way of claiming something about a program state at a specific point in the program.
-Assertions consist of a \textit{precondition} P and a \textit{postcondition} Q, and is written as a triple
+For expressing properties of a program, we use \textit{assertions}, which are a first order logic formula, which should hold at a specific time in a program.
+By combining these into a triple with a \textit{precondition} P and a \textit{postcondition} Q and a statement S we get:
 $$ \{ P \} S \{ Q \} $$
 
 This triple states that \textit{if} the precondition P holds in the initial state, and \textit{if} S terminates when executed from that state, \textit{then} Q will hold in the state in which S halts.
-Thus the assertion does not say anything about whether S terminates, only that if it terminates we know Q to hold afterwards. These triples are called Hoare triples.
+Thus the triple does not say anything about whether S terminates, only that if it terminates, we know Q to hold afterward. Moreover, if S does not terminate, then any Q will hold. These triples are called Hoare triples.
+
+% SOUNDNESS AND COMPLETENESS??
 
 \paragraph{Logical variables vs program variables.}
 % logical variables vs program variables
 When using assertions we differ between \textit{program variables} and \textit{logical variables}.
-Program variables are the ones that are used inside the program, and can be changed throughout the program.
-Sometimes we might need to keep the original value of a variable that is changed during the program. Here we can use a \textit{logical variable}, or \textit{ghost variable}, to maintain the value. The ghost variables can only be used in assertions, not in the actual program, and thus cannot be changed. All ghost variables must be fresh variables. 
-For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
+Program variables are usable in the program logic and are mutable throughout the program.
+Sometimes we might need to keep the original value of a variable that has changed during the program. Here we can use a \textit{logical variable}, or \textit{ghost variable}, to maintain the value. The ghost variables can only be used in assertions, not in the actual program, and thus cannot be changed.
+% All ghost variables must be fresh variables.
+% For example, the assertion $\{x = n\}$ asserts that $x$ has the same value as $n$. If $n$ is not a program variable, this is equivalent to declaring a ghost variable $n$ with the same value as $x$. As $n$ is immutable, we can use $n$ to make assertions depending on the initial value of $x$ later in the program, where the value of $x$ might have changed.
 
 \paragraph{Multiplication example.}
-As an example of having assertions in a program, \cref{figure:mult} shows how our example program \texttt{mult.ifc} looks when adding some assertions.
+To show how we can use assertions, we look at the multiplication program presented before. The version with assertions is shown in \cref{figure:mult}.
 \begin{figure}
 \lstinputlisting{Examplecode/mult.ifc}
 \caption{Example program \texttt{mult.ifc}}
@@ -30,8 +33,8 @@ As an example of having assertions in a program, \cref{figure:mult} shows how ou
 
 In line $1$-$2$, we have the input variables listed, and the requirements for the input given.
 This is part of the program header, which we will describe in more detail later.
-The requirements states that both integers must be nonnegative, as we do not wish to multiply by zero.
-In line 10 we have an assertion claiming that the final result will be the original value of $q$ multiplied by $r$. 
+The requirements state that q must not be 0 since we would never enter the while loop and get a correct result. Additional logic using if-else statements would alleviate this requirement for a complete function that would also work with negative values for $q$. We provide this example for simplicity.
+In line 10, we assert that the final result will be the original value of $q$ multiplied by $r$.
 Here we use a ghost variable for keeping the original value of $q$.
 We also have an invariant and a variant in the while loop in line 6, but we will come back to the meaning of that in \cref{sec:total-correctness}.
 
@@ -41,16 +44,16 @@ We also have an invariant and a variant in the while loop in line 6, but we will
 
 \subsubsection{Axiomatic system for partial correctness}
 % axiomatic system for partial correctness
-Hoare logic specifies an inference system for partial correctness of a program, based on the semantics of the different constructs of the language. The axiomatic system is shown in \cref{table:axiomatic}.
+Hoare logic specifies an inference system for partial correctness of a program based on the semantics of the different constructs of the language. The axiomatic system is shown in \cref{table:axiomatic}.
 
-This axiomatic system shows how assertions are evaluated in the Hoare logic. 
-For example, for an assignment we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if P holds in this state, then after assigning $x$ to $a$, P must still hold.
-For the \textit{skip} command we see that the assertion must hold both before and after, as \textit{skip} does nothing.
+This axiomatic system shows how assertions are evaluated in the Hoare logic.
+For example, for an assignment, we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if P holds in this state, then after assigning $x$ to $a$, P must still hold.
+For the \textit{skip} command, we see that the assertion must hold both before and after, as \textit{skip} does nothing.
 The axiomatic semantics for an assertion around a sequence of statements $\{P\} S_1;S_2\{R\}$ state that if P holds in the initial state, and executing $S_1$ in this state produces a new state in which Q holds, and if executing $S_2$ in this new state produces a state in which R holds, then $\{P\} S_1;S_2 \{R\}$ holds.
 
 Another interesting construct is the while loop.
-Here P denotes the loop invariant, and $b$ is the loop condition. 
-If $b$ evaluates to $true$ and P holds in the initial environment, and executing S in this environment produces a new state in which P holds, then we know that after the while loop has terminated we must have a state where P holds and where $b$ evaluates to $false$.
+Here P denotes the loop invariant, and $b$ is the loop condition.
+If $b$ evaluates to $true$ and P holds in the initial environment, and executing S in this environment produces a new state in which P holds, then we know that after the while loop has terminated, we must have a state where P holds and where $b$ evaluates to $false$.
 
 \begin{table}[h!]
 \centering
@@ -82,21 +85,21 @@ If $b$ evaluates to $true$ and P holds in the initial environment, and executing
 	& \\
  \hline
 \end{tabular}
-\caption{Axiomatic system for partial correctness of \textit{While}.}
+\caption{Axiomatic system for partial correctness of \textit{While}.\cite{nielson}}
 \label{table:axiomatic}
 \end{table}
 
 % TODO: state semantic equivalence between this notation, and the notation that we use in our language.
 The syntax of our version of \textit{While} deviates slightly from the syntax presented in \cref{table:semantic} and \cref{table:axiomatic}.
-The reason why we have not depicted the exact syntax in the tables is that the use of curly braces obscured the meaning.
+The reason why we have not depicted the exact syntax in the tables is that the use of curly braces obscured the meaning, beacuse of the conventional notation for Hoare Triples.
 However, it is clear that the two syntaxes are semantically equivalent. 
 
 \subsubsection{Total correctness}\label{sec:total-correctness}
-The above states how the Hoare logic can prove partial correctness, but does not guarantee termination of loops. 
-We would like to be able to prove total correctness, meaning we want to prove termination. 
-To verify that a program terminates, we need a stronger assertion, in form of a loop variant.
-The loop variant is an expression that decreases with each iteration of a loop, for example in the while loop from our example program $q$ is the variant, as can be seen in line 8 of the code (see \cref{figure:mult}).
-To express the logic of using a variant for while loops, we use the following modified syntax
+The above states how the Hoare logic can prove partial correctness, but does not guarantee termination of loops.
+We want to be able to prove total correctness, meaning we want to prove termination. However, this indeed cannot be done.
+To verify that a program terminates, we need a more robust assertion in the form of a loop variant.
+The loop variant is an expression that needs to be subject to a well-founded relation. In our case, the only possible variant is an arithmetic expression that decreases with each loop iteration. For example, in the while loop from our example program, $q$ is the variant, as can be seen in line 8 of the code (see \cref{figure:mult}).
+We use the following modified syntax to express the logic of using a variant for a while loop.
 \begin{equation}\label{eq:totalwhile}
 \begin{align*}
   &\frac{
@@ -108,7 +111,13 @@ To express the logic of using a variant for while loops, we use the following mo
 \end{align*}
 \end{equation}
 
-where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation\cite{wlp}:
+Where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation\cite{wlp}:
 $$x \prec y \quad = \quad x < y \land 0 \leq y $$
 
-Using these loop invariants and variants it is possible to prove total correctness of programs containing while loops, as we can now say something about termination of loops.
+With both invariants and variants, it is possible to prove total correctness of programs containing while loops, as we can now say something about termination of loops.
+
+\subsubsection{Soundness and Completeness}
+For obvious reasons it is important that the axiomatic system is sound. This means that any property that can be proved by the inference system will be valid according to the semantics.
+We do not prove the soundness of the axiomatic system but simply refer to \cite{nielson}.
+Hoare logic is however only shown to be relatively complete\cite{}, which means that the it is only as complete as the logical system of the assertions.
+Hence we might have a program which is correct according to the semantics, but that we cannot prove to be correct.
