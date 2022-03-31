@@ -2,7 +2,7 @@
  "baseHeader"
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-package-options
-                     '(("inputenc" "utf8") ("graphicx" "pdftex") ("ku-frontpage" "babel" "en") ("appendix" "toc" "page") ("geometry" "a4paper" "hmargin={1.5in, 1.5in}" "vmargin={1.5in, 1.5in}")))
+                     '(("inputenc" "utf8") ("ku-frontpage" "english" "science" "titlepage") ("appendix" "toc" "page")))
    (TeX-run-style-hooks
     "inputenc"
     "latexsym"
@@ -10,7 +10,6 @@
     "amsmath"
     "svg"
     "subfig"
-    "graphicx"
     "ku-frontpage"
     "float"
     "caption"
@@ -18,14 +17,15 @@
     "fancyvrb"
     "url"
     "tabularx"
-    "listings"
-    "geometry"
-    "minted"
-    "mdframed"
-    "sourcecodepro"
     "booktabs"
     "titlesec"
-    "syntax")
+    "emoji"
+    "semantic"
+    "stmaryrd"
+    "hyperref"
+    "syntax"
+    "listings"
+    "xcolor")
    (TeX-add-symbols
     "phantomsection"
     "listofillustrations"

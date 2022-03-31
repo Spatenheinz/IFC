@@ -1,0 +1,5 @@
+-- since we modulo by 0 its false
+vars: []
+requirements: {}
+<!=_=!>
+👻b := -15 % (25 + ((-9) - 16));

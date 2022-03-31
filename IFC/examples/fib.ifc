@@ -1,3 +1,4 @@
+-- FIB, we cannot express this in assertions. Interpreter works tho.
 vars: [a]
 requirements: {a > 0}
 <!=_=!>

@@ -1,4 +1,4 @@
-module Simple
+module ISQRT_SUB
 
   use int.Int
   use ref.Refint

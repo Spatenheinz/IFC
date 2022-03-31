@@ -1,3 +1,4 @@
+-- This program will QED if the variant is not present (obviously the loop never terminates), fails ow.
 vars: [n]
 requirements: {n > 0}
 <!=_=!>
@@ -7,4 +8,3 @@ while (true)
 {
   n := n - 1;
 };
-#{false};

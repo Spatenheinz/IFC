@@ -1,3 +1,4 @@
+-- Checks that skip does nothing
 vars: [a]
 requirements: {}
 <!=_=!>

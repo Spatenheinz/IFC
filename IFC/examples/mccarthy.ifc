@@ -1,3 +1,4 @@
+-- Fun recursive function as while loop. However assertion language not expressive enough
 vars: [x]
 requirements: {}
 <!=_=!>

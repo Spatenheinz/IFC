@@ -1,3 +1,4 @@
+-- Sum but -1 in post condition clearly not true.
 vars: [n]
 requirements: {n > 0}
 <!=_=!>

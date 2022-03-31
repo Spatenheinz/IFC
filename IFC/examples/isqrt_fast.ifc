@@ -1,3 +1,4 @@
+-- Logarithmic runtime (but you know assertions are slow)
 vars: [x]
 requirements: { x >= 0}
 <!=_=!>

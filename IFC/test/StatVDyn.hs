@@ -86,7 +86,8 @@ dynstat = testGroup "Test between static and dynamic" [
                 in imply (proofResult "isqrt_fast") "isqrt_fast" [("x", i1')] ("res", isqrt i1'),
             testProperty "isqrt sub" $ \(i1 :: Positive Integer) ->
                 let i1' = getPositive i1
-                in imply (proofResult "isqrt_sub") "isqrt_sub" [("x", i1')] ("res", isqrt i1')
+                in imply (proofResult "isqrt_sub") "isqrt_sub" [("x", i1')] ("res", isqrt i1'),
+
             ]
         ]
 
