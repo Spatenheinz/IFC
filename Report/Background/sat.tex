@@ -1,14 +1,16 @@
 % IDK noget klogt.
+\paragraph{SMT-solvers}
+The Weakest precondtions that we can generate, will be a first order logic formula, which we want to validate. For this we use Satisfiability Modulo Theories (SMT).
+This is a modfication of the boolean satisfiability problem (SAT).
+Whilst SAT is limited to propositional logic and thus not expressive enough to reason about the verification conditions, SMT can be used to reason about first order logic, through a set of theories.
+A theory $T$ is a set of sentences.
+A first order logic formula $\phi$ is satisfiable modulo this theory if there exists a model $M$ such that $M \vDash_{T}\phi$. A verification condition for a program should be a valid formula and not just satisfiable, since it must hold for all models. However the problem of validating formula $\phi$ can be reduced to the problem of satisfying $\neg \phi$, since a formula must be valid if none of its negations are satisfiable.
 
-The Weakest precondtions that we can generate, will be a first order logic formula, which we want to validate. For this we use Satisfiability Modulo Theories (SMT). This is a modfication of the boolean satisfiability problem (SAT). Whilst SAT is limited to propositional logic and thus not expressive enough to reason about the verification conditions, SMT can be used to reason about first order logic, through a set of theories.
+For this project we need two theories to express the verification condition. Firstly we need the theory of Linear arithmetics, which provided reasoning about \textit{aexpr}. Secondly, we need the theory of quantifiers. The SMT-solver of choice for this project is $Z3$, which uses the \textit{SMT-Lib} standard, allows for both these theories, more specifically the thoery is called $LIA$.
 
-% HVAD ER EN TEORI
+In practice the way SMT-solvers treat a first order logic formular is by using the theories to reduce the formular to some problem which can then be expressed as a SAT-formula.
 
-For this project we need two theories to apply. Firstly we need the theory of Linear arithmetics, which provided us with the reasoning about \textit{aexpr}. Secondly, we need the theory of quantifiers. The SMT-solver of choice for this project is $Z3$, which uses the $SMT-Lib$ standard, allows for both these theories.
-
-The way the SMT-solver treat a first order logic formular is by using these theories to reduce the formular to some problem which can then be expressed as a SAT-formula. Hence, we can reduce our verification condition to a sat formula.
-One thing to note about the verification condition is that it should be a valid formula and not satisfiable. However the problem of validating a formula $\phi$ can be reduced to the problem of satisfying $\neg \phi$, since a formula must be valid if none of its negations are satisfiable.
-
+\paragraph{Why3.}
 To ensure that our program is working as expected, we want to compare it to $Why3$, a well established tool for program verification.
 In $Why3$ theories can be built. Most importantly $Why3$ allows us to define functions for which verification conditions can be generated and discharge to a variety of SMT solvers. One of these SMT-solvers are $Z3$, hence if we validate a formular in our language we should also be able to do so for an $Why3$ equivalent program. Hence it provides a well established target for verifying that our program works correctly. We compare our programs to equivalent why3 programs. The semantics will be explained when doing so in \cref{}
 
