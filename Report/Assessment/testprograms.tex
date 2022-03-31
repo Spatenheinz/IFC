@@ -8,50 +8,54 @@
   \hline
   always_wrong & 
 	This program is simply a \verb\violate\ statement and should thus always fail. & 
-  The evaluator evaluates to \verb\false\, and the VC generator gives a falsifiable verification condition. \\
+  The interpreter evaluates to \verb\false\, and the VC generator gives a falsifiable verification condition. \\
 	\hline
   assign & 
 	Assigns values to two variables, and asserts that they get assigned correctly. &
-	The evaluator gives the expected result, and the VC genration gives a solvable verification condition. \\
+	The interpreter gives the expected result, and the VC genration gives a solvable verification condition. \\
  	\hline
  	collatz & 
- 	This program calculates the length of collatz-conjecture until the repeating pattern $1, 4, 2, 1,...$. & 
+ 	This program calculates the length of the collatz-conjecture until the repeating pattern $1, 4, 2, 1,...$. & 
    TODO: something cooler \\
  	\hline
 %   % collatz &  & This is mostly a really bad example as we cannot do any reasonable assertions about the result or the while loop. & Despite the program have some hardcoded assertions meaning it at the momoent only works on input $n=11$, and cannot be proved. This shows that there indeed are ``problems'' which our language is not expressive enough to handle.\\
 % 	\hline
  	div & 
    Takes as input two variables $a,b$ and computes the euclidean division of $a$ by $b$. & 
-   The evaluator gives the expected result, and the VC generator generates a provable verification condition. \\
+   The interpreter gives the expected result, and the VC generator generates a provable verification condition. \\
  	\hline
  	fac &
    Takes as input an integer $r$ and computes $r!$. & 
    TODO: fix invariant and variant ala sum program maybe \\
  	\hline
  	fib &
-   Takes as input an integer $a$, and computes th $a$'th Fibonacci number. & 
+   Takes as input an integer $a$, and computes the $a$'th Fibonacci number. & 
    The evaulator gives the expected result, but the VC generator falsifies the computed verification condition. \\
 %, most likely because the assertions in the program are insufficient to compute a good verification condition. \\
  	\hline
  	mult &
    Takes as input two variables $q,r$ and multiplies them. & 
-   The evaluator gives the expected result, and the VC generator computes a provable verification condition. \\
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
  	\hline
  	max &
-   Takes as input two variables $x,y$ and find the maximum of the two. & 
-   The evaluator gives the expected result, and the VC generator computes a provable verification condition. \\
+   Takes as input two variables $x,y$ and finds the maximum of the two. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
  	\hline
  	skip &
    Asserts that the store is unchanged when executing a \texttt{skip} command. & 
-   The evaluator gives the expected result, and the VC generator computes a provable verification condition. \\
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
  	\hline
  	sum & 
    Takes as input a positive integer $n$ and computes the sum from $1$ to $n$. & 
-   The evaluator gives the expected result, and the VC generator computes a provable verification condition. \\
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
  	\hline
  	generic_sum & 
    Takes as input three integers $cur, lim, step$ and computes the sum of all numbers in a list starting in $cur$, stepping $step$, up to $lim$. &
    TODO: clean-up code and run tests \\
+ 	\hline
+ 	??? & 
+   Tests something with undefined behaviour &
+   Does something \\
  	\hline
 \end{tabular}
 
