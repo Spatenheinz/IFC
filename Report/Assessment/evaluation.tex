@@ -20,6 +20,7 @@ The implementation deviates from the formal semantics in a few places, such as f
 
 We find this based on our tests, experiments and so forth, presented in the previous section.
 All blackbox tests and QuickCheck tests pass, except for some time-outs that sometimes occur in the automatic tests. We suspect this has to do with the way we generate program constructs, and this could definitely be improved, also in regard of ensuring more meaningful generated input and minimising the amount of garbage that is generated.
+TODO: Test programs???
 
 The fact that we can distinguish programs under partial correctness from programs under total correctness, and that the interpreter and static verification gives equivalent results, is a good indication that we have been successful in our implementation.
 With this said, we are not fully satisfied with the test-suite, and with more time the property based tests would have been stronger (and never time out), and we would have more unit-tests for the basic concepts of the different modules.
