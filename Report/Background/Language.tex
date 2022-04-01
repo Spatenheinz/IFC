@@ -26,7 +26,7 @@ Another interesting construct is if statements, which can be constructed both wi
 Finally, assertion statements are of great importance for this project. An assertion is denoted by a hashtag and curly braces. 
 Assertions are explained in detail in \cref{sec:hoare} and \cref{sec:vcg}.
 \\~\\
-The general syntax of the langauge is as follows.
+The general syntax of the language is as follows.
 Identifiers must start either with a lowercase symbol or an underscore, and may then be proceeded by 0 or more characters, digits or underscores.
 Ghost variables must start with either a \textit{ghost}-emoji or, for users more comfortable with ascii, a \textdollar, directly succeeded by an identifier.
 \\~\\
@@ -46,7 +46,7 @@ where parentheses binds tightest. Operators on boolean expressions (\verb\bexpr\
 	\item \&\& (right associative)
 	\item $||$ (right associative)
 \end{itemize}
-and the \textit{First Order Logic} operators used in assertions (\verb\assertion\) follow the following precedence rules:
+and the \textit{First Order Logic} operators used in assertions (\verb\assertion\) follow the precedence rules:
 \begin{itemize}
   \item $\sim$
 	\item $\land$ (right associative)
@@ -86,7 +86,7 @@ Furthermore, ghost variables can only occur in assertions and not as part of the
 % TODO: add argumentation for semantic equivalence assertion $\sim$ if assertion then skip else violate.
 The semantics describe how to evaluate statements in \textit{While}. The most interesting semantic rules in our language are the ones for while loops.
 Here we have to assert that the loop invariant holds both at the beginning of each loop iteration and after loop termination.
-If the invariant ever evaluates to \textit{false}, the program terminates abnormally.
+If the invariant ever evaluates to \textit{false}, the program terminates abnormally, as it should for all assertions.
 
 \begin{figure}[h]
 \lstinputlisting{Examplecode/basicmult.ifc}

@@ -8,8 +8,8 @@ $$
 \{WP(S,Q)\}S\{Q\}
 $$
 WP is a well-defined calculus to find the least restrictive precondition that will make $Q$ hold after $S$. 
-By this calculus, which we will present in this section, validation of Hoare Triples can be reduced to a single logical sentence. WP is functional compared to the relational nature of Hoare logic, which means that is easier to reason about, as we dont have to consider any consequences.
-By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that process is called \textit{verification condition generation}.
+By this calculus, which we will present in this section, validation of Hoare Triples can be reduced to a single logical sentence. WP is functional compared to the relational nature of Hoare logic, which means that it is easier to reason about, as we dont have to consider any consequences.
+By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program. This process is called \textit{verification condition generation}.
 
 \subsubsection{Weakest Liberal Precondition}
 The \textit{Weakest Liberal Precondition} is the weakest precondition necessary for proving correctnes of a program, without proving termination. We denote it by $WLP$.
@@ -105,7 +105,7 @@ By applying the WP rules on the example, we get the WP seen in \cref{figure:wpmu
 
 \begin{figure}[h!]
 \input{Background/multVC}
-\caption{Code for computing weakest precondition of \texttt{mult.ifc}}
+\caption{Weakest precondition of \texttt{mult.ifc}}
 \label{figure:wpmult}
 \end{figure}
 

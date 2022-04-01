@@ -10,8 +10,8 @@
 %  -------------------------------
 
 In this project we present a small imperative \textit{While} language in the C-style family with a built-in assertion language.
-This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}.
-Our VC generator discharges verification conditions fit for the SMT solver \textit{Z3}, allowing us to prove the partial or total correctness of a program.
+This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to Why3.
+Our VC generator discharges verification conditions fit for the SMT solver Z3, allowing us to prove the partial or total correctness of a program.
 
 The main motivation for implementing this language is to make a base which we can easily extend to include \textit{Partial Equivalence Relation} (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{Filinski-Jensen-Larsen:Unpublished-IFC}. This can be used for making assertions about the security of code.
 
@@ -37,9 +37,9 @@ Combined, this provides an approach for automatically generating conditions whic
 % % hvad er der blevet gjort før?
 % % there are several programming languages allowing for verification condtition generation etc...
 % % Z3 why3
-\textit{Why3} is an example of a platform which provides automatic program verification.
-\textit{Why3} requires the programmer to write assertions inside the program code, and then utilises these assertions to compute verification conditions for the program.
-Once the verification condition is generated, \textit{Why3} can discharge this condition to a variety of SMT solvers or proof assistants, which can then determine whether this condition can be proved.
+Why3 is an example of a platform which provides automatic program verification.
+Why3 requires the programmer to write assertions inside the program code, and then utilises these assertions to compute verification conditions for the program.
+Once the verification condition is generated, Why3 can discharge this condition to a variety of SMT solvers or proof assistants, which can then determine whether this condition can be proved.
 % Thus \textit{WhyML} is a programming language with an assertion interface, which allows automatic verification of programs by external SMT-solvers.
 
 % vores løsningsforslag
