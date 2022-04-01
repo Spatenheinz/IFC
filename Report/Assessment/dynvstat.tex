@@ -1,5 +1,5 @@
 Besides the QuickCheck and blackbox testing, we experimented with the example programs to check the quality of our implementation.
-In this subsection we present some of the example programs written for testing, and describe how and why they are interesting.
+In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to \textit{Why3} programs, to see the expressiveness of our language.
 Next we set forth the experiments that we conduct using the programs as input to both the \textit{Interpreter} and the \textit{VC generator}.
 Finally we explain how we compare dynamic execution to static verification of the programs.
 
@@ -19,14 +19,10 @@ The more interesting examples uses while-loops, in which the invariants and vari
   \item {\texttt{mult.ifc}.} 
   % the running example. Shows both assignment, while-loop, assertions, and ghost variables, and also with input vars and requirements.
 	The program takes as input two variables $q,r$ and computes $q \times r$.
-  This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant.
+  This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant and still easy to follow.
   Thus the program tests a simple combination of statements, including a while loop that always terminates, and therefore the program should be provable under total correctness.
-
   An interesting thing about the program is to investigate whether the program is provable with the given invariant and variant.
-
-%  The result of running the program through the application is that it can be proved under total correctnes. Futhermore, when running the equivalent \textit{Why3} program we get the same result, thus checking that our implementation aggrees with the \textit{Why3} implementation.
-
-  The code for \texttt{mult.ifc} is shown in \cref{figure:mult}.
+  The code for \texttt{mult.ifc} is shown in \cref{figure:mult}. Furthermore we made a modified program \texttt{mult3.ifc} which multiplies 3 variables by addition and hence tests the usage of nested while loops.
 
   \item{\texttt{collatz.ifc}.}
   % something about termination
@@ -64,14 +60,22 @@ The more interesting examples uses while-loops, in which the invariants and vari
 	This program also shows how use of undefined behaviour is considered a user error, thus trying to prove this program results in a falsifiable example, as undefined behaviour implies \textit{false}.
 
   \item{\texttt{mccarthy.ifc}.}
-	This program takes as input an integer $x$ and computes the result according to the formula
+   This program calculates the McCarthy 91 function. It takes as input an integer $x$ and computes the result according to the formula
+	\[ f(x) =
+	  \begin{cases}
+	    x - 10       & \quad \text{if } x \ge 100 \\
+	    f(f(x + 11))  & \quad \text{otherwise}
+	  \end{cases}
+  \]
+  The result can also be described as:
 	\[ f(x) =
 	  \begin{cases}
 	    91       & \quad \text{if } x \leq 100 \\
 	    x - 10   & \quad \text{otherwise}
 	  \end{cases}
 	\]
-	The interesting thing here is that our assertion language is not expressive enough to define a variant that can prove the correctness of this program. 
+        The interesting thing about this function is that although we can express the nested recursion as a while loop, we have no way
+        here is that our assertion language is not expressive enough to define a variant that can prove the correctness of this program.
 	We can prove partial correctness, but as we do not have recursive functions, we cannot find a suitable variant and invariant for proving total correctness.
 \end{itemize}
 

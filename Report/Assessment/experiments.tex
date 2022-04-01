@@ -1,12 +1,12 @@
 % We have conducted a smaller variety of tests. The tests includes both some testing of properties thorugh QuickCheck along with some examples program.
 
-As mentioned, we have conducted a variety of tests to assess the implementation, consisting of both automatic tests and blackbox tests.
-To thouroughly test our implementation, the tests follow this testing strategy:
+We have conducted a variety of tests to assess the implementation, consisting of both automatic tests and blackbox tests, and some manual experimentation using \textit{Why3}.
+To thoroughly test our implementation, the tests follow this testing strategy:
 \begin{itemize}
 	\item The \textit{Parser} is tested using a blackbox approach, which should cover all aspects of the grammar presented in \cref{table:grammar}.
-  Furthermore, we have a QuickCheck test suite for property based tests, which can generate ASTs. This is used to test the \textit{Parser} by generating an AST, and then comparing the result of parsing the pretty printed AST with the actual AST.
-	\item We have a test suite using property based testing to test the semantics of the \textit{While} language, which compares the result of running the \textit{Interpreter} on two semantically equivalent generated program constructs.
-	\item We attempt to use property based testing to compare interpretation of generated programs with the result of using our VC-generator coupled with \textit{Z3} on the same program.
+  Furthermore, we have a property based QuickCheck test to test for larger program constructs.
+	\item The test suite includes property based testing to test the semantics of the \textit{While} language, which compares the result of running the \textit{Interpreter} on two semantically equivalent generated program constructs.
+	\item We have attempt to use property based testing to compare interpretation of generated programs with the result of using our VC-generator coupled with \textit{Z3} on the same program. This part is lacking since we want to generate some meaningful building blocks, which showed to be quite challenging and not critical part of this project.
   \item We use QuickCheck to generate random input for our example programs, which we use to run the programs and compare with the result of running the same computation in Haskell. This is to assert that the example programs does indeed do as we expect them to, telling us whether they should be provable or not.
 	\item We test that a provable verification condition also results in a correct dynamic evaluation.
   \item To support the automated tests, we have done some analysis of a selection of programs and compared them to equivalent \textit{Why3} programs.
@@ -21,7 +21,7 @@ A substantial part of the test suites and the experimentation is based on exampl
 Some of the examples are working programs, and some are designed to fail.
 \cref{sec:testprograms} presents the programs (leftmost column), a short description of what they do (middle column), and the results of running them through the \textit{Interpreter} and \textit{VC generator} (rightmost column).
 % The leftmost column lists the name of the example programs, the middle column describes the functionality of the program, and the roghtmost column states how both the \textit{Interpreter} and \textit{VC generator} behaves with the program as input.
-We will analyse the table more thoroughly in \cref{sec:examples}.
+We will analyse a selection of the examples in \cref{sec:examples}.
 
 In \crefrange{sec:blackbox}{sec:examples} we present the testing strategy more thoroughly.
 First we present the strategy of our blackbox \textit{Parser} tests. 

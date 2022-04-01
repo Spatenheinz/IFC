@@ -1,6 +1,6 @@
 % To further test our implementation, we design a test suite of property-based tests. Mostly these tests ensure that the evaluator follows the semantics.
 % To further test certain properties of the implementation, we build a test suite consisting of property based tests.
-Other than the blackbox tests for the parser, our tests are property based.
+Other than the blackbox tests for the parser, our tests are mostly property based.
 With these automatic tests we attempt to verify that
 \begin{itemize}
 	\item That the \textit{Parser} correctly parses larger program constructs.
@@ -10,7 +10,6 @@ With these automatic tests we attempt to verify that
 We build generators for the AST constructs, to enable generation of arbitrary input programs, and then use the generated input to test the properties specified above.
 
 \paragraph{Generating input.}
-TODO: skriv dette færdigt.
 % beskrivelse af hvordan vi genererer ASTs
 % laver nogle generators for forskellige constructs, og sætter dem sammen med frequency
 % while som eksempel
@@ -19,44 +18,11 @@ Using the QuickCheck interface, we define instances of \textit{Arbitrary} for th
 When doing this, there are certain important considerations.
 %To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
 Firstly, to ensure that the size of the generated expressions do not explode, we use \textit{sized expressions} to control expansion, and to ensure that we get a good distribution of the various constructs we use \textit{frequency} to choose between them.
-Secondly, we want the number of possible variables to be limited, such that the \textit{Interpreter} will not fail too often, by using variables that have not yet been defined. This is done by limiting the options for variable names to be only single character string.
-Thirdly, while-loops might not terminate, hence we want to define a small subset, or a skeleton, for while-loops that we can be sure terminates. 
-
-To accomodate this third consideration, we build a skeleton for while-loops that should always terminate. This is done by defining three versions of while-loops as shown in \cref{fig:genwhile}.
-TODO: put in correct code!!!
-\begin{figure}
-\begin{lstlisting}
-whileConds = elements $ zip3 (replicate 4 ass) [gt, lt, eq] [dec, inc, change]
-  where v = whilenames
-        v' = Var <$> v
-        ass = liftM2 Assign v arbitrary
-        gt = liftM2 (RBinary Greater) v' arbitrary
-        dec = liftM2 Assign v (liftM2 (ABinary Sub) v' (return $ IntConst 1))
-        lt = liftM2 (RBinary Less) v' arbitrary
-        inc = liftM2 Assign v (liftM2 (ABinary Add) v' (return $ IntConst 1))
-        eq = liftM2 (RBinary Eq) v' arbitrary
-        change = liftM2 Assign v arbitrary
-\end{lstlisting}
-\caption{Generation of while-loops using a skeleton.}
-\label{fig:genwhile}
-\end{figure}
-
-TODO: koden virker ikke lige nu, vi kommer tilbage til det snart :))
-%We generate an arbitrary variable, which we ensure will never clash with any of the variables that are not possible to generate elsewhere. The constructs will then be one of the following:
-%\begin{itemize}
-%  \item Bolean condition is $v > a$, where $v$ is the variable and $a$ is an arbitrary arithmetic expression. Inside the while-loop, we will ensure to decrement $v$, eventually terminating the loop.
-%  \item Bolean condition is $v < a$. Inside the while-loop, we will ensure to increment $v$, eventually terminating the loop.
-%\item Bolean condition is $v = a$. Inside the while-loop, we will ensure to change $v$, eventually terminating the loop.
-%\end{itemize}
-
-% TODO: er det meaningful?
+Secondly, we want the number of possible variables to be limited, such that the \textit{Interpreter} will not fail too often, by using variables that have not yet been defined. This is done by limiting the options for variable names to be only single character string (this might still be too much).
+Thirdly, while-loops might not terminate, hence we want to define a small subset, or a skeleton, for while-loops that we can be sure terminates. This task proved quite challenging, since we need to construct while loops that are somewhat meaningful, in that they must terminate, and the invariant must be enough for the program to be validated. We have been able to generate some while-loops but they are not meaningful enough for the verifier, however, they can still be used in the semantic equivalence tests between different program constructs.
 
 \paragraph{QuickCheck properties.}
-Now that we have investigated how to generate input for the tests, we move on to finding meaningful properties to test. In this test suite we use property based testing for the following:
-% hvad bruger vi det til
-%  - parser test
-%  - semantics
-%  - equivalence
+With the possibility of generating input for the tests, we move on to finding meaningful properties to test. In this test suite we use property based testing for the following:
 \begin{itemize}
   \item \textbf{Parser tests.}
   To complement the blackbox tests for the parser, we want the following property to hold: \textit{parse (prettyprint a) = a}, where $a$ is an arbitrary AST. This is supposed to assert that the parser can handle a lot of different combinations of constructs, potentially finding bugs that would not have been discovered through our systematic blackbox testing of simple constructs.

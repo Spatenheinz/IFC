@@ -80,7 +80,7 @@ wlp (While b inv var s) q = do
   w <- wlp s (inv ./\. var')
   fas <- findVars s []
   let inner = fa \$ reqs (((Cond b ./\. inv ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. inv) .=>. q)) (inv' <> bs' <> var'')
+              ./\. ((anegate (Cond b) ./\. inv) .=>. q)) (inv' <> bs' <> var'')
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') \$ resolveQ inner
@@ -106,3 +106,11 @@ In the future we might have multiple ways of defining a well-founded relations, 
 Line 3-5 will check if we need conditions for Modulo and Division by 0, of which the approach is presented in \cref{sec:undef}. The rest of the code simply checks which variables are assigned in the body of the while loop, and generates a variable for each. And constructs the weakest precondition as per \cref{fig:wlp} or \cref{fig:wp}, depending on the presence of an invariant. Here it is important to note that the tool we provide does not itself distiguish between partial correctness and total correctness, this responsibility lies solely at the user.
 
 \subsubsection{Handling undefined behaviour in Verification Condition Generator}\label{sec:undef}
+As described, we need to generate additional conditions whenever we encounter modulo and division. We do so by traversing arithmetic expressions to see if they might contain either modulo or division. This is quite a troublesome process as we need to check it multiple places and also need to traverse boolean conditions and assetions. When traversing the constructs we build up a list of conditions, which we need to apply. The lists, which we build will be of the form
+\begin{verbatim}
+[\x -> anegate (Cond (eq b (IntConst 0)))
+   ./\. (Cond (bnegate (eq b (IntConst 0))) .=>. x), ...]
+\end{verbatim}
+We can then fold these functions together on the construct that was traversed.
+We do not find this approach to be anywhere near ideal, and specifically because it generates formulas that are difficult to comprehend.
+The approach that \textit{Why3} provides, where division is defined as a function which does this check, is much more comprehensible, but requires functions. Hence we find that this solution is reasonable for now, but should be replaced in the future.

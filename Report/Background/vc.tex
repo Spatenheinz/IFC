@@ -59,7 +59,7 @@ As mentioned in the previous subsection, division and modulo by zero is undefine
 It is resolved by adding a condition whenever encountering a division or modulo operator, verifying that the operation is legal.
 For example, if we have an assignment $x = a \% b$, we will need the following precondition
 \begin{align*}
-\forall y . ( (&b = 0 \Rightarrow false) \\
+\forall y . ( (&\neg (b = 0)) \\
                 &\land (b \neq 0 \Rightarrow y = a \% b \Rightarrow Q[x \leftarrow y]))
 \end{align*}
 which only resolves the assignment if $b$ is not zero, and otherwise will always fail. Resolving division is similar.
