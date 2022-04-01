@@ -75,19 +75,18 @@ The more interesting examples uses while-loops, in which the invariants and vari
         Hence, we have a case of a problem which shows the relative completeness of Hoare logic, as we cannot prove our program although it is in fact correct. We can ensure so by comparing with an equivalent Why3 program.
   \item{\texttt{isqrt.ifc, isqrt\_sub.ifc \& isqrt\_fast.ifc}.}
         \texttt{isqrt.ifc} calculates the integer square root of a non-negative integer. We can both evaluate this in the interpreter, and prove correctness of the program.
-        \texttt{isqrt\_sub.ifc} calculates the integer squareroot using subtraction, and is also included
-        We further looked at an algorithm from Why3's verified programs gallery, which uses Newtons method for calculating this. This is the \texttt{isqrt\_fats.ifc} program.
-        Unfortunately we are not able to prove this, although we can write a semantically equivalent program. The reason for this is that why3 needs to some transformations of the subgoals for the proof to even validate it. Our solutions is not able any of such transformations.
+        \texttt{isqrt\_sub.ifc} calculates the integer squareroot using subtraction, and is also included in the tests.
+        We further looked at an algorithm from Why3's verified programs gallery, which uses Newtons method for calculating this. This is the \texttt{isqrt\_fast.ifc} program.
+        Unfortunately we are not able to prove this, although we can write a semantically equivalent program. The reason for this is that Why3 needs to some transformations of the subgoals for the proof to even validate it. Our solution is not able to do any such transformations.
 \end{itemize}
 
 \paragraph{Experiments with example programs.}
-% TODO: think about the difference between a program with insufficient assertions resulting in a falsifiable verification condition, and a wrongly generated verification condition that is (mistakenly) falsifiable.
 We have automated tests for testing that the \textit{Interpreter} can correctly evaluate a program,
 and for testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the \textit{Interpreter}.
 
 % testing the evaluator by running program with evaluator and comparing result to haskell result
 The first type of test, testing the evaluation of programs, is done by generating random input for the example programs, and then asserting that the result is in fact what we expect.
-For examle, when evaluating the \texttt{mult.ifc} program with two random values, the result should be equal to the result of multiplying the two values in Haskell.
+For example, when evaluating the \texttt{mult.ifc} program with two random values, the result should be equal to the result of multiplying the two values in Haskell.
 It should be noted that we use generators for generating meaningful input to the programs, to be able to test with all kinds of valid input.
 
 % comparing running programs through evaluator and vc generator
@@ -106,7 +105,7 @@ Furthermore we have both positive and negative test programs, testing that our i
 % Provable => true in evaluation, but not necessarily the other way around
 % Here we want to address how the fact that a program is provable with c generation and SMT solving means that the program will also evaluate corretly, but that it is not necessarily the case the other way around.
 
-As described, we value consistency highly, and it should always hold true that if we can prove total correctness of a program, then the dynamic evaluation should give the expected result. Once again it is important to note this will only hold for total correctness and not necessarily for partial correctness.
+As described, we value consistency highly, and it should always hold true that if we can prove total correctness of a program, then the dynamic evaluation should give the expected result. Once again it is important to note that this will only hold for total correctness and not necessarily for partial correctness.
 % As described above, an important property on the relation between the dynamic execution of a program through the evaluator, and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold.
 Oppositely, correct dynamic evaluation does not imply provable correctness.
 The reason for this is that we might not have provided strong enough assertions to generate an appropriate verification condition, whilst the dynamic execution just needs all assertions to evaluate to \textit{true}. 
@@ -128,7 +127,14 @@ Lets take a closer look at the multiplication example program from \cref{figure:
 % #{res = $a * r};
 % \end{lstlisting}
 We have previously argued that the code is correct and can correctly be proved by Z3, but if we relax some of the assertions in the program, this will no longer be the case.
-Consider exchanging the loop-invariant \verb|?{res = ($a - q) * r /\ q >= 0}| with the looser invariant \verb\?{res = ($a - q) * r}\.
+Consider exchanging the loop-invariant 
+\begin{verbatim}
+?{res = ($a - q) * r /\ q >= 0}
+\end{verbatim}
+ with the looser invariant 
+\begin{verbatim}
+?{res = ($a - q) * r}
+\end{verbatim}
 Now Z3 will no longer be able to prove the correctness of the program. The generated formula looks as shown in \cref{fig:modmult}.
 
 \begin{figure}
@@ -148,7 +154,7 @@ $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r) \Righ
 \label{fig:modmult}
 \end{figure}
 
-It becomes quite apparent that the invariant is no longer strong enough to prove the condition, since the restriction on $q_{2}$ is too weak. 
+From the formula it becomes quite apparent that the invariant is no longer strong enough to prove the condition, since the restriction on $q_{2}$ is too weak. 
 Z3 gives us a falsifiable example where $q_2 = -3$, $res_2 = 6$, $\$a = 0$ and $r=2$.
 Using these values, the two first conjunctions in line $4$ and lines $5$-$9$ will evaluate to \textit{true}.
 In the last term in line $10$, the LHS of the implication will evaluate to \textit{true} as
@@ -157,7 +163,7 @@ is correct, but the RHS will evaluate to \textit{false}, since
 $6 \neq 0 * 2$
 is not correct. Thus the counter example does in fact falsify the verification condition.
 
-But we know from testing that the program does in fact behave as intended, so how can the prover falsifies the formula? 
+But we know from testing that the program does in fact behave as intended, so how can the prover falsifiy the formula? 
 We can verify that our application acts correctly, by doing the same modification to the whyML program in \cref{fig:why3}.
 Trying to prove the program correctness gives a falsifiable counter example, as expected.
 By this, we have confidence that our implementation works correctly, and requires the necessary loop invariants.
