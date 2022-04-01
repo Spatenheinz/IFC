@@ -7,7 +7,7 @@ Finally we explain how we compare dynamic execution to static verification of th
 % What example programs have we written and why? (some examples)
 % TODO: comment on the necessity of variants. We did not find programs that actually need a variant.
 % Here we want to include a presentation of our strategy for writing test programs, and maybe present one or two of the most interesting ones.
-In \cref{table:testprograms} we present an overview of some of the example programs written to test the implementation.
+In \cref{sec:testprograms} we present an overview of some of the example programs written to test the implementation.
 % simple.ifc???
 The program \texttt{always\_wrong} tests the \texttt{violate} construct, and simply checks whether the program correctly fails.
 The \texttt{skip} program tests the \texttt{skip} command, by asserting that the store is unchanged after executing the command.
@@ -18,58 +18,61 @@ The more interesting examples uses while-loops, in which the invariants and vari
 \begin{itemize}
   \item {\texttt{mult.ifc}.} 
   % the running example. Shows both assignment, while-loop, assertions, and ghost variables, and also with input vars and requirements.
+	The program takes as input two variables $q,r$ and computes $q \times r$.
   This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant.
   Thus the program tests a simple combination of statements, including a while loop that always terminates, and therefore the program should be provable under total correctness.
-  An interesting thing about the program is to investigate whether the program is provable with the given invariant, and whether a variant is needed to prove correctness.
+
+  An interesting thing about the program is to investigate whether the program is provable with the given invariant and variant.
+
+%  The result of running the program through the application is that it can be proved under total correctnes. Futhermore, when running the equivalent \textit{Why3} program we get the same result, thus checking that our implementation aggrees with the \textit{Why3} implementation.
+
   The code for \texttt{mult.ifc} is shown in \cref{figure:mult}.
-  
-  \item{\texttt{generic\_sum.ifc}.}\footnote{check dette eksempel igennem igen.}
-  % something about generating while-loops?
-  The idea behind this program is to make a generic while-loop summing up a list of values. 
-  The program takes as input an offset, a step and a limit, and then sums up all the values of a list starting from the offset, stepping with the given value up to the limit.
-  This is part of an experiment to test more types of while loops. Provided a loop skeleton, we can generate random statements for the loop body, and in that way test various kinds of while loops that are ensured to terminate.
-  However, this program has such a strong loop condition compared the the postcondition, that it will always be provable.
-  The goal is to find a loop skeleton which provides just enough information so that the invariant is crucial for proving correctness. If the variant is needed for proving correctness as well, the skeleton is ideal for generating while-loops.
-  
+
   \item{\texttt{collatz.ifc}.}
   % something about termination
   This program calculates the collatz sequence of the input variable $n$. The while loop will run until $n = 1$.
-        The idea behind this program is to have a while loop which we cannot provide a variant. Alas this program terminates for all $n > 0$. We can see this by the following:
+  The idea behind this program is to have a while loop for which we cannot provide a variant. 
+%	\begin{lstlisting}
+%	while (n /= 1) ?{ n > 0}{
+%	      if (n % 2 = 0) {
+%	         n := n / 2;
+%	      } else {
+%	         n := 3 * n + 1;
+%	      };
+%	};
+%	if n = 1 { k := 42; };
+%	#{ k = 42};
+%	\end{lstlisting}
+	We can prove partial correctness of the program, but cannot prove total correctness.
+	Ie., if we assume that the while loop terminates, we know that $n$ is indeed $1$ at loop termination, but we can never prove that the loop terminates.
+  The program utilises assertions in a way that ensures that the postconditon only holds assuming the loop terminates.
+  Therefore, a loop variant is necessary to determine whether the program is correct or not.
 
-\begin{minipage}[t]{0.4\textwidth}
-  \begin{lstlisting}
-while (n /= 1) ?{ n > 0}{
-      if (n % 2 = 0) {
-         n := n / 2;
-      } else {
-         n := 3 * n + 1;
-      };
-};
-if n = 1 { k := 42; };
-#{ k = 42};
-\end{lstlisting}
-\end{minipage}
-\begin{minipage}[t]{0.4\textwidth}
-  \begin{lstlisting}
-while (n /= 1) ?{ n > 0}{
-      if (n % 2 = 0) {
-         n := n / 2;
-      } else {
-         n := 3 * n + 1;
-      };
-};
-#{false};
+  \item{\texttt{undef.ifc}.}
+	This program is an example of negative testing.
+  It has three assignments, each testing different undefined behaviour:
+	\begin{enumerate}
+		\item Testing that modulo by zero is undefined behaviour, and that the leftmost error is output.
+		\item Testing that using an undeclared variable is undefined behaviour, and that the leftmost error is output.
+		\item Testing that the leftmost error is output.
+	\end{enumerate}
+  Running the program shows how modulo and division by zero, along with using undeclared variables, is undefined behaviour.
+	Furthermore, it tests that we always output the leftmost error.
 
-\end{lstlisting}
-\end{minipage}
+	To actually see how the application handles the different errors, one must outcomment the previous lines of code, as the first error encountered will be output.
 
-  Interestingly enough, the program on the left can be proved, whilst the program on the right cannot. 
-  This tells us that the loop must terminate, even without a variant. 
-  As the program on the right would be partially correct, given that the loop does not terminate, since any postcondition $Q$ is valid if the command does not terminate.
-  % This can tell valuable things about attempting to prove non-terminating programs.
-  % The program utilises assertions in a way that ensures that the postconditon only holds if the loop has terminated.
-  % Therefore, a loop variant is necessary to determine whether the while-loop terminates or not.
-  % TODO: this program is not quite done.
+	This program also shows how use of undefined behaviour is considered a user error, thus trying to prove this program results in a falsifiable example, as undefined behaviour implies \textit{false}.
+
+  \item{\texttt{mccarthy.ifc}.}
+	This program takes as input an integer $x$ and computes the result according to the formula
+	\[ f(x) =
+	  \begin{cases}
+	    91       & \quad \text{if } x \leq 100 \\
+	    x - 10   & \quad \text{otherwise}
+	  \end{cases}
+	\]
+	The interesting thing here is that our assertion language is not expressive enough to define a variant that can prove the correctness of this program. 
+	We can prove partial correctness, but as we do not have recursive functions, we cannot find a suitable variant and invariant for proving total correctness.
 \end{itemize}
 
 \paragraph{Experiments with example programs.}
@@ -87,12 +90,12 @@ The second type of test asserts that provably correct programs will evaluate cor
 This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the \textit{Interpreter} with random input.
 Given that the program is provable the \textit{Interpreter} evaluates all assertions to \textit{true}.
 Note that if we only show partial correctness, the \textit{Interpreter} might run forever, so we only test for terminating instances.
-%If the program is falsified, then the evaluator should fail when given the input values from the counter example.
 If the program is falsified, then the test will run the program with the falsifiable instance and assert that the \textit{Interpreter} will terminate abnormally.
-% Ideally we would extract the counter example from the prover, and assert that the evaluator fails with the given input values. If this does not hold, the assertions are not sufficient to prove correctness of the given program.
-% However, right now the test implements the simple approach, and does not extract the counter example.
-% This property is also addressed in the next paragraph, where we describe why this is only true in one direction.
-% TODO: har vi overhoved gjort det her??
+
+% TODO: checking with Why3
+Another method that we use for verifying the correctness of our implementation is to check whether our application produces a result equivalent to that of \textit{Why3}.
+Because \textit{Why3} can use the same solver (\textit{Z3}), and the same theories, we can create \textit{Why3} programs equvalent to our test programs, and assert that they both either succeed in proving correctness, or fail with a counter example.
+Furthermore we have both positive and negative test programs, testing that our implementation both succeeds when it should, and fails when a program cannot be proven correct.
 
 \paragraph{Provable by VC generation ensures successful evaluation.}
 % Provable => true in evaluation, but not necessarily the other way around
