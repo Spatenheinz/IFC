@@ -1,0 +1,7 @@
+-- yea we can assign stuff
+vars: [i]
+requirements: {}
+<!=_=!>
+a := i;
+n := 10 + a;
+#{n = i + 10};

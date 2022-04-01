@@ -1,0 +1,7 @@
+-- this fails since we have division by 0.
+vars: []
+requirements: {}
+<!=_=!>
+while (10 / 0 < 20) ?{ false } {
+skip;
+};

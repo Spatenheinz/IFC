@@ -1,0 +1,11 @@
+-- This has a too weak invariant
+vars: [q,r]
+requirements: {q >= 0}
+<!=_=!>
+res := 0;
+$a := q;
+while (q > 0) ?{res = ($a - q) * r} !{q} {
+      res := res + r;
+      q := q - 1;
+};
+#{res = $a * r};

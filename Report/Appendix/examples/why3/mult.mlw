@@ -1,0 +1,20 @@
+module Mult
+
+  use int.Int
+  use ref.Refint
+
+  let mult (z r: int) : int
+    requires { z >= 0 && r >= 0 }
+    ensures {exists a. result = a * r}
+    =
+    let ref res = 0 in
+    let ref q = z in
+    let a = q in
+    while q > 0 do
+      invariant { res = (a - q) * r && q >= 0}
+      variant { q }
+      decr q;
+      res += r
+    done;
+    res
+end

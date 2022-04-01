@@ -1,0 +1,7 @@
+-- Leftmost thing is the abnormal
+vars: []
+requirements: {}
+<!=_=!>
+-- a := (10 % 0 + b) + (10 / 0);
+-- a := (10 % (0 + b)) + (10 / 0);
+c := (1 % (10 % 10 % 1)) / 0;

@@ -1,8 +1,4 @@
 \begin{grammar}
-%<program> ::= <header> '<!=\_=!>' <statement>
-%
-%<header> ::= 'vars:' '[' <identifier> ']' 'requirements:' '\{' <assertion> '\}'
-
 <statements> ::= <statement> ';' <statements> | $\epsilon$
 
 <statement> ::= <ghostid> ':=' <aexpr>
@@ -44,5 +40,5 @@
 
 <aop> ::= '$+$' | '$-$' | '$*$' | '$/$' | '\%'
 
-<ghostid> ::= \emoji{ghost} <identifier> | \textdollar<identifier>
+<ghostid> ::= <ghost emoji> <identifier> | \textdollar<identifier>
 \end{grammar}

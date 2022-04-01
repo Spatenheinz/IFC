@@ -12,18 +12,16 @@ To thouroughly test our implementation, the tests follow this testing strategy:
   \item To support the automated tests, we have done some analysis of a selection of programs and compared them to equivalent \textit{Why3} programs.
 \end{itemize}
 
+% TODO: eksempelprogrammer
+% TODO: mere om at køre ting i why3
+% TODO: mere om negative tests (lidt inde i det om programmerne)
+
 % The examples can be found in the \verb\examples\ folder. Of these some works correctly and some intentionally dont. In the table below, each program can be seen along with a short description on how and why they are included.
 A substantial part of the test suites and the experimentation is based on example programs, which can be found in \cref{sec:exampleprogs}.
 Some of the examples are working programs, and some are designed to fail.
-\cref{table:testprograms} presents the programs (leftmost column), a short description of what they do (middle column), and the results of running them through the \textit{Interpreter} and \textit{VC generator} (rightmost column).
+\cref{sec:testprograms} presents the programs (leftmost column), a short description of what they do (middle column), and the results of running them through the \textit{Interpreter} and \textit{VC generator} (rightmost column).
 % The leftmost column lists the name of the example programs, the middle column describes the functionality of the program, and the roghtmost column states how both the \textit{Interpreter} and \textit{VC generator} behaves with the program as input.
 We will analyse the table more thoroughly in \cref{sec:examples}.
-
-\begin{table}
-\input{Assessment/testprograms}
-\caption{Overview of example programs}
-\label{table:testprograms}
-\end{table}
 
 In \crefrange{sec:blackbox}{sec:examples} we present the testing strategy more thoroughly.
 First we present the strategy of our blackbox \textit{Parser} tests. 

@@ -1,0 +1,9 @@
+-- Can we express this? i dont think so
+vars: [r]
+requirements: {r > 0}
+<!=_=!>
+q := 1;
+while r > 0 ?{r >= 0} !{r} {
+  q := q * r;
+  r := r - 1;
+};

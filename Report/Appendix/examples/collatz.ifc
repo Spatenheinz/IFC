@@ -1,0 +1,16 @@
+-- Collatz terminates but we cannot show it.... yay for partial
+vars: [n]
+requirements: {n > 0}
+<!=_=!>
+k := 420;
+while (n /= 1) ?{ n > 0}{
+      if (n % 2 = 0) {
+         n := n / 2;
+      } else {
+         n := 3 * n + 1;
+      };
+};
+if n = 1 {
+k := 42;
+};
+#{ k = 42};
