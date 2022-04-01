@@ -81,14 +81,9 @@ The more interesting examples uses while-loops, in which the invariants and vari
 \end{itemize}
 
 \paragraph{Experiments with example programs.}
-<<<<<<< HEAD
 % TODO: think about the difference between a program with insufficient assertions resulting in a falsifiable verification condition, and a wrongly generated verification condition that is (mistakenly) falsifiable.
 We have automated tests for testing that the interpreter can correctly evaluate a program,
 and for testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the interpreter.
-=======
-We have automated tests for testing that the \textit{Interpreter} can correctly evaluate a program,
-and for testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the \textit{Interpreter}.
->>>>>>> c75a9f9c1b656fccda6d371b74745d005fb48f14
 
 % testing the evaluator by running program with evaluator and comparing result to haskell result
 The first type of test, testing the evaluation of programs, is done by generating random input for the example programs, and then asserting that the result is in fact what we expect.
