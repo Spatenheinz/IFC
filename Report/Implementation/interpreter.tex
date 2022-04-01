@@ -55,7 +55,7 @@ eval Fail = _e
 
 The most complex argument for equivalence between the code and the semantics is the \texttt{while} construct. \cref{fig:evalS}, line 11-16, shows how we evaluate it.
 We first evaluate the invariant, to directly follow the semantical rules. Hence, when the invariant does not hold, we handle this case as abnormal termination, as per rule \textit{while-i-false} from \cref{table:semantic}, similarly to how we would do for a standard assertion.
-If the variant holds, but the loop-condition does not, we do nothing, as per rule \textit{while-false}.
+If the invariant holds, but the loop-condition does not, we do nothing, as per rule \textit{while-false}.
 Lastly if both the invariant and the loop-condition evaluates to \textit{true}, we evaluate the body, and then we evaluate the while loop again.
 The other statements are simple and we treat them similarly to \texttt{while}, directly in accordance with the semantics.
 \\~\\

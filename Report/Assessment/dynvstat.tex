@@ -1,6 +1,6 @@
 Besides the QuickCheck and blackbox testing, we experimented with the example programs to check the quality of our implementation.
-In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to \textit{Why3} programs, to determine the expressiveness of our language.
-Next we set forth the experiments that we conduct using the programs as input to both the \textit{Interpreter} and the \textit{VC generator}.
+In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to Why3 programs, to determine the expressiveness of our language.
+Next we set forth the experiments that we conduct using the programs as input to both the interpreter and the \textit{VC generator}.
 Finally we explain how we compare dynamic execution to static verification of the programs.
 
 \paragraph{Example programs.}
@@ -82,8 +82,8 @@ The more interesting examples uses while-loops, in which the invariants and vari
 
 \paragraph{Experiments with example programs.}
 % TODO: think about the difference between a program with insufficient assertions resulting in a falsifiable verification condition, and a wrongly generated verification condition that is (mistakenly) falsifiable.
-We have automated tests for testing that the \textit{Interpreter} can correctly evaluate a program,
-and for testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the \textit{Interpreter}.
+We have automated tests for testing that the interpreter can correctly evaluate a program,
+and for testing that the programs that are provable using the VC generator will also evaluate to \textit{true} in the interpreter.
 
 % testing the evaluator by running program with evaluator and comparing result to haskell result
 The first type of test, testing the evaluation of programs, is done by generating random input for the example programs, and then asserting that the result is in fact what we expect.
@@ -92,14 +92,14 @@ It should be noted that we use generators for generating meaningful input to the
 
 % comparing running programs through evaluator and vc generator
 The second type of test asserts that provably correct programs will evaluate correctly as well.
-This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the \textit{Interpreter} with random input.
-Given that the program is provable the \textit{Interpreter} evaluates all assertions to \textit{true}.
-Note that if we only show partial correctness, the \textit{Interpreter} might run forever, so we only test for terminating instances.
-If the program is falsified, then the test will run the program with the falsifiable instance and assert that the \textit{Interpreter} will terminate abnormally.
+This is tested by first feeding the programs to the VC generator coupled with Z3, and then to the interpreter with random input.
+Given that the program is provable the interpreter evaluates all assertions to \textit{true}.
+Note that if we only show partial correctness, the interpreter might run forever, so we only test for terminating instances.
+If the program is falsified, then the test will run the program with the falsifiable instance and assert that the interpreter will terminate abnormally.
 
 % TODO: checking with Why3
-Another method that we use for verifying the correctness of our implementation is to check whether our application produces a result equivalent to that of \textit{Why3}.
-Because \textit{Why3} can use the same solver (\textit{Z3}), and the same theories, we can create \textit{Why3} programs equvalent to our test programs, and assert that they both either succeed in proving correctness, or fail with a counter example.
+Another method that we use for verifying the correctness of our implementation is to check whether our application produces a result equivalent to that of Why3.
+Because Why3 can use the same solver (Z3), and the same theories, we can create Why3 programs equvalent to our test programs, and assert that they both either succeed in proving correctness, or fail with a counter example.
 Furthermore we have both positive and negative test programs, testing that our implementation both succeeds when it should, and fails when a program cannot be proven correct.
 
 \paragraph{Provable by VC generation ensures successful evaluation.}
@@ -110,7 +110,7 @@ As described, we value consistency highly, and it should always hold true that i
 % As described above, an important property on the relation between the dynamic execution of a program through the evaluator, and the static proof of said program, is that if we can correctly prove the correctness of a program, then the dynamic evaluation should also hold.
 Oppositely, correct dynamic evaluation does not imply provable correctness.
 The reason for this is that we might not have provided strong enough assertions to generate an appropriate verification condition, whilst the dynamic execution just needs all assertions to evaluate to \textit{true}. 
-This might be even more apparent, considering that quantifiers does not work correctly in the \textit{Interpreter}.
+This might be even more apparent, considering that quantifiers does not work correctly in the interpreter.
 If for example we have a program that uses \textit{true} as a loop invariant, this will hold in each iteration during the dynamic execution, but will probably not be enough to prove any postcondition statically.
 
 Lets take a closer look at the multiplication example program from \cref{figure:mult}. 

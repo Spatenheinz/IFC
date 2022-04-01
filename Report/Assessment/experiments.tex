@@ -3,18 +3,18 @@
 We have conducted a variety of tests to assess the implementation, consisting of both automatic tests and blackbox tests, and some manual experimentation using Why3.
 To thoroughly test our implementation, the tests follow this testing strategy:
 \begin{itemize}
-	\item The \textit{Parser} is tested using a blackbox approach, which should cover all aspects of the grammar presented in \cref{table:grammar}.
+	\item The parser is tested using a blackbox approach, which should cover all aspects of the grammar presented in \cref{table:grammar}.
   Furthermore, we have a property based QuickCheck test to test for larger program constructs.
-	\item The test suite includes property based testing to test the semantics of the \textit{While} language, which compares the result of running the \textit{Interpreter} on two semantically equivalent generated program constructs.
-	\item We attempt to use property based testing to compare interpretation of generated programs with the result of using our VC-generator coupled with \textit{Z3} on the same program. This part is lacking since we want to generate some meaningful building blocks, which showed to be quite challenging, and therefore we did not succeed, as this was not a critical part of this project.
+	\item The test suite includes property based testing to test the semantics of the \textit{While} language, which compares the result of running the interpreter on two semantically equivalent generated program constructs.
+	\item We attempt to use property based testing to compare interpretation of generated programs with the result of using our VC-generator coupled with Z3 on the same program. This part is lacking since we want to generate some meaningful building blocks, which showed to be quite challenging, and therefore we did not succeed, as this was not a critical part of this project.
   \item We use QuickCheck to generate random input for our example programs, which we use to run the programs and compare with the result of running the same computation in Haskell. This is to assert that the example programs do indeed behave as we expect them to, indicating whether they should be provable or not.
 	\item We test that a provable verification condition also results in a correct dynamic evaluation.
-  \item To support the automated tests, we have done some analysis of a selection of programs and compared them to equivalent \textit{Why3} programs.
+  \item To support the automated tests, we have done some analysis of a selection of programs and compared them to equivalent Why3 programs.
 \end{itemize}
 
 A substantial part of the test suites and the experimentation is based on example programs, which can be found in \cref{sec:exampleprogs}.
 Some of the examples are working programs, and some are designed to fail.
-\cref{sec:testprograms} presents the programs (leftmost column), a short description of what they do (middle column), and the results of running them through the \textit{Interpreter} and \textit{VC generator} (rightmost column).
+\cref{sec:testprograms} presents the programs (leftmost column), a short description of what they do (middle column), and the results of running them through the interpreter and VC generator (rightmost column).
 We will analyse a selection of the examples in \cref{sec:examples}.
 
 In \crefrange{sec:blackbox}{sec:examples} we present the testing strategy more thoroughly.

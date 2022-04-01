@@ -3,9 +3,9 @@
 Other than the blackbox tests for the parser, our tests are mostly property based.
 With these automatic tests we attempt to verify the following:
 \begin{itemize}
-	\item That the \textit{Parser} correctly parses larger program constructs.
-	\item That the \textit{Interpreter} correctly follows the semantics of the \textit{While} language.
-	\item That there is consistency between the \textit{VC-generator} and the \textit{Interpreter}.
+	\item That the parser correctly parses larger program constructs.
+	\item That the interpreter correctly follows the semantics of the \textit{While} language.
+	\item That there is consistency between the \textit{VC-generator} and the interpreter.
 \end{itemize}
 We build generators for the AST constructs, to enable generation of arbitrary input programs, and then use the generated input to test the properties specified above.
 
@@ -18,7 +18,7 @@ Using the QuickCheck interface, we define instances of \textit{Arbitrary} for th
 When doing this, there are certain important considerations.
 %To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
 Firstly, to ensure that the size of the generated expressions does not explode, we use \textit{sized expressions} to control expansion, and to ensure that we get a good distribution of the various constructs we use \textit{frequency} to choose between them.
-Secondly, we want the number of possible variables to be limited, such that the \textit{Interpreter} will not fail too often, by using variables that have not yet been declared.
+Secondly, we want the number of possible variables to be limited, such that the interpreter will not fail too often, by using variables that have not yet been declared.
 This is done by limiting the options for variable names to be only single character string (this might still be too much).
 Thirdly, while loops might not terminate, hence we want to define a small subset, or a skeleton, for while loops that are sure to terminate. 
 This task proved quite challenging, since we need to construct while loops that are somewhat meaningful, in that they must terminate, and the invariant must be enough for the program to be validated. We have been able to generate some while-loops but they are not meaningful enough for the verifier, however, they can still be used in the semantic equivalence tests between different program constructs.

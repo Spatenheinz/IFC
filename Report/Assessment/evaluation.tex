@@ -1,16 +1,6 @@
-% something about evaluation
-% What results do we get? (more in-depth than in the intro to the section)
 In this section we give a collective assessment of the project.
 We find that the two most important aspects of our application are correctness and maintainability. A non-correct implementation is useless and high maintainability allows for easy extension/modification to build a more robust and complete solution.
 Overall we find that we satisfy these criteria to an acceptable degree.
-
-
-%From the result presented in this Section, we have a fairly good solution, and our program actually works as intended on the example programs.
-%In fact most of the problems that still persists in the code is related to the tests, which could be of better quality. Despite this the Quickcheck tests have been useful in finding subtle bugs.
-% *** Failed! Falsified (after 4 tests):
-%         Assign "c" (ABinary Mod (IntConst (-3)) (IntConst 0))
-%         Use --quickcheck-replay=775220 to reproduce.
-%         Use -p '/Eval ~ VC-SAT/' to rerun this test only.
 
 %%% Hvad vil vi assesse? %%%
 \subsubsection{Correctness}
@@ -65,7 +55,7 @@ Firstly we are using monad-transformers to enforce seperation of concern.
 For the interpreter, we have defined the \textit{Eval} type in terms of \textit{RWST}, even though we currently only uses the \textit{State}-transformer and underlying \textit{Either} monad.
 We do so as we highly anticipate that the other monadic effects will be useful in the future, for example the \textit{Write} monad could come in handy for printing.
 Furthermore, the multistage approach for generating verification conditions should allow for easy extension to other SMT-backends.
-In the current solution we only support \textit{Z3}, but allowing other SBV supported solvers should be trivial.
+In the current solution we only support Z3, but allowing other SBV supported solvers should be trivial.
 Because we generate the verification condition in a seperate state, it should not be too cumbersome to extend the implementation.
 \\~\\
 In terms of extending the language with new constructs we consider the following cases.
