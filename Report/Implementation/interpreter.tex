@@ -53,11 +53,11 @@ eval Fail = _e
 \label{fig:evalS}
 \end{figure}
 
-The most complex argument for equivalence between the code and the semantics is the ``while'' construct. \cref{fig:evalS}, line 11-16, shows how we evaluate it.
-We first evaluate the invariant, to directly follow the semantical rules. Hence, when the invariant does not hold, we handle this case as abnormal termination, as per rule \textit{while-i-false} from \cref{fig:semantic}, similarly to how we would do for a standard assertion.
+The most complex argument for equivalence between the code and the semantics is the \texttt{while} construct. \cref{fig:evalS}, line 11-16, shows how we evaluate it.
+We first evaluate the invariant, to directly follow the semantical rules. Hence, when the invariant does not hold, we handle this case as abnormal termination, as per rule \textit{while-i-false} from \cref{table:semantic}, similarly to how we would do for a standard assertion.
 If the variant holds, but the loop-condition does not, we do nothing, as per rule \textit{while-false}.
 Lastly if both the invariant and the loop-condition evaluates to \textit{true}, we evaluate the body, and then we evaluate the while loop again.
-The other statements are simple and we treat them similarly to ``while'', directly in accordance with the semantics.
+The other statements are simple and we treat them similarly to \texttt{while}, directly in accordance with the semantics.
 \\~\\
 One important note about the interpreter is that we have no good way of checking assertions which includes quantifiers. 
 The reasons is that we wanted to support arbitrary precision integers.
@@ -65,5 +65,5 @@ This entails that we currently have no feasible way to check such assertions.
 A potential solution would be to generate a symbolic reprensentation of the formula and try to satisfy it by using an external prover.
 A downside to this approach is that the interpreter would then also require external dependencies, and not be a standalone program anymore.
 All in all, this is unideal, and currently the approach is to ignore such assertions by considering them true. 
-In \cref{sec:typesystem} we describe a potential extension to \textit{While}, which could help alleviate this problem.
-Non-quantified assertions are still evauluated as per the operational semantics.
+In \cref{sec:future} we describe a potential extension to \textit{While}, which could help alleviate this problem.
+Non-quantified assertions are still evaluated as per the operational semantics.
