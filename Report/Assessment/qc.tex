@@ -1,7 +1,7 @@
 % To further test our implementation, we design a test suite of property-based tests. Mostly these tests ensure that the evaluator follows the semantics.
 % To further test certain properties of the implementation, we build a test suite consisting of property based tests.
 Other than the blackbox tests for the parser, our tests are mostly property based.
-With these automatic tests we attempt to verify that
+With these automatic tests we attempt to verify the following:
 \begin{itemize}
 	\item That the \textit{Parser} correctly parses larger program constructs.
 	\item That the \textit{Interpreter} correctly follows the semantics of the \textit{While} language.
@@ -17,31 +17,29 @@ We build generators for the AST constructs, to enable generation of arbitrary in
 Using the QuickCheck interface, we define instances of \textit{Arbitrary} for the different AST types.
 When doing this, there are certain important considerations.
 %To enable this, we define an Arbitrary instance on our AST types. Most of these are quite generic, however there are certain considerations that is quite important.
-Firstly, to ensure that the size of the generated expressions do not explode, we use \textit{sized expressions} to control expansion, and to ensure that we get a good distribution of the various constructs we use \textit{frequency} to choose between them.
-Secondly, we want the number of possible variables to be limited, such that the \textit{Interpreter} will not fail too often, by using variables that have not yet been defined. This is done by limiting the options for variable names to be only single character string (this might still be too much).
-Thirdly, while-loops might not terminate, hence we want to define a small subset, or a skeleton, for while-loops that we can be sure terminates. This task proved quite challenging, since we need to construct while loops that are somewhat meaningful, in that they must terminate, and the invariant must be enough for the program to be validated. We have been able to generate some while-loops but they are not meaningful enough for the verifier, however, they can still be used in the semantic equivalence tests between different program constructs.
+Firstly, to ensure that the size of the generated expressions does not explode, we use \textit{sized expressions} to control expansion, and to ensure that we get a good distribution of the various constructs we use \textit{frequency} to choose between them.
+Secondly, we want the number of possible variables to be limited, such that the \textit{Interpreter} will not fail too often, by using variables that have not yet been declared.
+This is done by limiting the options for variable names to be only single character string (this might still be too much).
+Thirdly, while loops might not terminate, hence we want to define a small subset, or a skeleton, for while loops that are sure to terminate. 
+This task proved quite challenging, since we need to construct while loops that are somewhat meaningful, in that they must terminate, and the invariant must be enough for the program to be validated. We have been able to generate some while-loops but they are not meaningful enough for the verifier, however, they can still be used in the semantic equivalence tests between different program constructs.
 
 \paragraph{QuickCheck properties.}
 With the possibility of generating input for the tests, we move on to finding meaningful properties to test. In this test suite we use property based testing for the following:
 \begin{itemize}
   \item \textbf{Parser tests.}
   To complement the blackbox tests for the parser, we want the following property to hold: \textit{parse (prettyprint a) = a}, where $a$ is an arbitrary AST. This is supposed to assert that the parser can handle a lot of different combinations of constructs, potentially finding bugs that would not have been discovered through our systematic blackbox testing of simple constructs.
-	% To complement the blackbox tests for the parser, we use automatic testing to generate ASTs and assert that these programs are parsed correctly. This is done by generating an AST, and then using a pretty printer to convert it into a program (represented as a string) that can be given as input to the parser. It is then checked whether the result of parsing this program is equal to the original generated AST. This is supposed to assert that the parser can handle a lot of different combinations of constructs, potentially finding bugs that would not have been discovered through our systematic blackbox testing of simple constructs.
 	\item \textbf{Semantic equivalence.}
   To test whether the Interpreter corretly implements the semantics of the \textit{While} language, we have tested certain equivalence properties. From studying the semantic system for \textit{While}, we have designed equivalence properties according to the semantics.
 	Examples of such equivalence properties are \texttt{if true then s1 else s2} $\sim$ \texttt{s1} and \texttt{while false do s} $\sim$ \texttt{skip}.
-  These relations are directly related to the small-step semantics. Note that we have not presented these. The properties uses generators for generating suitable input variables and statements, i.e. the body of an $if$-statement is generated automatically, but the equivalence relation is defined manually.
+  These relations are directly related to the small-step semantics. 
+  The properties use generators for generating suitable input variables and statements, i.e. the body of an $if$-statement is generated automatically, but the equivalence relation is defined manually.
 	\item \textbf{Evaluating a program vs solving with VC generator and Z3.}
     To ensure consistency between the static and dynamic evaluation we wanted to generate some arbitrary programs and check for consistency.
 	However, testing this automatically is quite a complex situation, since we need to be able to have a strong enough loop-invariant to prove the correctness of the program.
 	It has come to our attention that the generated programs are not very useful, and currently we have not been succesful in implementing such a property-test. We will come back to this in the assessment in \cref{sec:evaluation}.
-	% It should also be noted that this is only true in one direction. We discuss why in \cref{sec:examples}.
-%	We test that whenever we can prove the correctness of an IFC program, the result will be correct. 
-	%Ideally we would also want to be able to generate programs and test this using QuickCheck. 
 \end{itemize}
 
-The above bulletpoints presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \cref{sec:evaluation}.
-% TODO: presentation of (some important) properties as examples.
+The above bullet points presents the intuition behind the QuickCheck testing of the implementation. A presentation of the test results and assessment of the code will be given in \cref{sec:evaluation}.
 
 
 

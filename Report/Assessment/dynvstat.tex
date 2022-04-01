@@ -1,12 +1,10 @@
 Besides the QuickCheck and blackbox testing, we experimented with the example programs to check the quality of our implementation.
-In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to \textit{Why3} programs, to see the expressiveness of our language.
+In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to \textit{Why3} programs, to determine the expressiveness of our language.
 Next we set forth the experiments that we conduct using the programs as input to both the \textit{Interpreter} and the \textit{VC generator}.
 Finally we explain how we compare dynamic execution to static verification of the programs.
 
 \paragraph{Example programs.}
 % What example programs have we written and why? (some examples)
-% TODO: comment on the necessity of variants. We did not find programs that actually need a variant.
-% Here we want to include a presentation of our strategy for writing test programs, and maybe present one or two of the most interesting ones.
 In \cref{sec:testprograms} we present an overview of some of the example programs written to test the implementation.
 % simple.ifc???
 The program \texttt{always\_wrong} tests the \texttt{violate} construct, and simply checks whether the program correctly fails.
@@ -19,9 +17,9 @@ The more interesting examples uses while-loops, in which the invariants and vari
   \item {\texttt{mult.ifc}.} 
   % the running example. Shows both assignment, while-loop, assertions, and ghost variables, and also with input vars and requirements.
 	The program takes as input two variables $q,r$ and computes $q \times r$.
-  This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while-loops with both an invariant and a variant and still easy to follow.
+  This is the example that we use throughout the report, because it showcases a sequence of statements including assignments, assertions, use of ghost variables, and while loops with both an invariant and a variant, and is still easy to follow.
   Thus the program tests a simple combination of statements, including a while loop that always terminates, and therefore the program should be provable under total correctness.
-  An interesting thing about the program is to investigate whether the program is provable with the given invariant and variant.
+  An interesting thing about the program is investigating whether the program is provable with the given invariant and variant.
   The code for \texttt{mult.ifc} is shown in \cref{figure:mult}. Furthermore we made a modified program \texttt{mult3.ifc} which multiplies 3 variables by addition and hence tests the usage of nested while loops.
 
   \item{\texttt{collatz.ifc}.}
@@ -45,8 +43,8 @@ The more interesting examples uses while-loops, in which the invariants and vari
   Therefore, a loop variant is necessary to determine whether the program is correct or not.
 
   \item{\texttt{undef.ifc}.}
-	This program is an example of negative testing.
-  It has three assignments, each testing different undefined behaviour:
+	The programs \texttt{undef1.ifc}, \texttt{undef2.ifc} and \texttt{undef3.ifc} are examples of negative testing.
+  They each test different undefined behaviour:
 	\begin{enumerate}
 		\item Testing that modulo by zero is undefined behaviour, and that the leftmost error is output.
 		\item Testing that using an undeclared variable is undefined behaviour, and that the leftmost error is output.
@@ -55,9 +53,7 @@ The more interesting examples uses while-loops, in which the invariants and vari
   Running the program shows how modulo and division by zero, along with using undeclared variables, is undefined behaviour.
 	Furthermore, it tests that we always output the leftmost error.
 
-	To actually see how the application handles the different errors, one must outcomment the previous lines of code, as the first error encountered will be output.
-
-	This program also shows how use of undefined behaviour is considered a user error, thus trying to prove this program results in a falsifiable example, as undefined behaviour implies \textit{false}.
+	These programs also show how use of undefined behaviour is considered a user error, thus trying to prove the programs results in falsifiable counter examples, as undefined behaviour implies \textit{false}.
 
   \item{\texttt{mccarthy.ifc}.}
    This program calculates the McCarthy 91 function. It takes as input an integer $x$ and computes the result according to the formula
@@ -74,13 +70,13 @@ The more interesting examples uses while-loops, in which the invariants and vari
 	    x - 10   & \quad \text{otherwise}
 	  \end{cases}
 	\]
-  The interesting thing about this function is that although we can express the nested recursion as a while loop and this function indeed is correct.
-        We have no way of expressing a valid variant and we cannot provide strong enough invariants.
-        For us to be able to do this, we need to allow for pairs in the variant and to have recursive functions calls in assertions.
-        Hence, we here a case of a problem which shows the relative completeness of Hoare logic, as we cannot prove our program although it is in fact correct. We can ensure so by a Why3 program.
-  \item{\texttt{isqrt.ifc \& isqrt_fast}}
-        \texttt{isqrt} calculates the integer square root of a non-negative integer. We can both prove correctness of this.
-        We further looked at an algorithm from Why3's verified programs gallery, which uses Newtons method for calculating this\cite{}.
+  The interesting thing about this function is that although we can express the nested recursion as a while loop and this function indeed is correct, we have no way of expressing a valid variant and thus cannot provide strong enough invariants to prove the program.
+        For us to be able to do this, we need to allow for pairs in the variant and to have recursive function calls in assertions.
+        Hence, we have a case of a problem which shows the relative completeness of Hoare logic, as we cannot prove our program although it is in fact correct. We can ensure so by comparing with an equivalent Why3 program.
+  \item{\texttt{isqrt.ifc, isqrt\_sub.ifc \& isqrt\_fast.ifc}.}
+        \texttt{isqrt.ifc} calculates the integer square root of a non-negative integer. We can both evaluate this in the interpreter, and prove correctness of the program.
+        \texttt{isqrt\_sub.ifc} calculates the integer squareroot using subtraction, and is also included
+        We further looked at an algorithm from Why3's verified programs gallery, which uses Newtons method for calculating this. This is the \texttt{isqrt\_fats.ifc} program.
         Unfortunately we are not able to prove this, although we can write a semantically equivalent program. The reason for this is that why3 needs to some transformations of the subgoals for the proof to even validate it. Our solutions is not able any of such transformations.
 \end{itemize}
 
