@@ -1,6 +1,6 @@
 -- We can also nest while loops thats kinda cool brah
 vars: [q,r,s]
-requirements: {q >= 0 /\ r >= 0 /\ s >= 0}
+requirements: {q >= 0 /\ r >= 0}
 <!=_=!>
 res := 0;
 👻a := q;
