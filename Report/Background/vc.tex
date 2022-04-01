@@ -1,14 +1,19 @@
 % verification conditions
-In the previous section, we presented Hoare Triples and how they can be used to assign meaning to programs. As mentioned for the postcondition to hold true, we want the program to be executed in a state, satisfying the precondition. It should be fair to assume that we know the postcondition of a program, but how can we know that our precondition is saying anything meaningful about our program. We can use Weakest Precondition Calculus (denoted $WP$) to generate a suitable precondition in such a case.
+In the previous section, we presented Hoare Triples and how they can be used to assign meaning to programs. 
+As mentioned, for the postcondition to hold true, we want the program to be executed in a state satisfying the precondition. 
+It is fair to assume that we know the postcondition of a program, but how can we know that our precondition is saying anything meaningful about our program? 
+We can use \textit{Weakest Precondition Calculus} (denoted $WP$) to generate a suitable precondition in such a case.
 It essentially states:
 $$
 \{WP(S,Q)\}S\{Q\}
 $$
-It is a well-defined calculus to find the weakest (least restrictive) precondition that will make $Q$ hold after $S$. By this calculus, which we present in this section, validation of Hoare Triples can be reduced to a single logical sentence. Weakest Precondition calculus is functional compared to the relational nature of Hoare logic, which means that is easier to reason about, as we dont have to consider any consequences.
-By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that is called \textit{verification condition generation}.
+WP is a well-defined calculus to find the least restrictive precondition that will make $Q$ hold after $S$. 
+By this calculus, which we will present in this section, validation of Hoare Triples can be reduced to a single logical sentence. WP is functional compared to the relational nature of Hoare logic, which means that is easier to reason about, as we dont have to consider any consequences.
+By computing the weakest precondition, we get a formula of first-order logic that can be used to verify the program, and that process is called \textit{verification condition generation}.
 
 \subsubsection{Weakest Liberal Precondition}
-Below, the structure for computing the weakest liberal precondition for the different constructs of \textit{While} is shown.
+The \textit{Weakest Liberal Precondition} is the weakest precondition necessary for proving correctnes of a program, without proving termination. We denote it by $WLP$.
+In \cref{fig:wlp}, the structure for computing the WLP for the different constructs of \textit{While} is shown.
 
 \begin{figure}
 \begin{align*}
@@ -29,30 +34,31 @@ WLP(\texttt{while } e \texttt{ invariant } I \texttt{ do } s, Q) &=
 &\quad x_1, ..., x_k \text{ are fresh logical variables.} \\
 WLP(\{P\}, Q) &= P \land Q \quad \text{where P is an assertion}
 \end{align*}
-\caption{Rules for computing weakest liberal precondition of a statement in \textit{While}.}
+\caption{Rules for computing weakest liberal precondition of a statement in \textit{While}\cite{wlp}.}
 \label{fig:wlp}
 \end{figure}
 
 Most of the rules are somewhat self-explanatory, but we would like to go through a selection of the rules that we find to be complex in our language setting.
 
 \paragraph{Assignments.}
-The rule for computing the weakest liberal precondition for assignments says that for all variables $y$ where $y = e$, we should exchange $x$ in $Q$ with $y$. So we exchange all occurrences of $x$ with the value assigned to $x$.
-We use a quantifier for $y$ to avoid exponential growth by letting $y=e$ and substitute $x$ with $y$ in $Q$.
-For instance, if $e=1+2+...+100.000$, then by letting $y$ hold the value of $e$, we avoid substituting in this very long-expression, making the formula significantly more concise.
+The rule for computing the WLP for assignments says that for all variables $y$ where $y = e$, we should exchange $x$ in $Q$ with $y$. So we exchange all occurrences of $x$ with the value assigned to $x$.
+We use a quantifier for $y$ to avoid exponential growth by letting $y=e$ and substituting $x$ with $y$ in $Q$.
+For instance, if $e=1+2+...+100.000$, then by letting $y$ hold the value of $e$, we avoid substituting in this very long expression, making the formula significantly more concise.
 
 \paragraph{Sequence.}
 For finding the \textit{wlp} of a sequence of statements $s_1;s_2$, we need to first find the \textit{wlp} $Q'$ of $s_2$ with $Q$, and then compute the \textit{wlp} of $s_1$ with $Q'$.
 This shows how we compute the weakest liberal precondition using a bottom-up approach.
 
 \paragraph{While-loops.}
-To compute the \textit{wlp} of a while loop, we have to ensure that the loop invariant holds before, inside, and after the loop.
+To compute the WLP of a while loop, we have to ensure that the loop invariant holds before, inside, and after the loop.
 The first condition is simply that the invariant $I$ must evaluate to $true$ before the loop.
 Next, we need to assert that no matter what values the variables inside the loop have, the invariant and loop condition will hold whenever we go into the loop.
 Lastly, the invariant and the negated loop condition must hold when the loop terminates.
 We must also exchange all the occurrences in the currently accumulated weakest liberal precondition $Q$ for these variables.
 
 \paragraph{Additions to the standard rules.}
-Most of the rules are the standard rules for computing the weakest liberal precondition.\footnote{Who provides this standard?} We have added two rules: 1) the rule for \texttt{violate}, which will always give \textit{false}, and 2) the rule for assertions, which adds the assertion P to the accumulated condition Q, s.t. the new wlp is $P \land Q$.
+Most of the rules are the standard rules for computing the weakest liberal precondition.
+We have added two rules: the rule for \texttt{violate}, which will always give \textit{false}, and the rule for assertions, which adds the assertion $P$ to the accumulated condition $Q$, s.t. the new WLP is $P \land Q$.
 
 \paragraph{Resolving undefined behaviour.}
 As mentioned in the previous subsection, division and modulo by zero is undefined behavior.
@@ -68,7 +74,7 @@ This modification is not explicitly written in the rules, but follows from the s
 \subsubsection{Weakest Precondition}
 The weakest liberal precondition does not prove termination. However, by the variant in the while-loop introduced in \cref{sec:total-correctness}, we can extend the \textit{weakest liberal precondition} to \textit{weakest precondition}, which will also ensure termination.
 
-The structure for computing the weakest preconditions for the constructs of the language is much like the one for computing the weakest liberal precondition, except for the structure of while loops, which is presented in \cref{fig:wp}.
+The structure for computing the WP for the constructs of the language is much like the one for computing the WLP, except for the structure of while loops, which is presented in \cref{fig:wp}.
 
 \begin{figure}[h!]
 \begin{align*}
@@ -91,15 +97,15 @@ WP\left(
 \label{fig:wp}
 \end{figure}
 
-The difference between the computation of \textit{wp} and \textit{wlp} for while loops is the presence of the \textit{variant}.
+The difference between the computation of WP and WLP for while loops is the presence of the \textit{variant}.
 When given a variant $v$ for the loop, we assert that $v$ decreases with each iteration, using the logical variable $\xi$ to keep the old value of $v$ to compare with.
 
-For our example program \texttt{mult.ifc}, we can compute the weakest precondition, as we have both a variant and an invariant in the while loop.
-By applying the \textit{wp} rules on the example, we get the weakest precondition seen in \cref{figure:wpmult}.
+For our example program \texttt{mult.ifc} we can compute the WP, as we have both a variant and an invariant in the while loop.
+By applying the WP rules on the example, we get the WP seen in \cref{figure:wpmult}.
 
 \begin{figure}[h!]
 \input{Background/multVC}
-\caption{Weakest precondition of \texttt{mult.ifc}}
+\caption{Code for computing weakest precondition of \texttt{mult.ifc}}
 \label{figure:wpmult}
 \end{figure}
 

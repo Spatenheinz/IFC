@@ -13,8 +13,6 @@ $$ \{ P \} S \{ Q \} $$
 This triple states that \textit{if} the precondition P holds in the initial state, and \textit{if} S terminates when executed from that state, \textit{then} Q will hold in the state in which S halts.
 Thus the triple does not say anything about whether S terminates, only that if it terminates, we know Q to hold afterward. Moreover, if S does not terminate, then any Q will hold. These triples are called Hoare triples.
 
-% SOUNDNESS AND COMPLETENESS??
-
 \paragraph{Logical variables vs program variables.}
 % logical variables vs program variables
 When using assertions we differ between \textit{program variables} and \textit{logical variables}.
@@ -33,7 +31,11 @@ To show how we can use assertions, we look at the multiplication program present
 
 In line $1$-$2$, we have the input variables listed, and the requirements for the input given.
 This is part of the program header, which we will describe in more detail later.
-The requirements state that q must not be 0 since we would never enter the while loop and get a correct result. Additional logic using if-else statements would alleviate this requirement for a complete function that would also work with negative values for $q$. We provide this example for simplicity.
+The requirements state that $q$ must be greater than or equal to zero, since we would otherwise never get a correct result, as a negative value for $q$ would prevent us from going into the while loop. 
+For obvious, the result is correct if $q$ is zero.
+
+Additional logic using if-else statements would alleviate this requirement for a complete function that would also work with negative values for $q$. We provide this example for simplicity.
+
 In line 10, we assert that the final result will be the original value of $q$ multiplied by $r$.
 Here we use a ghost variable for keeping the original value of $q$.
 We also have an invariant and a variant in the while loop in line 6, but we will come back to the meaning of that in \cref{sec:total-correctness}.
@@ -47,13 +49,13 @@ We also have an invariant and a variant in the while loop in line 6, but we will
 Hoare logic specifies an inference system for partial correctness of a program based on the semantics of the different constructs of the language. The axiomatic system is shown in \cref{table:axiomatic}.
 
 This axiomatic system shows how assertions are evaluated in the Hoare logic.
-For example, for an assignment, we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if P holds in this state, then after assigning $x$ to $a$, P must still hold.
+For example, for an assignment, we can say that if we bind $x$ to the evaluated value of $a$ in the initial state, and if $P$ holds in this state, then after assigning $x$ to $a$, $P$ must still hold.
 For the \textit{skip} command, we see that the assertion must hold both before and after, as \textit{skip} does nothing.
-The axiomatic semantics for an assertion around a sequence of statements $\{P\} S_1;S_2\{R\}$ state that if P holds in the initial state, and executing $S_1$ in this state produces a new state in which Q holds, and if executing $S_2$ in this new state produces a state in which R holds, then $\{P\} S_1;S_2 \{R\}$ holds.
+The axiomatic semantics for an assertion around a sequence of statements $\{P\} S_1;S_2\{R\}$ state that if P holds in the initial state, and executing $S_1$ in this state produces a new state in which $Q$ holds, and if executing $S_2$ in this new state produces a state in which $R$ holds, then $\{P\} S_1;S_2 \{R\}$ holds.
 
 Another interesting construct is the while loop.
-Here P denotes the loop invariant, and $b$ is the loop condition.
-If $b$ evaluates to $true$ and P holds in the initial environment, and executing S in this environment produces a new state in which P holds, then we know that after the while loop has terminated, we must have a state where P holds and where $b$ evaluates to $false$.
+Here $P$ denotes the loop invariant, and $b$ is the loop condition.
+If $b$ evaluates to $true$ and $P$ holds in the initial environment, and executing $S$ in this environment produces a new state in which $P$ holds, then we know that after the while loop has terminated, we must have a state where $P$ holds and where $b$ evaluates to $false$.
 
 \begin{table}[h!]
 \centering
@@ -85,20 +87,21 @@ If $b$ evaluates to $true$ and P holds in the initial environment, and executing
 	& \\
  \hline
 \end{tabular}
-\caption{Axiomatic system for partial correctness of \textit{While}.\cite{nielson}}
+\caption{Axiomatic system for partial correctness of \textit{While}\cite{nielson}.}
 \label{table:axiomatic}
 \end{table}
 
 % TODO: state semantic equivalence between this notation, and the notation that we use in our language.
 The syntax of our version of \textit{While} deviates slightly from the syntax presented in \cref{table:semantic} and \cref{table:axiomatic}.
-The reason why we have not depicted the exact syntax in the tables is that the use of curly braces obscured the meaning, beacuse of the conventional notation for Hoare Triples.
-However, it is clear that the two syntaxes are semantically equivalent. 
+The reason why we have not depicted the exact syntax in the tables is that our use of curly brackets obscured the meaning of Hoare Triples, because of the conventional notation using curly brackets for indicating the pre- and postcondition.
+However, it is clear that the syntax presented in our grammar, and the syntax presented in the tables, are semantically equivalent. 
 
 \subsubsection{Total correctness}\label{sec:total-correctness}
 The above states how the Hoare logic can prove partial correctness, but does not guarantee termination of loops.
-We want to be able to prove total correctness, meaning we want to prove termination. However, this indeed cannot be done.
+We want to be able to prove total correctness, meaning we want to prove termination as well. However, this cannot be done with the axiomatic system from \cref{table:axiomatic}, as the assertions are not sufficient to prove the termination of while loops.
 To verify that a program terminates, we need a more robust assertion in the form of a loop variant.
-The loop variant is an expression that needs to be subject to a well-founded relation. In our case, the only possible variant is an arithmetic expression that decreases with each loop iteration. For example, in the while loop from our example program, $q$ is the variant, as can be seen in line 8 of the code (see \cref{figure:mult}).
+The loop variant is an expression that needs to be subject to a well-founded relation. In our case, the only possible variant is an arithmetic expression that decreases with each loop iteration. 
+For example, in the while loop from our example program $q$ is the variant, as can be seen in line 8 of the code in \cref{figure:mult}.
 We use the following modified syntax to express the logic of using a variant for a while loop.
 \begin{equation}\label{eq:totalwhile}
 \begin{align*}
@@ -111,13 +114,13 @@ We use the following modified syntax to express the logic of using a variant for
 \end{align*}
 \end{equation}
 
-Where $v$ is the variant of the loop, and $\xi$ is a fresh logical variable. $\prec$ is a well-founded relation, and because the data type consists of all unbounded integers, we use the well-founded relation\cite{wlp}:
+Where $v$ is the variant of the loop, $\xi$ is a fresh logical variable, and $\prec$ is a well-founded relation. Because the data type is unbounded integers, we use the following well-founded relation\cite{wlp}:
 $$x \prec y \quad = \quad x < y \land 0 \leq y $$
 
-With both invariants and variants, it is possible to prove total correctness of programs containing while loops, as we can now say something about termination of loops.
+With both invariants and variants, it is possible to prove total correctness of programs containing while loops, as we can now reason about termination of loops.
 
 \subsubsection{Soundness and Completeness}
 For obvious reasons it is important that the axiomatic system is sound. This means that any property that can be proved by the inference system will be valid according to the semantics.
 We do not prove the soundness of the axiomatic system but simply refer to \cite{nielson}.
-Hoare logic is however only shown to be relatively complete\cite{}, which means that the it is only as complete as the logical system of the assertions.
+Hoare logic is however only shown to be relatively complete\cite{cook}, which means that it is only as complete as the logical system of assertions.
 Hence we might have a program which is correct according to the semantics, but that we cannot prove to be correct.

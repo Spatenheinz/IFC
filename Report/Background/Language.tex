@@ -5,7 +5,7 @@ This section presents the syntax and semantics of both the imperative language a
 % explain the following
 % names: starts with a lowercase letter or underscore, can contain letters, digit, underscores
 
-\begin{table}[h!]
+\begin{table}[p]
 % \centering
 \input{Background/grammar}
 \caption{Grammar of IFC}
@@ -19,18 +19,21 @@ Although not strictly part of the language itself, we require a program to have 
 We leave out the syntax of the header in the grammar but will describe it in detail in \cref{sec:interface}, where we explain why it is necessary as well.
 % while loops
 % assertions
-The syntax is straightforward and does, in general, not provide anything new.
-One of the interesting program constructs are while loops. A while loop consists of a loop condition, one or more invariants, and zero or one variant, followed by a loop body. The reason for the inclusion of loop invariants and variants will be apparent in \cref{sec:hoare}.
+
+The program syntax is straightforward and does, in general, not provide anything new.
+One of the interesting program constructs are while loops. A while loop consists of a loop condition, one or more invariants, and zero or one variant, followed by a loop body. The reason for the inclusion of loop invariants and variants will become apparent in \cref{sec:hoare}.
 Another interesting construct is if statements, which can be constructed both with and without an else branch.
-Finally, assertion statements are of great importance for this project. An assertion is denoted by a hashtag and curly braces. We will explain more about assertions in \cref{sec:hoare} and \cref{sec:vcg}.
+Finally, assertion statements are of great importance for this project. An assertion is denoted by a hashtag and curly braces. 
+Assertions are explained in detail in \cref{sec:hoare} and \cref{sec:vcg}.
 \\~\\
+The general syntax of the langauge is as follows.
 Identifiers must start either with a lowercase symbol or an underscore, and may then be proceeded by 0 or more characters, digits or underscores.
-ghost-variables must start with either a \textit{ghost}-emoji or for users more comfortable with ascii, a \textdollar, directly succeeded by an identifier.
+Ghost variables must start with either a \textit{ghost}-emoji or, for users more comfortable with ascii, a \textdollar, directly succeeded by an identifier.
 \\~\\
 Integers can be specified as decimal, hexadecimal, binary and octal.
 \\~\\
-\textit{While} includes many common operators, which follows the usual conventions.
-For arithmetic expressions (\verb\aexpr\) we have:
+\textit{While} includes many common operators, for which the syntax follows the usual conventions.
+For arithmetic expressions (\verb\aexpr\) we have the following precedence:
 \begin{itemize}
   \item Parentheses
   \item Negation
@@ -39,22 +42,27 @@ For arithmetic expressions (\verb\aexpr\) we have:
 \end{itemize}
 where parentheses binds tightest. Operators on boolean expressions (\verb\bexpr\) follow the standard precedence rules:
 \begin{itemize}
-	\item (!) (negation)
-	\item (\&\&) (right associative)
-	\item ($||$) (right associative)
+	\item !
+	\item \&\& (right associative)
+	\item $||$ (right associative)
 \end{itemize}
-and the \textit{First Order Logic} operators used in assertions follow the following precedence rule:
+and the \textit{First Order Logic} operators used in assertions (\verb\assertion\) follow the following precedence rules:
 \begin{itemize}
-  \item $\sim$ (negation)
+  \item $\sim$
 	\item $\land$ (right associative)
 	\item $\lor$ (right associative)
-	\item $\forall$ and $\exists$
+	\item $\forall$ and $\exists$ 
 	\item $\Rightarrow$ (right associative)
 \end{itemize}
 where $\sim$ binds tightest.
-Relational operators works on \textit{aexpr} and is non-associative.
+Relational operators works on \textit{aexpr} and are non-associative.
 \\~\\
-An important point about the syntax is that we want to make a clear distinction between boolean expressions in the \textit{While} language and the \textit{First Order Logic} used in assertions. Thus, only one is allowed based on the context despite multiple ways of expression and conjunction. We find that this both makes it more evident when we are dealing with assertions and when we are dealing with actual program logic. Furthermore, it eliminates any complications of mixing operators.
+An important point about the syntax is that we want to make a clear distinction between boolean expressions in the \textit{While} language and the \textit{First Order Logic} used in assertions. 
+Thus, only one of the syntaxes for conjunction and disjunction is allowed, based on the context.
+%Thus, only one is allowed based on the context despite multiple ways of expression and conjunction. 
+We find that this makes the difference between assertions and program logic more evident.
+% when we are dealing with assertions and when we are dealing with actual program logic. 
+Furthermore, it eliminates any complications with using the same operator symbol for different program constructs, which could cause ambiguity.
 
 % semantics of the language
 % NOTE: just for commands. Should there be anything about arithmetic and boolean expressions?
@@ -64,7 +72,7 @@ If undefined behavior occurs, we have an abnormal termination.
 Thus the evaluation of commands goes from a store to a (potentially new) store or an abnormal termination, denoted by $\lightning$.
 
 We have left out the semantics for arithmetic and boolean expressions, as these follow the standard semantics.
-However, it should be noted that we do not allow \texit{division} and \textit{modulo} by zero.
+However, it should be noted that we do not allow \textit{division} and \textit{modulo} by zero.
 Thus, if one of these occurs, the program will terminate with an abnormal store.
 Furthermore, ghost variables can only occur in assertions and not as part of the program logic. We will come back to this in \cref{sec:hoare}.
 
@@ -86,13 +94,13 @@ If the invariant ever evaluates to \textit{false}, the program terminates abnorm
 \label{figure:basicmult}
 \end{figure}
 
-\paragraph{Multiplication as an example.}
 To show what the language is capable of, a small example program computing the multiplication of two integers $q$ and $r$ is presented in \cref{figure:basicmult}. 
+The program takes as input two integers $q$ and $r$, and multiplies them using a naive approach utilising a while loop.
 We will use this program as an example throughout the report.
-Line 2 shows the syntax of assignments, lines $3$-$6$ shows the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
+Line 1 shows the syntax of assignments, lines $2$-$5$ shows the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
 For now, we leave out the assertions, but we will come back to this in \cref{sec:hoare}.
-
-Now even though this small \textit{While} language is very simple, it is still very interesting as the base language for our project.
+\\~\\
+Even though this small \textit{While} language is very simple, it is still very interesting as the base language for our project.
 By creating an assertion language that can prove the correctness of programs written in this simple language, we can investigate the possibility of proving termination and correctness of while loops, which are definitely the tricky construct of this language.
 Loops are specifically challenging because we cannot know whether they ever terminate. Furthermore, the way a loop affects program variables is less see-through than, for example, the effects of an assignment.
-Therefore, it is desirable to prove the correctness, and ideally termination, of such program constructs. That is why this small language is well suited for this project.
+Therefore, it is desirable to prove the correctness, and also termination if possible, of such program constructs. That is why this small language is well suited for this project.
