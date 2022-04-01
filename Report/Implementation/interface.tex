@@ -23,7 +23,7 @@ module Mult
   use ref.Refint
 
   let mult (&q : ref int) (r: int) : int
-    requires { q >= 0 && r >= 0 }
+    requires { q >= 0}
     =
     let ref res = 0 in
     let ghost a = q in
@@ -43,7 +43,7 @@ end
 
 It is possible for why3 to generate a vector of input variables and then a precondition for each the conditions in \texttt{requires}, such that 
 $$\forall x_{1},...,x_{n}. \; requires => WP(body, ensures)$$
-That is, whenever the \textit{requires} holds, then the weakest precondition of the body should hold, where \textit{ensures} states the postcondition. 
-Notice that \cref{fig:why3} does not state any \textit{ensures}, this more closely resembles our language.
+That is, whenever the \textit{requires} holds, then the weakest precondition of the body should hold, where \textit{ensures} states the postcondition.
+Notice that \cref{fig:why3} does not state any \textit{ensures}, although it is usually the idomatic way of writing WhyML code, we ommit it to closely resemble our language.
 And since we dont have any return values, we dont really need \textit{ensures}, since this might as well be an assertion in the actual program.
 %\footnote{is this clear if you dont know whyML?}

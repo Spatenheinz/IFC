@@ -24,7 +24,19 @@ Sometimes we might need to keep the original value of a variable that has change
 \paragraph{Multiplication example.}
 To show how we can use assertions, we look at the multiplication program presented before. The version with assertions is shown in \cref{figure:mult}.
 \begin{figure}
-\lstinputlisting{Examplecode/mult.ifc}
+  \begin{lstlisting}[escapechar=@]
+vars: [q,r]
+requirements: {q >= 0}
+<!=_=!>
+res := 0;
+@👻a@ := q;
+while (q > 0) ?{res = (@👻a@ - q) * r /\ q >= 0} !{q}{
+  res := res + r;
+  q := q - 1;
+};
+#{res = @👻a@ * r };
+\end{lstlisting}
+% \lstinputlisting{Examplecode/mult.ifc}
 \caption{Example program \texttt{mult.ifc}}
 \label{figure:mult}
 \end{figure}

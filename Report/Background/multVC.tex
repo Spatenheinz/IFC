@@ -52,17 +52,17 @@
 %                         (q#1 <= 0 /\ res#1 = (ghosta - q#1) * r#1) =>
 %                             res#1 = ghosta * r#1
 % \end{lstlisting}
-\begin{lstlisting}[mathescape=true]
+\begin{lstlisting}[mathescape=true, escapechar=@]
   $\forall q, r. \; (q \geq 0) \Rightarrow$
   $ \quad \forall res_{3}. \; res_{3} = 0 \Rightarrow$
-  $\quad \quad \forall \$a. \; \$a = q \Rightarrow$
-  $\quad \quad \quad (res_{3} = (\$a - q) * r \land q \geq 0)$
+  $\quad \quad \forall 👻a. \; 👻a = q \Rightarrow$
+  $\quad \quad \quad (res_{3} = (👻a - q) * r \land q \geq 0)$
   $\quad \quad \quad \; \land \forall q_{2}, res_{2}, \xi_{1}.$
-  $\quad \quad \quad \quad (q_{2} > 0 \land res_{2} = (\$a - q_{2}) * r \land q_{2} \geq 0 \land \xi_{1} = q_{2}) \Rightarrow$
+  $\quad \quad \quad \quad (q_{2} > 0 \land res_{2} = (👻a - q_{2}) * r \land q_{2} \geq 0 \land \xi_{1} = q_{2}) \Rightarrow$
   $\quad \quad \quad \quad \quad \forall res_{1}. \; res_{1} = res_{2} + r \Rightarrow$
   $\quad \quad \quad \quad \quad \quad \forall q_{1}. \, q_{1} = q_{2} - 1 \Rightarrow$
-  $\quad \quad \quad \quad \quad \quad \quad (res_{1} = (\$a - q_{1}) * r \land q_{1} \geq 0 \land 0 \leq \xi_{1} \land q_{1} < \xi_{1})$
-  $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (\$a - q_{2}) * r \land q_{2} \geq 0) => res_{2} = \$a * r)$
+  $\quad \quad \quad \quad \quad \quad \quad (res_{1} = (👻a - q_{1}) * r \land q_{1} \geq 0 \land 0 \leq \xi_{1} \land q_{1} < \xi_{1})$
+  $\quad \quad \quad \land ((q_{2} \leq 0 \land res_{2} = (👻a - q_{2}) * r \land q_{2} \geq 0) => res_{2} = 👻a * r)$
   \end{lstlisting}
 % \begin{lstlisting}[mathescape=true]
 % $\forall \, q_3, \, (q_3 = 10) \Rightarrow$
