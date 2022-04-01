@@ -1,1 +1,26 @@
 \section{How To Use}\label{sec:guide}
+The source-code for IFC, can be found at \url{https://github.com/Spatenheinz/IFC}. The application has been build using stack with LTS-18.24.
+Furthermore to run tests and use the discharging ability of verification conditions, $Z3$ needs to be install and on you $PATH$.
+\\~\\
+Project can be build using
+\begin{verbatim}
+stack build
+\end{verbatim}
+
+To run the program use
+\begin{verbatim}
+stack exec -- PROGRAM
+\end{verbatim}
+where PROGRAM denotes one of the following commands
+\begin{verbatim}
+IFC -e   program.ifc st  (parse program & interpret with initial store st :: [(var,value)])
+IFC -p   program.ifc     (prettyprint program)
+IFC -ast program.ifc     (prints AST of program)
+IFC -vc  program.ifc     (prints verification condition)
+IFC -v   program.ifc     (run verification condition through Z3)
+\end{verbatim}
+\\~\\
+To run the test-suite do
+\begin{verbatim}
+stack test
+\end{verbatim}

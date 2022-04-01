@@ -1,0 +1,17 @@
+module Div_test
+
+
+  use int.Int
+  use mach.int.Int
+  use ref.Refint
+
+  function sqr (x:int) : int = x * x
+
+  predicate isqrt_spec (x res:int) =
+    res >= 0 /\ sqr res <= x < sqr (res + 1)
+
+  let isqrt (x:int) : int
+    requires { x >= 0 }
+    ensures  { div 10 (div x 0) = 0 }
+  = x
+end

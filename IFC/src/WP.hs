@@ -54,29 +54,27 @@ wlp (While b inv var s) q = do
   -- Give back condition for unbounded integer variant
   (fa, var', veq) <- maybe (return (id, ftrue, ftrue)) resolveVar var
   -- wlp(s, I /\ invariant condition)
-  inv' <- reqs inv <$> fixFOL inv
-  bs' <- reqs (Cond b) <$> fixBExpr b
-  w <- wlp s (inv' ./\. var')
+  inv' <- fixFOL inv
+  bs' <- fixBExpr b
+  var'' <- maybe (return []) fixAExpr var
+  w <- wlp s (inv ./\. var')
   -- check which variables we wanna forall over
   fas <- findVars s []
-  let inner = fa (((bs' ./\. inv' ./\. veq) .=>. w)
-                          ./\. ((anegate bs' ./\. inv') .=>. q))
+  let inner = fa $ reqs (((Cond b ./\. inv ./\. veq) .=>. w)
+                          ./\. ((anegate (Cond b) ./\. inv) .=>. q)) (inv' <> bs' <> var'')
   --- Fix the bound variables and resolve them
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
   inner' <- local (const env') $ resolveQ inner
   let fas' = foldr (Forall . snd) inner' fas
-  return $ inv' ./\. fas'
+  return $ inv ./\. fas'
   where
     resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
     resolveVar v = do
       x <- genVar "variant"
-      cs' <- reqs (
-               Cond (Negate (RBinary Greater (IntConst 0) (Var x))) ./\.
-               Cond (RBinary Less v (Var x))) <$> fixAExpr v
-      return (Forall x, cs'
-             , Cond (RBinary Eq (Var x) v)
-             )
+      let cs' = Cond (bnegate (RBinary Greater (IntConst 0) (Var x))) ./\.
+               Cond (RBinary Less v (Var x))
+      return (Forall x, cs', Cond (RBinary Eq (Var x) v))
 
 genGhost :: VName -> WP ()
 genGhost x = do
@@ -109,7 +107,7 @@ resolveBExpr (BBinary Conj a b) = onlM2 aconj resolveBExpr a b
 resolveBExpr (BBinary Disj a b) = onlM2 adisj resolveBExpr a b
 resolveBExpr (RBinary op a b) = Cond <$> onlM2 (RBinary op) resolveAExpr a b
 
-fixFOL :: FOL -> WP [(FOL, FOL -> FOL -> FOL)]
+fixFOL :: FOL -> WP [FOL -> FOL]
 fixFOL (Cond b) = fixBExpr b
 fixFOL (Forall _ q) = fixFOL q
 fixFOL (Exists _ q) = fixFOL q
@@ -118,13 +116,13 @@ fixFOL (AConj a b) = onlM2 (<>) fixFOL a b
 fixFOL (ADisj a b) = onlM2 (<>) fixFOL a b
 fixFOL (AImp a b) = onlM2 (<>) fixFOL a b
 
-fixBExpr :: BExpr -> WP [(FOL, FOL -> FOL -> FOL)]
+fixBExpr :: BExpr -> WP [FOL -> FOL]
 fixBExpr (BoolConst _) = return []
 fixBExpr (Negate b) = fixBExpr b
 fixBExpr (BBinary _ a b) = onlM2 (<>) fixBExpr a b
 fixBExpr (RBinary _ a b) = onlM2 (<>) fixAExpr a b
 
-fixAExpr :: AExpr -> WP [(FOL, FOL -> FOL -> FOL)]
+fixAExpr :: AExpr -> WP [FOL -> FOL]
 fixAExpr (Var _) = return []
 fixAExpr (Ghost _) = return []
 fixAExpr (IntConst _) = return []
@@ -142,13 +140,12 @@ fixAExpr (ABinary _ a b) = do
   b' <- fixAExpr b
   return $ a'<> b'
 
-by0check ::  [(FOL, FOL -> FOL -> FOL)] -> AExpr -> [(FOL, FOL -> FOL -> FOL)]
-by0check a b =  a <> [ (Cond (eq b (IntConst 0)) .=>. ffalse, (./\.))
-               , (Cond $ Negate (eq b (IntConst 0)), (.=>.))
-               ]
+by0check ::  [FOL -> FOL] -> AExpr -> [FOL -> FOL]
+by0check a b =  a <> [\x -> anegate (Cond (eq b (IntConst 0)))
+                       ./\. (Cond (bnegate (eq b (IntConst 0))) .=>. x)]
 
-reqs :: Foldable t1 => t2 -> t1 (t3, t3 -> t2 -> t2) -> t2
-reqs = foldr (\(x,o) acc -> x `o` acc)
+reqs :: Foldable t1 => t2 -> t1 (t2 -> t2) -> t2
+reqs = foldr (\o acc -> o acc)
 
 resolveAExpr :: AExpr -> WP AExpr
 resolveAExpr (Var x) = Var <$> mrVar1 x

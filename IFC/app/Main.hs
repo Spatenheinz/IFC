@@ -36,12 +36,12 @@ prover p st = case proveWLP p st of
 main :: IO ()
 main = do args <- getArgs
           case args of
-            ["-q", file] -> do
+            ["-v", file] -> do
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
                 Right (p,st) -> prover p st >>= print
-            ["-f", file] -> do
+            ["-vc", file] -> do
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
@@ -50,14 +50,23 @@ main = do args <- getArgs
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
+                Right (p,st) -> putStrLn $ prettyProgram p st
+            ["-ast", file] -> do
+              s <- readFile file
+              case parseString s of
+                Left e -> putStrLn "*** Parse error: \n" >> putStrLn e
                 Right (p,_) -> print p --putStrLn $ prettyProgram p st
-            [file, argslist] -> do
+            ("-e":file:argslist) -> do
               s <- readFile file
               case parseString s of
                 Left e -> putStrLn $ "*** Parse error: " ++ show e
-                Right (p,st) -> case parseStore argslist of
-                            Left e -> print e
+                Right (p,st) -> case parseStore (concat argslist) of
+                            Left e -> die e
                             Right a -> run p st a
             _ ->
               die "Usage:\n\
-                    \  IFC FIX       (parse & interpret)"
+                    \  IFC -e   program.ifc st  (parse & interpret with initial store st :: [(var,value)])\n\
+                    \  IFC -p   program.ifc     (prettyprint program)\n\
+                    \  IFC -ast program.ifc     (parses outputs AST)\n\
+                    \  IFC -vc  program.ifc     (prints verification condition)\n\
+                    \  IFC -v   program.ifc     (run verification condition through Z3)"

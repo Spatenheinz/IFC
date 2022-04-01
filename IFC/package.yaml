@@ -41,7 +41,7 @@ library:
   #   - Parser
 
 executables:
-  IFC-exe:
+  IFC:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

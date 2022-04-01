@@ -14,9 +14,9 @@ The \texttt{Counter} state is used to give unique names to variables. The purpos
 As described in \cref{sec:vcg}, we use the quantified rule for assignment, when encountering assignments, to easily handle multiple occurences of the same variable. 
 In our initial approach for implementing the VC generator, we tried to minimize the number of times we had to resolve condition $Q$, but our approach to this did not work. The working solution is a more naive approach. The next subsections presents both the initial attempt and the current approach.
 
-\subsubsection{Failed attempt}
-As mentioned, the initial approach tried to minimize the number of times we traversed condition $Q$.
-The initial approach tried to resolve $Q$ only once, after the entire formula was built. 
+\subsubsection{First attempt}
+The initial approach tried to minimize the number of times we traversed condition $Q$.
+we tried to only resolve $Q$ once, after the entire formula was built.
 This would allow resolving a sentence in just two passes, one over the imperative language AST and one over the structure of the formula. 
 The approach was intended to build up a map as such, where \verb\VName\ is an identifier:
 
@@ -24,21 +24,13 @@ The approach was intended to build up a map as such, where \verb\VName\ is an id
 type Env1 = M.Map VName [VName]
 \end{lstlisting}
 
-Whenever encountering a variable we would add a unique identifier to its value-list along with extending $Q$ by the WP rules, as such:
-
-\begin{lstlisting}
-TODO: fix det her :)))
-\end{lstlisting}
-
-The result of running WP would then give a partially resolved formula, meaning that all the bound variables introduced in the quantifiers of the assignment rule will be correctly resolved. All other variables, would have their original name, and hence at this point be free.
-
-The second traversal will the be on this partly resolved formula. Whenever encountering a variable $x$, we would then look it up in the Map, and then replace $x$ with the head of the list, since this must have been the last introduced bound variable.
-
-To update the list to substitute $x$ with the appropriate bound variable, we would update the list each time a quantifier is encountered. 
+Whenever encountering a variable we would add a unique identifier to its value-list along and modify $Q$ by the weakest precondition for assignment.
+the initial pass over the AST of the program, would then be a partially resolved formula.
+The second traversal will be on this partly resolved formula. Whenever encountering a variable $x$, we would then look it up in the Map, and then replace $x$ with the head of the list, since this must have been the last introduced bound variable. The values of the map can be seen as a sort of stacks. To resolve $x$ with the appropriate bound variable, we would update the list each time a quantifier is encountered.
 The first time a quantifier is encountered we do nothing, as this simply means the first bound variable in the list is the one that should currently be used. 
-Next time we encounter a quantification of the according free variable, we ``pop'' the first element, thus moving on to the next bound variable, and all occurrences of $x$ from that point on will be substituted with the new bound variable, until encountering yet another quantification.
+Next time we encounter a quantification we would ``pop'' the first element, thus moving on to the next bound variable, and all occurrences of $x$ from that point on will be substituted with the new bound variable, until encountering yet another quantification.
 
-The problem with this approach is how the AST for First Order Logic formula is constructed. Consider the following example:
+The problem with this approach is how our AST for First Order Logic formula is constructed. Consider the following example:
 \begin{lstlisting}
 r := 5
 r := r + 10
@@ -52,12 +44,13 @@ Now the result of the second traversal would then look like
 \begin{lstlisting}[mathescape=true]
 $\forall r_{1}\; . \; r_{1} = 5 => \forall r_{2} \; . \; r_{2} = r_2 + 10 => true$
 \end{lstlisting}
-However, we see that the last $r$ in the formula should actually be substituted with $r_1$, to make the formula correct according to the rules, but as $r_1$ has already been popped off the stack we substitute with $r_"$ instead, which is wrong.
+As can should be apparent that the last $r$ in the formula should actually be substituted with $r_1$ and not by $r_{2}$ to make the formula correct according to the rules. But as $r_1$ has already been popped off the stack we substitute with $r_{2}$ instead, which is wrong.
 % This means that we can no longer substitute in $r_{1}$ when encountering the next $r$ in $r_{2} = r + 10$. 
 On the other hand, if we dont ``pop'' as soon as the second quantification is encountered we have no information on when to do so, as it is not necessarily the case that there appears an $r$ in the equality before the implication. 
 When this problem was dicovered we turned to the naive solution presented in the next subsection.
+It might be possible to include additional pattern matches such as \texttt{Forall x (AImp (Eq (Var y) r) rest)}, where r would then contain $x_0$, where $y_0 = y$. Here $y$ should be substituted by x whereas $y_0$ should be substituted by the recently popped identifier. However we decided to go for the simpler approach.
 
-\subsubsection{Successful attempt}
+\subsubsection{Second attempt}
 The second and current approach is to resolve $Q$ whenever we encounter an assignment. We generate the forall as such:
 \begin{lstlisting}
 wp (Assign x a) q = do
@@ -79,40 +72,37 @@ The \texttt{while} statement has the most complicated rule in the weakest precon
 The code for computing wp for a while loop is presented in \cref{fig:wpwhile}.
 \begin{figure}[h]
 \begin{lstlisting}
-wp (While b inv var s) q = do
-  st <- get
-  (fa, var', veq) <- maybe (return (id,
-                            Cond $ BoolConst True,
-                            Cond $ BoolConst True)) resolveVar var
-  w <- wp s (inv ./\. var')
+wlp (While b inv var s) q = do
+  (fa, var', veq) <- maybe (return (id, ftrue, ftrue)) resolveVar var
+  inv' <- fixFOL inv
+  bs' <- fixBExpr b
+  var'' <- maybe (return []) fixAExpr var
+  w <- wlp s (inv ./\. var')
   fas <- findVars s []
-  let inner = fa (((Cond b ./\. inv ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. inv) .=>. q))
+  let inner = fa \$ reqs (((Cond b ./\. inv ./\. veq) .=>. w)
+                          ./\. ((anegate (Cond b) ./\. inv) .=>. q)) (inv' <> bs' <> var'')
   env <- ask
-  let env' = foldr (\\(x,y) a -> M.insert x y a) env fas
-  inner' <- local (const env') $ resolveQ1 inner
+  let env' = foldr (\(x,y) a -> M.insert x y a) env fas
+  inner' <- local (const env') \$ resolveQ inner
   let fas' = foldr (Forall . snd) inner' fas
-  return $ inv ./\. fas'
+  return \$ inv ./\. fas'
   where
     resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
-    resolveVar var = do
+    resolveVar v = do
       x <- genVar "variant"
-      return (Forall x,
-              Cond (Negate (RBinary Greater (IntConst 0) (Var x)))
-               ./\. Cond (RBinary Less var (Var x))
-             , Cond (RBinary Eq (Var x) var)
-             )
+      let cs' = Cond (bnegate (RBinary Greater (IntConst 0) (Var x))) ./\.
+               Cond (RBinary Less v (Var x))
+      return (Forall x, cs', Cond (RBinary Eq (Var x) v))
 \end{lstlisting}
 \caption{Weakest precondition for \texttt{while}}
 \label{fig:wpwhile}
 \end{figure}
 
 We attempt to make the code generic in terms existence of the variant, to eliminate code duplication.
-Lines 6-9 generate the conditions needed for the variant.
-If no variant is defined we use that predicate logic and conjuction forms a monoid with $\top$ as identity element.
-This way we generate no new $\forall$-quantification, and have subformular $b \Rightarrow WP(s,b)$.
-Is there a variant, we generate the equality $\xi = v$, along with the well-founded relation for unbounded integers. 
-This approach should translate pretty well to other types that have a well-founded relation. 
-The rest of the code simply checks which variables are assigned in the body of the while loop, and generates a variable for each. 
-Collectively this code will generate the weakest precondition for a while statement as per described in \ref{fig:wp}.
+\texttt{ResolveVar} generate the conditions needed for the variant.
+If no variant is defined we produce a triple of identities.
+Is there a variant, we generate the equality $\xi = v$, along with the well-founded relation for unbounded integers.
+In the future we might have multiple ways of defining a well-founded relations, but this approach should translate well to other types.
+Line 3-5 will check if we need conditions for Modulo and Division by 0, of which the approach is presented in \cref{sec:undef}. The rest of the code simply checks which variables are assigned in the body of the while loop, and generates a variable for each. And constructs the weakest precondition as per \cref{fig:wlp} or \cref{fig:wp}, depending on the presence of an invariant. Here it is important to note that the tool we provide does not itself distiguish between partial correctness and total correctness, this responsibility lies solely at the user.
 
+\subsubsection{Handling undefined behaviour in Verification Condition Generator}\label{sec:undef}
