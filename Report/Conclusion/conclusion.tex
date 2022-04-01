@@ -1,4 +1,4 @@
-\section{Discussion and conclusion}\label{sec:conclusion}
+\section{Conclusion}\label{sec:conclusion}
 We have in this report presented the background for our project, which includes both the formal specification of the language, the axiomatic systems for Floyd-Hoare logic, and the predicate transformer semantics which we use to generate verification conditions for a program.
 We have presented our implementation and essential design choices of the program.
 Lastly we have argued why we find that our specific implementation meet all the goals presented in the introduction.
@@ -34,9 +34,7 @@ Such types would allow us to fix our faulty implementation of quantifiers in the
 And although bruteforcing all values of a bound integer would still be extremely poor performace wise it would be a solution to our problem. However, bruteforcing should probably not be used, but the type system definitely opens up possibilities.
 
 \subsubsection{PER-logic for Information Flow Control}
-As mentioned multiple times, this project initially arose to make way for an implementation of the \textit{Partial Equivalence Relation} logic for information flow control\cite{}. 
+As mentioned multiple times, this project initially arose to make way for an implementation of the \textit{Partial Equivalence Relation} logic for information flow control\cite{Filinski-Jensen-Larsen:Unpublished-IFC}. 
 The idea behind this is to prove properties of information flow, similarly to how we have been able to prove properties about simple \textit{While} constructs. 
 From our assessment we find that the project is ready, or at least close to ready, to try to include this program logic. 
 However, its remains unbeknownst whether we can generate verification conditions for the logic.
-
-\subsection{Conclusion}
