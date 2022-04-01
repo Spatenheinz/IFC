@@ -1,0 +1,21 @@
+module Division
+
+  use int.Int
+  use ref.Refint
+
+  let division (a b: int) : int
+    requires { 0 <= a && 0 < b }
+    ensures  { exists r. result * b + r = a && 0 <= r < b }
+  =
+    let ref q = 0 in
+    let ref r = a in
+    while r >= b do
+      invariant { q * b + r = a && 0 <= r }
+      variant   { r }
+      incr q;
+      incr q;
+      r -= b
+    done;
+    q
+
+end

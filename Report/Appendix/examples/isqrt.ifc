@@ -1,0 +1,16 @@
+-- The most basic isqrt
+vars: [x]
+requirements: {x >= 0}
+<!=_=!>
+count := 0;
+sum := 1;
+while sum <= x
+?{x >= count * count};
+?{sum = (count + 1) * (count + 1)}
+!{x - count}
+{
+  count := count + 1;
+  sum := sum + (2 * count + 1);
+};
+res := count;
+#{res >= 0 /\ res * res <= x /\ x < (res + 1) * (res + 1)};

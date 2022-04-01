@@ -1,0 +1,28 @@
+(** {1 MPRI lecture 2-36-1 "Proof of Programs"} *)
+
+(** {2 Inefficient sum} *)
+
+use int.Int
+
+val ref a : int
+val ref b : int
+val ref x : int
+val ref y : int
+
+let sum ()
+  requires { b >= 0 }
+  ensures  { x = a + b }
+  diverges (** we are not yet attempting to prove termination *)
+
+=
+  x <- a; y <- b;
+  while y > 0 do
+    invariant { y >= 0 /\ x + y = a + b }
+    x <- x + 1; y <- y - 1
+  done
+
+(*
+Local Variables:
+compile-command: "why3 ide imp_sum_sol.mlw"
+End:
+*)

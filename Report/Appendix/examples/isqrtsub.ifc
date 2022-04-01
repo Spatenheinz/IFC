@@ -1,0 +1,17 @@
+-- This is quite clever, does isqrt by subtraction
+vars: [x]
+requirements: {x >= 0}
+<!=_=!>
+b := 5;
+a := b * x;
+while (a >= b)
+?{x >= (b / 10) * (b / 10)};
+?{a = 5 * (x - (b / 10) * (b / 10))};
+?{b = 5 + (b / 10) * 10};
+?{b / 10 >= 0}
+!{a} {
+      a := a - b;
+      b := b + 10;
+};
+res := b / 10;
+#{res >= 0 /\ res * res <= x /\ x < (res + 1) * (res + 1)};

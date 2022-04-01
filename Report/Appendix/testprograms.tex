@@ -1,0 +1,103 @@
+\section{Table of test programs}\label{sec:testprograms}
+% table of the test programs
+\begin{longtable}{|c|p{4.4cm}|p{4.4cm}|}
+%\begin{tabular}{|c|p{4.4cm}|p{4.4cm}|}
+%   \hline
+%   \multicolumn{3}{|c|}{examples programs}
+  \hline
+  program & description & results \\
+  \hline
+  always_wrong & 
+	This program is simply a \verb\violate\ statement and should thus always fail. & 
+  The interpreter evaluates to \verb\false\, and the VC generator gives a falsifiable verification condition. \\
+	\hline
+  assign & 
+	Assigns values to two variables, and asserts that they get assigned correctly. &
+	The interpreter gives the expected result, and the VC genration gives a solvable verification condition. \\
+ 	\hline
+ 	collatz & 
+ 	This program calculates the length of the collatz-conjecture until the repeating pattern $1, 4, 2, 1,...$. & 
+	The interpreter gives the expected result, but only partial correctness can be proved, as we cannot find an appropriate variant.
+ 	\hline
+%   % collatz &  & This is mostly a really bad example as we cannot do any reasonable assertions about the result or the while loop. & Despite the program have some hardcoded assertions meaning it at the momoent only works on input $n=11$, and cannot be proved. This shows that there indeed are ``problems'' which our language is not expressive enough to handle.\\
+% 	\hline
+ 	div & 
+   Takes as input two variables $a,b$ and computes the euclidean division of $a$ by $b$. & 
+   The interpreter gives the expected result, and the VC generator generates a provable verification condition. \\
+ 	\hline
+ 	div\_in\_cond & 
+	 Tests the use of division by zero in conditions. &
+   The interpreter correctly gives a division by zero error message, but the VC generator does not falsify. This seems to be due to a problem with the way we append assertions about errors in e.g. while loops. \\
+ 	\hline
+ 	fac &
+   Takes as input an integer $r$ and computes $r!$. & 
+	 Our assertion language is not expressive enough to give an appropriate loop invariant and postcondition, thus the program cannot be proven, and evaluating it through the interpreter makes little sense.
+ 	\hline
+ 	fakesum &
+   A sum program that has an incorrect postcondition (wrongly subtracts 1 from the result). & 
+	 Both the interpreter and VC generator behaves as expected. \\
+ 	\hline
+ 	false\_mult &
+   A multiplication program that has an invariant that is too weak. & 
+   The interpreter evaluates to the correct result and verifies all assertions, as we would expect, but the VC generator cannot prove the correctness because of a too weak invariant, as is also expected. \\
+ 	\hline
+ 	fib &
+   Takes as input an integer $a$, and computes the $a$'th Fibonacci number. & 
+   The evaulator gives the expected result, but the VC generator falsifies the computed verification condition. \\
+ 	\hline
+ 	infinity &
+   Takes no input and runs forever. The postcondition asserts false, which will hold as the negated loop condition is \textit{false}, and thereby everything holds. & 
+   The VC generator correctly outputs QED. For obvious reasons the interpreter cannot evaluate the program.
+ 	\hline
+ 	isqrt &
+   Takes as input an positive integer $x$ and computes the arithmetic squareroot of $x$. &
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+	\hline
+ 	isqrt\_fast &
+   Another way of computing the arithmetic squareroot. & 
+   The interpreter gives the expected result, but the VC generator cannot prove the program, because one needs program transformations that our assertion language cannot express. \\
+ 	\hline
+ 	isqrt\_sub &
+   A third way of computing the arithmetic squareroot, using only subtraction. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+ 	\hline
+ 	max &
+   Takes as input two variables $x,y$ and finds the maximum of the two. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+ 	\hline
+ 	mccarthy &
+   Takes as input an integer $n$ and if $n \leq 100$ outputs $91$, and otherwise outputs $n-10$. &
+   The assertion language is not expressive enough to express an appropriate loop variant or invariant, so the program cannot be proven. The interpreter finds the correct result and verifies all assertions. \\
+ 	\hline
+ 	mod0 &
+   Tests that modulo by zero is not allowed. &
+   The interpreter gives the expected result, and the VC generator computes a falsifiable verification condition. \\
+ 	\hline
+ 	mult &
+   Takes as input two variables $q,r$ and multiplies them. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+ 	\hline
+ 	mult3 &
+   Takes as input three variables $q,r,s$ and computes $q \times r \times s$. This is done with a nested while loop. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition, although quite slowly (because of the naive nature of the program). \\
+ 	\hline
+ 	skip &
+   Asserts that the store is unchanged when executing a \texttt{skip} command. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+ 	\hline
+ 	sum & 
+   Takes as input a positive integer $n$ and sums the integers from $1$ to $n$. & 
+   The interpreter gives the expected result, and the VC generator computes a provable verification condition. \\
+ 	\hline
+ 	undef & 
+   Tests the various undefined behaviour: division and modulo by zero, and usage of undeclared variables. &
+   Correctly falsifies the program, both in the VC generator and the interpreter. \\
+ 	\hline
+ 	var & 
+   Tests that we cannot prove correctness of a program that never terminates. &
+	 If there is no variant, our application succeeds in proving partial correctness, ass the postcondition is then simply \textit{true}. However, when giving a variant the program is falsified, as the loop never terminates, and thus total correctness cannot be proven. \\
+ 	\hline
+%\end{tabular}
+\end{longtable}
+\caption{Overview of example programs}
+\label{table:testprograms}

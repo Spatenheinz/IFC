@@ -1,0 +1,11 @@
+-- Sum the first n numbers
+vars: [n]
+requirements: {n > 0}
+<!=_=!>
+sum := 0;
+m := 0;
+while (m <= n) ?{ sum = ((m-1) * (m)) / 2}; ?{n - m >= -1} !{n-m} {
+      sum := sum + m;
+      m := m + 1;
+};
+#{ sum = (n* (n + 1)) / 2};

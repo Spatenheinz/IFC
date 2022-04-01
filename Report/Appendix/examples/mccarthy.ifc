@@ -1,0 +1,19 @@
+-- Fun recursive function as while loop. However assertion language not expressive enough
+vars: [x]
+requirements: {}
+<!=_=!>
+n := x;
+c := 1;
+while c > 0
+?{c >= 0};
+?{ (x > 100 => n >= 91) /\ (x <= 100 => n <= 111) }
+{
+    if n > 100 {
+      n := n - 10;
+      c := c - 1;
+    } else {
+      n := n + 11;
+      c := c + 1;
+    };
+};
+#{ (x <= 100 => n = 91) /\ (x > 100 => n = x - 10) };

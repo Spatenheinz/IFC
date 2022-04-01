@@ -1,0 +1,8 @@
+-- DONT PUT THIS IN TESTS
+vars: []
+requirements: {}
+<!=_=!>
+while true ?{true} {
+skip;
+};
+#{false};

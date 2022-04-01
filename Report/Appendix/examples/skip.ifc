@@ -1,0 +1,7 @@
+-- Checks that skip does nothing
+vars: [a]
+requirements: {}
+<!=_=!>
+$a := a;
+skip;
+#{ a = $a };

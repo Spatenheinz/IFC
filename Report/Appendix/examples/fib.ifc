@@ -1,0 +1,14 @@
+-- FIB, we cannot express this in assertions. Interpreter works tho.
+vars: [a]
+requirements: {a > 0}
+<!=_=!>
+fib1 := 0;
+res := 1;
+tmp  := 0;
+while a > 1
+?{ a > 0 } !{a} {
+     tmp := res;
+     res := res + fib1;
+     fib1 := tmp;
+     a := a - 1;
+};
