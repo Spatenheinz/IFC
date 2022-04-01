@@ -27,13 +27,11 @@ library
   exposed-modules:
       AST
       Eval
-      Lib
       OptParser
       Parser
       Pretty
       ProveAPI
       Utils
-      WLP2
       WP
   other-modules:
       Paths_IFC

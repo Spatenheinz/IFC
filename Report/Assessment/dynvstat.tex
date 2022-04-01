@@ -74,9 +74,14 @@ The more interesting examples uses while-loops, in which the invariants and vari
 	    x - 10   & \quad \text{otherwise}
 	  \end{cases}
 	\]
-        The interesting thing about this function is that although we can express the nested recursion as a while loop, we have no way
-        here is that our assertion language is not expressive enough to define a variant that can prove the correctness of this program.
-	We can prove partial correctness, but as we do not have recursive functions, we cannot find a suitable variant and invariant for proving total correctness.
+  The interesting thing about this function is that although we can express the nested recursion as a while loop and this function indeed is correct.
+        We have no way of expressing a valid variant and we cannot provide strong enough invariants.
+        For us to be able to do this, we need to allow for pairs in the variant and to have recursive functions calls in assertions.
+        Hence, we here a case of a problem which shows the relative completeness of Hoare logic, as we cannot prove our program although it is in fact correct. We can ensure so by a Why3 program.
+  \item{\texttt{isqrt.ifc \& isqrt_fast}}
+        \texttt{isqrt} calculates the integer square root of a non-negative integer. We can both prove correctness of this.
+        We further looked at an algorithm from Why3's verified programs gallery, which uses Newtons method for calculating this\cite{}.
+        Unfortunately we are not able to prove this, although we can write a semantically equivalent program. The reason for this is that why3 needs to some transformations of the subgoals for the proof to even validate it. Our solutions is not able any of such transformations.
 \end{itemize}
 
 \paragraph{Experiments with example programs.}
