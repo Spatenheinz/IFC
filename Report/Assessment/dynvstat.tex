@@ -140,10 +140,10 @@ Now Z3 will no longer be able to prove the correctness of the program. The gener
 
 \begin{figure}
 \begin{lstlisting}[mathescape=true]
-$\forall q, r. \; (q \geq 0 \land r \geq 0) \Rightarrow$
+$\forall q, r. \; (q \geq 0) \Rightarrow$
 $ \quad \forall res_{3}. \; res_{3} = 0 \Rightarrow$
 $\quad \quad \forall \$a. \; \$a = q \Rightarrow$
-$\quad \quad \quad (res_{3} = (\$a - q) * r \land q \geq 0)$
+$\quad \quad \quad (res_{3} = (\$a - q) * r)$
 $\quad \quad \quad \; \land \forall q_{2}, res_{2}, \xi_{1}.$
 $\quad \quad \quad \quad (q_{2} > 0 \land res_{2} = (\$a - q_{2}) * r \land \xi_{1} = q_{2}) \Rightarrow$
 $\quad \quad \quad \quad \quad \forall res_{1}. \; res_{1} = res_{2} + r \Rightarrow$

@@ -1,15 +1,12 @@
 \section{Conclusion}\label{sec:conclusion}
 We have in this report presented the background for our project, which includes both the formal specification of the language, the axiomatic systems for Floyd-Hoare logic, and the predicate transformer semantics which we use to generate verification conditions for a program.
-We have presented our implementation and essential design choices of the program.
-Lastly we have argued why we find that our specific implementation meet all the goals presented in the introduction.
-\\~\\
-Nævn disse?
-\\~\\
-We have argued that our program is correctly able to statically prove correctness of certain programs and dynamically evaluate same program with a correct result. 
-We have done so informally by tests and by a set of example programs, which shows examples of both partial correctness and total correctness of certain programs.
-We have further looked at how existing solutions, such as \textit{Why3}, does verification conditions, by comparing \textit{While} programs to \textit{WhyML}.
+We have furthermore given a brief description of SMT-solvers and what their limitations are, along with how our language correspond to this.
+We have presented essential design choices for the application and how we have transformed the semantics into Haskell code.
+Lastly we have argued that our program is correctly able to statically prove correctness of certain programs, and dynamically evaluate same program with a correct result.
+We have done so informally by tests and by a set of example programs, which show examples of both partial correctness and total correctness of certain programs.
+We have furthermore looked at how the existing solution Why3 proves correctness, by comparing programs in \textit{While} to equivalent WhyML programs.
 In the current state, the language is still sparse and quite restrictive. 
-For the language to be used for more than just toying around, we propose three extensions, which we find essential to the language, in \cref{sec:future}.
+For the language to be used for more than just toying around, we propose three extensions which we find essential to the language in \cref{sec:future}.
 
 \subsection{Future work}\label{sec:future}
 We describe three extensions that would make the programming language more useful. 

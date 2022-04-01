@@ -1,17 +1,20 @@
-In this section we give a collective assessment of the project.
+In this section we give a collective assessment of the project. We do so based on the experiments and tests described in the previous sections.
 We find that the two most important aspects of our application are correctness and maintainability. A non-correct implementation is useless and high maintainability allows for easy extension/modification to build a more robust and complete solution.
 Overall we find that we satisfy these criteria to an acceptable degree.
 
-%%% Hvad vil vi assesse? %%%
+\subsubsection{Completeness}
+% Do we support all the things we set out to?
+We have in this report presented that we can parse a simple \textit{While} language with assertions. We can further evaluate programs dynamically through the interpreter. We can generate verification conditions for the programs and discharge these the SMT solver Z3 to prove correctness of the program.
+Finally we have looked at some of the limitations of expressiveness in the language, by comparing it to the expressiveness of Why3. The results from this suggest some clear targets for future work which we present in \cref{sec:future}.
+
 \subsubsection{Correctness}
 % does our implementation work as expected
-Overall we find that our implementation coincide with the specifications described and the goals we wanted to achieve with this project.
+Overall we find that our implementation coincide with the specifications described and the goals we wanted to achieve.
 The implementation deviates from the formal semantics in a few places, such as for abnormal termination, but this is done purely for convenience.
 
 We find this based on our tests, experiments and so forth, presented in the previous section.
 All blackbox tests and QuickCheck tests pass, except for some time-outs that sometimes occur in the automatic tests. We suspect this has to do with the way we generate program constructs, and this could definitely be improved, also in regard of ensuring more meaningful generated input and minimising the amount of garbage that is generated.
-TODO: Test programs???
-
+\\~\\
 The fact that we can distinguish programs under partial correctness from programs under total correctness, and that the interpreter and static verification gives equivalent results, is a good indication that we have been successful in our implementation.
 With this said, we are not fully satisfied with the test-suite, and with more time the property based tests would have been stronger (and never time out), and we would have more unit-tests for the basic concepts of the different modules.
 Furthermore, we need to address the quantifiers in the interpreter.
@@ -20,11 +23,6 @@ As stated, this stems from a combination of two events.
 Firstly, that we went with unbounded integers for the standard arithmetic type, which makes it impossible to go through all possible values, and secondly that we have treated the internal workings of SMT-solvers mostly as a blackbox and thus have not thouroughly investigated possible techniques for handling quantifiers. 
 Although it would be a good idea to use one of the strategies from an SMT-solver, this is quite a substantial topic that we did not focus on in this project.
 
-\subsubsection{Completeness}
-% Do we support all the things we set out to?
-We find that we have accomplished our goals for this project except for the parts mentioned in the correctness section.
-Furthermore it would have been good both for the implementation as well as our general understanding of provability of correctness to have delved more into the internals of SMT-solvers.
-As of now, our understanding is still basic.
 
 \subsubsection{Robustness}
 % Can our code fail
@@ -33,19 +31,6 @@ This assures that we can never prove anything which would result in abnormal ter
 In this philospohy we gracefully handle run-time errors and such. 
 At the same time we use \textit{error} when we find that something is an implementation error. 
 Thus we make a clear destinction between user errors and implementation errors.
-
-% One interesting case, which we found by using the quickcheck instances, was that we had not made any run-time error check like division by 0 in the generation of the verification condition.
-% Quite to our surprise, such undefined behaviour is not handled in \textit{Z3}. Consider:
-% \begin{lstlisting}
-% a := 10 % 0;
-% #{a = 10};
-% b := 10 / 0;
-% #{b = 0};
-% \end{lstlisting}
-% The (non-modified) verification condition for this can be proved by \textit{Z3}.
-% The reason for this is that in the backend for \textit{Z3}, \textit{SMT-Lib} interpretes all functions to be total, and hence treats division by 0 and modulo by 0 as such. However this breaks the assumption, that for a program to be proveable under total correctness it will also evalutate properly. This ``bug'' is still present in the code, in cases where we cannot fold the RHS into an Integer constant. This is not ideal, but we have yet to find.
-% \\~\\
-% In terms
 
 \subsubsection{Maintainability}
 As mentioned, this project is supposed to serve as a base, with the intention of extending it.
@@ -68,9 +53,3 @@ In terms of extending the language with new constructs we consider the following
 \end{itemize}
 All in all, we find that the code is maintainable and extendable, but some extensions will require some overhaul of the code. 
 As a supporting argument, when we found an error in the way we handled division and modulo, we were able to fix it rather smoothly, and it required fairly little additional code.
-% Can we easily extend
-
-%Expression problem??
-
-% unbounded integers pose a problem
-% forall and exists in assertions
