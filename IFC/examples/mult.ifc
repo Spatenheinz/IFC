@@ -1,3 +1,4 @@
+-- Multiplies two integers
 vars: [q,r]
 requirements: {q >= 0}
 <!=_=!>
