@@ -96,7 +96,7 @@ dynstat = testGroup "Test between static and dynamic" [
             testCase "sum" $ imply (proofResult "sum") "sum" [("n", 420)] ("sum", sum [0..420])
             ],
         testGroup "Fails (abnormally)" [
-            testCase "*div_in_cond" $ fails "div_in_cond" [] "Division",
+            testCase "*div_in_cond" $ fails "div_in_cond" [("x", 0)] "Division",
             testCase "*fakesum" $ fails "fakesum" [("n", 42)] "Assertion",
             testCase "*mod0" $ fails "mod0" [] "Modulo",
             testCase "*undefined" $ fails "undef" [] "Modulo"

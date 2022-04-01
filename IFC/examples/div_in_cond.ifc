@@ -1,8 +1,7 @@
 -- this fails since we have division by 0.
-vars: []
+vars: [x]
 requirements: {}
 <!=_=!>
-n := 10;
-while (10 / 0 < 20) ?{ true } !{n} {
-n := n - 1;
+while (10 / x < 20) ?{ 10 / x < 30 } {
+skip;
 };
