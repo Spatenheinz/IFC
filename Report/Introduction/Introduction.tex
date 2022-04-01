@@ -13,11 +13,11 @@ In this project we present a small imperative \textit{While} language in the C-s
 This language uses Hoare logic and predicate tranformer semantics to allow for verification condition generation similar to \textit{Why3}.
 Our VC generator discharges verification conditions fit for the SMT solver \textit{Z3}, allowing us to prove the partial or total correctness of a program.
 
-The main motivation for implementing this language is to make a base which we can easily extend to include \textit{Partial Equivalence Relation} (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{}. This can be used for making assertions about the security of code.
+The main motivation for implementing this language is to make a base which we can easily extend to include \textit{Partial Equivalence Relation} (PER) logic, which is a logic proposed to reason about \textit{Information Flow Control}\cite{Filinski-Jensen-Larsen:Unpublished-IFC}. This can be used for making assertions about the security of code.
 
 \textit{Predicate Transformer Semantics}, which is used for verification condition generation, was introduced by Dijkstra in 1975\cite{Dijkstra}.
 These conditions are based on the work of Robert W. Floyd, who presented a form of program verification using logical assertions in his paper from 1967\cite{Floyd1967}. 
-Floyds work led to the axiomatic system presented by Sir C.A.R Hoare in 1969, \cite{Hoare}, also known as Floyd-Hoare logic. Using this system, and the rules of inference that it introduces, one can formally prove the correctness of a program.
+Floyds work led to the axiomatic system presented by Sir C.A.R Hoare in 1969\cite{Hoare}, also known as Floyd-Hoare logic. Using this system, and the rules of inference that it introduces, one can formally prove the correctness of a program.
 Combined, this provides an approach for automatically generating conditions which can verify the correctness of certain programs.
 % topic
 % When writing code, it is important to verify that a program does in fact do as intended.
@@ -53,11 +53,11 @@ This report presents the work of this project as follows:
   \item In \cref{sec:Background}, we present the syntax and semantics of our language.
   Next we explain how VC generation works, how it is related to Hoare logic and how it can be used for automatically proving certains properties about programs. Finally we describe the coupling between VC-generators and SMT-solvers.
 \item In \cref{sec:implementation}, we present our implementation, which can both dynamically evaluate a program and statically prove the correctness.
-In the implementation we transform the formal semantics of the language into equivalent Haskell code and utilizes predicate transformer semantics to compute verification conditions for a program.
+In the implementation we transform the formal semantics of the language into equivalent Haskell code and utilize predicate transformer semantics to compute verification conditions for a program.
 \item In \cref{sec:assessment}, we present our strategy for evaluting the code quality and give an assessment of the implementation.
  Here, a combination of blackbox tests, automatic tests, and test programs, is used to assess the quality.
 % Here we will also reflect on the limitations modern SMT-solvers.
-\item Lastly, \cref{sec:conclusion} presents some ideas for future work, gives a discussion of the work, and concludes on the project.
+\item Lastly, \cref{sec:conclusion} presents some ideas for future work, gives a discussion of the work, and concludes the project.
 \end{itemize}
 
 Throughout the project our main focus has been on getting a good understanding of how verification conditions work, and how to convert this into Haskell code. It has also been on building an implementation that is robust and easily extended and maintained.
