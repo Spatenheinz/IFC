@@ -11,7 +11,7 @@ type Eval a = RWST () () STEnv (Either String) a
 At the moment there is no use for neither \verb\reader\ nor \verb\writer\, however when the language in the future is extended to have procedures the reader monad will be a natural choice for the scoping rules of said procedures.
 Likewise it is highly likely that the language would need to support some sort of output in the future.
 The store described in \cref{sec:Language} is kept in the State \verb\STEnv\.
-The store is simply a map from VNames to Integers. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and hereby entails mutability.
+The store is simply a map from \texttt{VNames} to \texttt{Integers}. We want the store to be a State as the store after one monadic action should be chained with the next monadic action. This ensures that all variables are in scope for the rest of the program and hereby entails mutability.
 Duly note that ghost variables will also reside in this environment but will not be mutable or even callable, as previously explained.
 We make use of the error monad to resolve any runtime-errors that would arise, that is if a violation occurs, a ghost is assigned, a variable is used before it is defined, or if undefined behaviour arises such as division by 0. Semantically, the first error that occurs will be the return value of the computation.
 \\~\\

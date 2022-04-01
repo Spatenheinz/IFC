@@ -8,14 +8,14 @@ A first order logic formula $\phi$ is satisfiable modulo this theory if there ex
 
 For this project we need two theories to express the verification condition. 
 Firstly we need the theory of Linear arithmetics, which provided reasoning about \textit{aexpr}. 
-Secondly, we need the theory of quantifiers. The SMT-solver of choice for this project is $Z3$\cite{z3}, which uses the \textit{SMT-Lib} standard, allows for both these theories, more specifically the theory is called $LIA$\cite{smtlib}.
+Secondly, we need the theory of quantifiers. The SMT-solver of choice for this project is Z3\cite{z3}, which uses the \textit{SMT-Lib} standard. It allows for both these theories, more specifically it is unified as one and the theory is called $LIA$\cite{smtlib}.
 
 In practice the way SMT-solvers treat a first order logic formula is by using the theories to reduce the formula to some problem which can then be expressed as a SAT-formula. 
 Hence, with a negation of a verification condition for a program we can feed it to a SMT-solver to find out if the condition is valid, implying the program is correct.
 
 \paragraph{Why3.}
-To ensure that our program is working as expected, we want to compare it to Why3, a well established tool for program verification.
+To ensure that our program is working as expected, we want to compare it to Why3, a well established tool for program verification\cite{why3}.
 In Why3, theories can be built from existing theories, or from scratch, depending on what you want to prove.
-Most importantly Why3 allows us to define functions for which verification conditions can be generated and discharged to a variety of SMT solvers\cite{why3}.
-One of these SMT-solvers are $Z3$, hence if we validate a formula in our language we should also be able to do so for an Why3 equivalent program.
-Hence it provides a well established target for verifying that our program works correctly. We compare our programs to equivalent Why3 programs. The semantics will be explained in \cref{sec:interface}.
+Most importantly Why3 allows us to define functions for which verification conditions can be generated and discharged to a variety of SMT solvers.
+One of these SMT-solvers are Z3, hence if we validate a formula in our language we should also be able to do so for an Why3 equivalent program.
+Hence it provides a well established target for verifying that our program works correctly. We compare our programs to equivalent Why3 programs.

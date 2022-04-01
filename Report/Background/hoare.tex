@@ -32,10 +32,9 @@ To show how we can use assertions, we look at the multiplication program present
 In line $1$-$2$, we have the input variables listed, and the requirements for the input given.
 This is part of the program header, which we will describe in more detail later.
 The requirements state that $q$ must be greater than or equal to zero, since we would otherwise never get a correct result, as a negative value for $q$ would prevent us from going into the while loop. 
-For obvious, the result is correct if $q$ is zero.
+Clearly the result is correct if $q$ is zero.
 
-Additional logic using if-else statements would alleviate this requirement for a complete function that would also work with negative values for $q$. We provide this example for simplicity.
-
+Additional logic using if-else statements would alleviate this requirement for a complete function that would also work with negative values for $q$.
 In line 10, we assert that the final result will be the original value of $q$ multiplied by $r$.
 Here we use a ghost variable for keeping the original value of $q$.
 We also have an invariant and a variant in the while loop in line 6, but we will come back to the meaning of that in \cref{sec:total-correctness}.
