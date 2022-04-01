@@ -6,7 +6,7 @@ We mostly make use of the higher level functions, not utilising any internal fun
 Because the default type of SBV does not quite fit our needs, we instead use the provided transformer \texttt{SymbolicT}, to embed the \texttt{Except} monad. 
 We want to do so as, when iterating over the formular, we might encounter a variable not yet defined and here fail gracefully, instead of throwing an error.
 Generating a \verb\Predicate ~ Sym SBool\ is relatively simple, since the formula generated in the previous stage is already a first order logic formula, making it straight forward to convert it into SBV's types. 
-For the entire highlevel logic we resolve it as as presented in \cref{fig:tosym}.
+For the entire highlevel logic we resolve it as presented in \cref{fig:tosym}.
 \begin{figure}[h!]
 \begin{lstlisting}
 type Sym a = SymbolicT (ExceptT String IO) a
@@ -30,8 +30,10 @@ fToS (AImp a b) st = onlM2 (.=>) (`fToS` st) a b
 It is equally straight forward to resolve \verb\bexpr\ and \verb\aexpr\. 
 Ideally we would add a ReaderT to the transformer-stack to get rid of the explicit state.
 We have not been able to resolve the type for this, because of the following type constraint 
-$$\texttt{forAll :: MProvable m a => [String] -> a -> SymbolicT m SBool}$$
-and because \texttt{m} must be an \texttt{ExtractIO}$$, which Reader and State does not implement\cite{}.
+\begin{verbatim}
+forAll :: MProvable m a => [String] -> a -> SymbolicT m SBool
+\end{verbatim}
+and because \texttt{m} must be an \texttt{ExtractIO}, which Reader and State does not implement, and which by the documentation cannot be implemented.
 
 The predicate constructed by traversing the formula from the last stage is then be used as argument for the SBV function \verb\prove\, which try to prove the predicate using Z3.
 If the program can be proved by the external SMT solver, the output will be \texttt{Q.E.D.}.

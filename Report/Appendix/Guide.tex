@@ -13,7 +13,8 @@ stack exec -- PROGRAM
 \end{verbatim}
 where PROGRAM denotes one of the following commands
 \begin{verbatim}
-IFC -e   program.ifc st  (parse program & interpret with initial store st :: [(var,value)])
+IFC -e   program.ifc st  (parse program & interpret
+                         with initial store st :: [(var,value)])
 IFC -p   program.ifc     (prettyprint program)
 IFC -ast program.ifc     (prints AST of program)
 IFC -vc  program.ifc     (prints verification condition)

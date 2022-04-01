@@ -61,7 +61,8 @@ wlp (While b inv var s) q = do
   -- check which variables we wanna forall over
   fas <- findVars s []
   let inner = fa $ reqs (((Cond b ./\. inv ./\. veq) .=>. w)
-                          ./\. ((anegate (Cond b) ./\. inv) .=>. q)) (inv' <> bs' <> var'')
+                          ./\. ((anegate (Cond b) ./\. inv) .=>. q))
+              (inv' <> bs' <> var'')
   --- Fix the bound variables and resolve them
   env <- ask
   let env' = foldr (\(x,y) a -> M.insert x y a) env fas
