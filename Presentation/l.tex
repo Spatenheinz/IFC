@@ -113,7 +113,7 @@ What is the meaning of this?
 \end{align*}
 \begin{align*}
   &\frac{
-    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor u = \xi_{1} \land v \prec \xi_{2})} \} \quad wf(\prec)
   }{
     \{I\} \texttt{ while } e \texttt{ invariant } I
           \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
@@ -149,7 +149,7 @@ What is the meaning of this?
 \end{align*}
 \begin{align*}
   &\frac{
-    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor u = \xi_{1} \land v \prec \xi_{2})} \} \quad wf(\prec)
   }{
     \{I\} \texttt{ while } e \texttt{ invariant } I
           \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
@@ -165,7 +165,7 @@ What is the meaning of this?
 , Q)
 =\\
 &I \land \forall x_1, ..., x_k, \textcolor{orange}{\xi_{1}, \xi_{2}}\\
-&\quad \quad (((e \land I \land \textcolor{orange}{\xi_{1} = u \land \xi_{2} = v}) \Rightarrow WP(s, I \land \textcolor{orange}{(u \prec \xi_{1} \lor v \prec \xi_{2})})) \\
+&\quad \quad (((e \land I \land \textcolor{orange}{\xi_{1} = u \land \xi_{2} = v}) \Rightarrow WP(s, I \land \textcolor{orange}{(u \prec \xi_{1} \lor u = \xi_{1} \land v \prec \xi_{2})})) \\
 &\quad \quad \quad \quad \land ((\neg e \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
 \end{align*}
 \end{frame}

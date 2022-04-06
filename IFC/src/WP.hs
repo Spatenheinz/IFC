@@ -71,17 +71,17 @@ wlp (While b inv vars s) q = do
   let fas' = foldr (Forall . snd) inner' fas
   return $ inv ./\. fas'
   where
-    resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL)
+    resolveVar :: Variant -> WP (FOL -> FOL, FOL, FOL, FOL)
     resolveVar v = do
       x <- genVar "variant"
       let cs' = Cond (bnegate (RBinary Greater (IntConst 0) (Var x))) ./\.
                Cond (RBinary Less v (Var x))
-      return (Forall x, cs', Cond (RBinary Eq (Var x) v))
+      return (Forall x, cs', Cond (RBinary Eq v (Var x)),  Cond (RBinary Eq (Var x) v))
 
     go :: Variant -> ([FOL -> FOL], FOL, FOL) -> WP ([FOL -> FOL], FOL, FOL)
     go var (qs,rs,as) = do
-        (quant, rel, ass) <- resolveVar var
-        return (quant:qs, rel .\/. rs, ass ./\. as)
+        (quant, rel, alt, ass) <- resolveVar var
+        return (quant:qs, rel .\/. alt ./\. rs , ass ./\. as)
 
 genGhost :: VName -> WP ()
 genGhost x = do
