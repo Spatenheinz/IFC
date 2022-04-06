@@ -1,0 +1,231 @@
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+  $$\vdash \{x \geq 0\} \textbf{ L } \{ true \}$$
+\begin{lstlisting}[mathescape=true]
+$ y := 0$;
+while $x > 1 \lor y > 0$ do
+   if $x > 0$ then
+      $x := x - 1;$
+      $y := y + y;$
+    else
+      $y := y - 1;$
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{lstlisting}[mathescape=true]
+vars: [$x$]
+requirements: {$x \geq 0$}
+<!=_=!>
+$y := 1;$
+while ($x > 0$ || $y > 0$) ?{$true$} !{$\textcolor{red}{\mathbf{?}}$} {
+    if $x > 0$ {
+        $x := x - 1;$
+        $y := y + y;$
+    } else {
+        $y := y - 1;$
+    };
+};
+#{$true$};
+\end{lstlisting}
+Problem is that first $x$ decrements while $y$ increments, then only $y$ decrements.\\
+No way to express the variant.
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+  With current methods we cannot prove termination, but dynamic evaluation terminates.
+  How can we fix this?
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+  With current methods we cannot prove termination, but dynamic evaluation terminates.
+  How can we fix this?
+  \\~\\
+  \textcolor{red}{Introducing tuples!}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{lstlisting}[mathescape=true]
+vars: [$x$]
+requirements: {$x \geq 0$}
+<!=_=!>
+$y := 1;$
+while ($x > 0$ || $y > 0$) ?{$true$} !{$\textcolor{red}{x , y}$} {
+    if $x > 0$ {
+        $x := x - 1;$
+        $y := y + y;$
+    } else {
+        $y := y - 1;$
+    };
+};
+#{$true$};
+\end{lstlisting}
+What is the meaning of this?
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{blue}{v = \xi} \} s \{I \land \textcolor{blue}{v \prec \xi} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{blue}{v}, \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{blue}{v = \xi} \} s \{I \land \textcolor{blue}{v \prec \xi} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{blue}{v}, \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\begin{align*}
+  \Downarrow &
+\end{align*}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\\~\\
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{blue}{v = \xi} \} s \{I \land \textcolor{blue}{v \prec \xi} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{blue}{v}, \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\begin{align*}
+  \Downarrow &
+\end{align*}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\begin{align*}
+  \Downarrow &
+\end{align*}
+\begin{align*}
+&WP(
+    \texttt{while } e \texttt{ invariant } I
+    \texttt{ variant } \textcolor{orange}{u,v}, \prec \texttt{ do } s
+, Q)
+=\\
+&I \land \forall x_1, ..., x_k, \textcolor{orange}{\xi_{1}, \xi_{2}}\\
+&\quad \quad (((e \land I \land \textcolor{orange}{\xi_{1} = u \land \xi_{2} = v}) \Rightarrow WP(s, I \land \textcolor{orange}{(u \prec \xi_{1} \lor v \prec \xi_{2})})) \\
+&\quad \quad \quad \quad \land ((\neg e \land I) \Rightarrow Q)) [w_i \leftarrow x_i] \\
+\end{align*}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\begin{lstlisting}[escapeinside={(*}{*)}]
+-- Updated AST ([] instead of Maybe)
+(*While BExpr FOL \textcolor{red}{[Variant]} Stmt*)
+\end{lstlisting}
+
+\begin{lstlisting}[escapeinside={(*}{*)}]
+-- Updated Parser
+whileP :: Parser Stmt
+whileP = do
+  rword "while"
+  c <- bExprP
+  invs <- sepBy1 (symbol "?" >> local (const True) (cbrackets impP)) (symbol ";")
+  let inv = foldr1 (./\.) invs
+  (*\textcolor{red}{var <- option []}*)
+        (*\textcolor{red}{(symbol "!" >> cbrackets (sepBy1 aExprP (symbol ",")))}*)
+  While c inv var <$> cbrackets seqP
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+\begin{align*}
+  &\frac{
+    \{I \land e \land \textcolor{red}{u = \xi_{1} \land v = \xi_{2}} \} s \{I \land \textcolor{red}{(u \prec \xi_{1} \lor v \prec \xi_{2})} \} \quad wf(\prec)
+  }{
+    \{I\} \texttt{ while } e \texttt{ invariant } I
+          \texttt{ variant } \textcolor{red}{u,v} , \prec \texttt{ do } s \{I \land \neg e\}
+  }
+\end{align*}
+\begin{lstlisting}[escapeinside={(*}{*)}]
+wlp (While b inv vars s) q = do
+  (quants, vars', veq) <- foldrM go
+            ([], ftrue, ftrue) vars
+  ...
+  where
+    ...
+    go :: Variant -> ([FOL -> FOL], FOL, FOL)
+               -> WP ([FOL -> FOL], FOL, FOL)
+    go var (qs,rs,as) = do
+        (quant, rel, ass) <- resolveVar var
+        return (quant:qs, rel .\/. rs, ass ./\. as)
+\end{lstlisting}
+\end{frame}
+\begin{frame}[containsverbatim]
+  \frametitle{Program L}
+  What about McCarthy 91?
+  \\~\\
+  Still not strong enough assertion language
+\end{frame}

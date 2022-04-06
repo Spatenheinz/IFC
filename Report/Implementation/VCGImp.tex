@@ -95,7 +95,7 @@ wlp (While b inv var s) q = do
             ./\. Cond (RBinary Less v (Var x))
       return (Forall x, cs', Cond (RBinary Eq (Var x) v))
 \end{lstlisting}
-\caption{Weakest precondition for \texttt{while}}
+\caption{Code for constructing weakest precondition for while loops.}
 \label{fig:wpwhile}
 \end{figure}
 

@@ -1,0 +1,61 @@
+\begin{frame}[containsverbatim]
+  \frametitle{Division and Modulo by 0}
+\begin{align*}
+  a \mathbin{\%} b = \begin{cases}
+        false & b = 0\\
+        a \mathbin{\%} b & b \neq 0
+         \end{cases}
+\end{align*}
+\end{frame}
+
+
+\begin{frame}[containsverbatim]
+  \frametitle{Division and Modulo by 0}
+\begin{align*}
+\forall y . ( (&(b = 0) \Rightarrow false) \\
+                &\land (b \neq 0 \Rightarrow y = a \mathbin{\%} b \Rightarrow Q[x \leftarrow y]))
+\end{align*}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Division and Modulo by 0}
+\begin{align*}
+\forall y . ( (&\neg (b = 0)) \\
+                &\land (b \neq 0 \Rightarrow y = a \mathbin{\%} b \Rightarrow Q[x \leftarrow y]))
+\end{align*}
+\end{frame}
+
+
+\begin{frame}[containsverbatim]
+  \frametitle{Division and Modulo by 0}
+\begin{align*}
+\forall y . ( (&\neg (b = 0)) \\
+                &\land (b \neq 0 \Rightarrow y = a \mathbin{\%} b \Rightarrow Q[x \leftarrow y]))
+\end{align*}
+\begin{lstlisting}[mathescape=true]
+vars: [a]
+requirements: {}
+<!=_=!>
+$👻b := (-15) \mathbin{\mathbin{\%}} (25 + a - 16);$
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Division and Modulo by 0}
+\begin{align*}
+\forall y . ( (&\neg (b = 0)) \\
+                &\land (b \neq 0 \Rightarrow y = a \mathbin{\%} b \Rightarrow Q[x \leftarrow y]))
+\end{align*}
+\begin{lstlisting}[mathescape=true]
+vars: [a]
+requirements: {}
+<!=_=!>
+$👻b := (-15) \mathbin{\mathbin{\%}} (25 + a - 16);$
+\end{lstlisting}
+\begin{lstlisting}[mathescape=true]
+$\forall a.$
+$\quad (25 + a - 16 \neq 0 \; \land$
+$\quad (25 + a - 16 \neq 0 \Rightarrow \forall 👻b. \; (👻b = (-15) \mathbin{\%} (25 + a - 16) \Rightarrow true)))$
+\end{lstlisting}
+Cannot be verified (Counter example: $a = -9$)
+\end{frame}

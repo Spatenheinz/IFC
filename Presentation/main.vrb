@@ -1,0 +1,15 @@
+\frametitle{Div2}
+  $$\vdash \{x = n \land n \geq 0\} \textbf{ DIV2 } \{ 2 \times q + x = n \land 0 \leq x \land x < 2 \}$$
+  text some more
+  \begin{lstlisting}
+  %   %[mathescape=true]
+    q := 0;
+  %   while x > 1 do
+  %       p := 1;
+  %       while 2 \times p \le x do
+  %           q := q + p;
+  %           p := 2 \times p;
+  %           x := x - p;
+  %       done
+  %   done
+  \end{lstlisting}

@@ -1,0 +1,7 @@
+vars: [n]
+requirements: { 0 <= n}
+<!=_=!>
+x := 0;
+while x /= n ?{x <= n} !{n - x} {
+      x := x + 1;
+};

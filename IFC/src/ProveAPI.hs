@@ -12,7 +12,7 @@ import WP
 type Sym a = SymbolicT (ExceptT String IO) a
 type SymTable = M.Map VName SInteger
 
-proveWLP :: Foldable t => Stmt -> (t VName, Maybe FOL) -> Either String (Sym SBool)
+proveWLP :: Stmt -> Header -> Either String (Sym SBool)
 proveWLP s st =
   case runWLP s st of
     Right (q', _) -> return $ fToS q' M.empty

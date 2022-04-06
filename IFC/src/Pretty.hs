@@ -20,8 +20,8 @@ prettySt (Asst f) = "#{" <> prettyF f 0 <> "};\n"
 prettySt (While b inv var s) = "while " <> prettyB b <> "?{" <> prettyF inv 0 <> "} " <> var'
   <> "{\n" <> prettySt s <> "};\n"
   where var' = case var of
-                 Just a -> "!{" <> prettyA a <> "}"
-                 Nothing -> ""
+                 [] -> ""
+                 xs -> "!{" <> concatMap prettyA xs <> "}"
 prettySt Skip = "skip;"
 prettySt Fail = "violate;"
 

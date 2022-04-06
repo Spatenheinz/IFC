@@ -1,0 +1,27 @@
+module Termination
+
+  use int.Int
+  use ref.Ref
+  use ref.Refint
+
+
+  let l (x : ref int)
+    requires { !x >= 0 }
+  = let ref y = 1 in
+    while (!x > 0 || y > 0) do
+          variant {!x , y}
+          if (!x > 0) then (decr x; y += y)
+          else decr y
+    done;
+    assert { true }
+
+  let progL (n : int) =
+    let ref x = n in
+    let ref y = 1 in
+    while x > 0 || y > 0 do
+        variant { x, y }
+        if x > 0 then (x <- x - 1; y <- y + y )
+        else y <- y-1
+    done;
+    assert { true }
+end

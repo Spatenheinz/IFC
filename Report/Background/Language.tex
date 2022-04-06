@@ -40,7 +40,9 @@ For arithmetic expressions (\verb\aexpr\) we have the following precedence:
   \item Multiplication, division and modulo (left associative)
   \item Addition and subtraction (left associative)
 \end{itemize}
-where parentheses binds tightest. Operators on boolean expressions (\verb\bexpr\) follow the standard precedence rules:
+where parentheses binds tightest.
+\newpage
+Operators on boolean expressions (\verb\bexpr\) follow the standard precedence rules:
 \begin{itemize}
 	\item !
 	\item \&\& (right associative)
@@ -97,7 +99,7 @@ If the invariant ever evaluates to \textit{false}, the program terminates abnorm
 To show what the language is capable of, a small example program computing the multiplication of two integers $q$ and $r$ is presented in \cref{figure:basicmult}. 
 The program takes as input two integers $q$ and $r$, and multiplies them using a naive approach utilising a while loop.
 We will use this program as an example throughout the report.
-Line 1 shows the syntax of assignments, lines $2$-$5$ shows the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
+Line 1 shows the syntax of assignments, lines $2$-$5$ show the syntax of while loops, and the entire program is also a demonstration of sequencing statements.
 For now, we leave out the assertions, but we will come back to this in \cref{sec:hoare}.
 \\~\\
 Even though this small \textit{While} language is very simple, it is still very interesting as the base language for our project.

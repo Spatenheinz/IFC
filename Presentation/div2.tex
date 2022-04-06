@@ -1,0 +1,105 @@
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+  $$\vdash \{x = n \land n \geq 0\} \textbf{ DIV2 } \{ 2 \times q + x = n \land 0 \leq x \land x < 2 \}$$
+\begin{lstlisting}[mathescape=true]
+q := $0$;
+while x $>$ $1$ do
+  p := $1$;
+  while $2$ $\times$ p $\le$ x do
+    q := q $+$ p;
+    p := $2$ $\times$ p;
+    x := x $-$ p;
+\end{lstlisting}
+Invariant of inner loop: $$2 \times q + x = n \land 0 \leq x \land 1 \leq p \land x + 2 \times (p - 1) = i \land 2 \leq i$$
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+\begin{lstlisting}[mathescape=true]
+vars: [$x$]
+requirements: {$x \geq 0$}
+<!=_=!>
+$👻n := x;$
+#{$👻n \geq 0$};
+$q := 0;$
+while ($x > 1$) ?{$2 \times q + x = 👻n \land x \geq 0$ } !{$x$} {
+   $p := 1;$
+   while ($2 \times p \leq x$)
+   ?{$2 \times q + x = 👻n \land 0 \leq x \land 1 \leq p \land x + 2 \times (p - 1) = i \land 2 \leq i $}
+   !{$x$} {
+      $q := q + p;$
+      $p := 2 \times p;$
+      $x := x - p;$
+   };
+};
+#{$2 \times q + x = 👻n \land 0 \leq x \land x < 2$};
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+\begin{lstlisting}[mathescape=true]
+vars: [$x$]
+requirements: {$x \geq 0$}
+<!=_=!>
+$👻n := x;$
+#{$👻n \geq 0$};
+$q := 0;$
+while ($x > 1$) ?{$2 \times q + x = 👻n \land  x \geq 0$ } !{$x$} {
+   $p := 1;$
+   while ($2 \times p \leq x$)
+   ?{$2 \times q + x = 👻n \land 0 \leq x \land 1 \leq p \land  x + 2 \times (p - 1) = \textcolor{red}{i} \land 2 \leq \textcolor{red}{i} $}
+   !{$x$} {
+      $q := q + p;$
+      $p := 2 \times p;$
+      $x := x - p;$
+   };
+};
+#{$2 \times q + x = 👻n \land 0 \leq x \land x < 2$};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+\begin{lstlisting}[mathescape=true]
+vars: [$x$]
+requirements: {$x \geq 0$}
+<!=_=!>
+$👻n := x;$
+#{$👻n \geq 0$};
+$q := 0;$
+while ($x > 1$) ?{$2 \times q + x = 👻n \land  x \geq 0$ } !{$x$} {
+   $\textcolor{red}{i := x;}$
+   $p := 1;$
+   while ($2 \times p \leq x$)
+   ?{$2 \times q + x = 👻n \land 0 \leq x \land 1 \leq p \land  x + 2 \times (p - 1) = \textcolor{red}{i} \land 2 \leq \textcolor{red}{i} $}
+   !{$x$} {
+      $q := q + p;$
+      $p := 2 \times p;$
+      $x := x - p;$
+   };
+};
+#{$2 \times q + x = 👻n \land 0 \leq x \land x < 2$};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+  \begin{itemize}
+    \item Loop-invariant of outer loop
+    \item Introduction of $i$
+    \item Prove total correctness
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+  \frametitle{Program DIV2}
+  \begin{itemize}
+    \item Loop-invariant of outer loop
+    \item Introduction of $i$
+    \item Prove total correctness
+  \end{itemize}
+  \\~\\
+  But what about $L$?
+\end{frame}

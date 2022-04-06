@@ -31,3 +31,4 @@ cabal.project.local~
 *.out
 *.run.xml
 *.toc
+coloremoji/

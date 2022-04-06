@@ -98,7 +98,7 @@ dynstat = testGroup "Test between static and dynamic" [
         testGroup "Fails (abnormally)" [
             testCase "*div_in_cond" $ fails "div_in_cond" [("x", 0)] "Division",
             testCase "*fakesum" $ fails "fakesum" [("n", 42)] "Assertion",
-            testCase "*mod0" $ fails "mod0" [] "Modulo",
+            testCase "*mod0" $ fails "mod0" [("a",-9)] "Modulo",
             testCase "*undefined" $ fails "undef" [] "Modulo"
                                        ],
         testGroup "Unexpressive" [

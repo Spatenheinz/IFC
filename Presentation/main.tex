@@ -1,0 +1,89 @@
+\documentclass[10pt,t]{beamer}
+\usepackage{pslatex}
+\usepackage{fontspec}
+\newfontfamily\DejaSans{DejaVu Sans}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{ amssymb }
+\graphicspath{{graphics/}}
+
+\usetheme[nat,dogma,totalframes=show]{Frederiksberg}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\usepackage{coloremoji}
+
+\title{IFC: \normalfont{An application for dynamic evaluation and static verification of programs}}
+\subtitle{}
+\author{Jacob Herbst (mwr148) \&
+  Matilde Broløs (jtw868)\\}
+\institute[DIKU]{Institute of Computer Science (DIKU)}
+\date[]{\today}
+
+\begin{document}
+\frame[plain]{\titlepage}
+
+\begin{frame}[c]
+  \begin{center}
+  \frametitle{Agenda}
+  \begin{itemize}
+    \item Introduction
+    \item Quantification in Interpreter
+    \item Example programs
+          \begin{itemize}
+            \item[-] Div2
+            \item[-] L
+          \end{itemize}
+    \item Division and Modulo by 0
+    \item Conclusion
+    \item Questions
+  \end{itemize}
+\end{center}
+\end{frame}
+
+\input{intro}
+
+\input{interpreter}
+
+\input{div2}
+
+\input{l}
+
+\input{undefined}
+
+\input{conclusion}
+
+\begin{frame}[c]
+\begin{center}
+\Huge Questions?
+\end{center}
+\end{frame}
+
+\end{document}

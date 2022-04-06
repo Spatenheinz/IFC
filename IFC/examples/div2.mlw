@@ -1,0 +1,27 @@
+module NewtonMethod
+
+  use int.Int
+  use mach.int.Int
+  use ref.Ref
+
+
+  let sqrt (y : int) : int
+    requires { y >= 0 }
+    ensures { exists r. result * 2 + y = r && 0 <= y < 2 }
+  = let ghost n = y in
+    let ref x = y in
+    let ref q = 0 in
+    while 1 < x do
+        invariant {2 * q + x = n && 0 <= x }
+        variant {x}
+        let ref p = 1 in
+        while 2 * p <= x do
+            invariant {2 * q + x = n && 0 <= x && 1 <= p && 2 <= x + 2 * (p - 1) }
+            variant {x}
+            q <- q + p;
+            p <- p * 2;
+            x <- x - p
+        done;
+    done;
+    q
+end

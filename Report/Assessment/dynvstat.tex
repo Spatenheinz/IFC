@@ -1,6 +1,6 @@
 Besides the QuickCheck and blackbox testing, we experimented with the example programs to check the quality of our implementation.
 In this subsection we present some of the example programs written for testing, and describe how and why they are interesting. In this process we relate the programs to equivalent to Why3 programs, to determine the expressiveness of our language.
-Next we set forth the experiments that we conduct using the programs as input to both the interpreter and the \textit{VC generator}.
+Next we set forth the experiments that we conduct using the programs as input to both the interpreter and the VC generator.
 Finally we explain how we compare dynamic execution to static verification of the programs.
 
 \paragraph{Example programs.}
@@ -9,9 +9,9 @@ In \cref{sec:testprograms} we present an overview of some of the example program
 % simple.ifc???
 The program \texttt{always\_wrong} tests the \texttt{violate} construct, and simply checks whether the program correctly fails.
 The \texttt{skip} program tests the \texttt{skip} command, by asserting that the store is unchanged after executing the command.
-The programs \texttt{assign} and \texttt{max} are very simple too, and computes the result without use of while-loops, thus testing simple statement constructs.
+The programs \texttt{assign} and \texttt{max} are very simple too, and computes the result without use of while loops, thus testing simple statement constructs.
 
-The more interesting examples uses while-loops, in which the invariants and variants are important. The following present some of them, what they test, and why they are interesting.
+The more interesting examples uses while loops, in which the invariants and variants are important. The following present some of them, what they test, and why they are interesting.
 
 \begin{itemize}
   \item {\texttt{mult.ifc}.} 
@@ -165,7 +165,7 @@ $6 \neq 0 * 2$
 is not correct. Thus the counter example does in fact falsify the verification condition.
 
 But we know from testing that the program does in fact behave as intended, so how can the prover falsifiy the formula? 
-We can verify that our application acts correctly, by doing the same modification to the whyML program in \cref{fig:why3}.
+We can verify that our application acts correctly, by doing the same modification to the WhyML program in \cref{fig:why3}.
 Trying to prove the program correctness gives a falsifiable counter example, as expected.
 By this, we have confidence that our implementation works correctly, and requires the necessary loop invariants.
 % \\~\\

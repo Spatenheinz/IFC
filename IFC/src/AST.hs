@@ -65,7 +65,7 @@ data Stmt = Seq Stmt Stmt
   | Assign VName AExpr
   | If BExpr Stmt Stmt
   | Asst FOL
-  | While BExpr FOL (Maybe Variant) Stmt
+  | While BExpr FOL [Variant] Stmt
   | Skip
   | Fail
   deriving (Show, Eq)

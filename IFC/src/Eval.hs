@@ -28,7 +28,7 @@ runEval xs ast =
     Right (stenv, _) -> return stenv
 
 update :: VName -> AExpr -> Eval ()
-update vname a = modify . updateEnv vname =<< evalAExpr a
+update vname a = modify . M.insert vname =<< evalAExpr a
 
 eval :: Stmt -> Eval ()
 eval (Seq s1 s2) = eval s1 >> eval s2
@@ -56,8 +56,8 @@ evalFOL (AConj a b) = onlM2 (&&) evalFOL a b
 evalFOL (ADisj a b) = onlM2 (||) evalFOL a b
 evalFOL (AImp a b) = liftM2 (not ... (&&)) (evalFOL a) (not <$> evalFOL b)
 
-updateEnv :: VName -> Integer -> STEnv -> STEnv
-updateEnv = M.insert
+-- updateEnv :: VName -> Integer -> STEnv -> STEnv
+-- updateEnv = M.insert
 
 evalAExpr :: AExpr -> Eval Integer
 evalAExpr (IntConst i) = return i

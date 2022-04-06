@@ -16,6 +16,7 @@ import Control.Monad.Reader
 import Control.Monad.Identity
 import Utils
 
+-- Should just use writer instead of state
 type Parser = ParsecT Void String (ReaderT Bool (StateT Header Identity))
 
 parseString :: String -> Either String (Stmt, Header)
@@ -182,7 +183,7 @@ whileP = do
   c <- bExprP
   invs <- sepBy1 (symbol "?" >> local (const True) (cbrackets impP)) (symbol ";")
   let inv = foldr1 (./\.) invs
-  var <- option Nothing (symbol "!" >> Just <$> cbrackets aExprP)
+  var <- option [] (symbol "!" >> cbrackets (sepBy1 aExprP (symbol ",")))
   While c inv var <$> cbrackets seqP
 
 skipP :: Parser Stmt
